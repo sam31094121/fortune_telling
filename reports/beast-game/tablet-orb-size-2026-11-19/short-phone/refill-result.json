@@ -1,0 +1,490 @@
+{
+  "passed": true,
+  "scope": "replay-only",
+  "results": [
+    {
+      "kind": "party-layout",
+      "chrome": [
+        {
+          "tag": "HEADER",
+          "test": null,
+          "h": 32,
+          "mt": "0px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "match3-enemies",
+          "h": 69.609375,
+          "mt": "0px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "match3-board",
+          "h": 303.25,
+          "mt": "8px",
+          "mb": "8px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 108.015625,
+          "mt": "35.125px",
+          "mb": "8px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 580,
+          "mt": "0px",
+          "mb": "0px"
+        }
+      ],
+      "board": {
+        "w": 266,
+        "h": 303.25
+      },
+      "count": 1,
+      "cards": [
+        {
+          "x": 96,
+          "y": 461.984375,
+          "w": 128,
+          "h": 108.015625
+        }
+      ],
+      "weapons": [
+        {
+          "x": 8,
+          "w": 56
+        }
+      ],
+      "pageHeight": 580,
+      "height": 580,
+      "bottom": 570,
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "kind": "party-layout",
+      "chrome": [
+        {
+          "tag": "HEADER",
+          "test": null,
+          "h": 32,
+          "mt": "0px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "match3-enemies",
+          "h": 69.609375,
+          "mt": "2.71875px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "match3-board",
+          "h": 303.25,
+          "mt": "2.70312px",
+          "mb": "8px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 122,
+          "mt": "2.71875px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "orb-treasures",
+          "h": 26,
+          "mt": "3px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 580,
+          "mt": "0px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 580,
+          "mt": "0px",
+          "mb": "0px"
+        }
+      ],
+      "board": {
+        "w": 266,
+        "h": 303.25
+      },
+      "count": 2,
+      "cards": [
+        {
+          "x": 99,
+          "y": 427,
+          "w": 59,
+          "h": 70
+        },
+        {
+          "x": 162,
+          "y": 427,
+          "w": 59,
+          "h": 70
+        }
+      ],
+      "weapons": [
+        {
+          "x": 99,
+          "w": 59
+        },
+        {
+          "x": 162,
+          "w": 59
+        }
+      ],
+      "pageHeight": 580,
+      "height": 580,
+      "bottom": 578,
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "kind": "party-layout",
+      "chrome": [
+        {
+          "tag": "HEADER",
+          "test": null,
+          "h": 32,
+          "mt": "0px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "match3-enemies",
+          "h": 69.609375,
+          "mt": "2.71875px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "match3-board",
+          "h": 303.25,
+          "mt": "2.70312px",
+          "mb": "8px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 122,
+          "mt": "2.71875px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "orb-treasures",
+          "h": 26,
+          "mt": "3px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 580,
+          "mt": "0px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 580,
+          "mt": "0px",
+          "mb": "0px"
+        }
+      ],
+      "board": {
+        "w": 266,
+        "h": 303.25
+      },
+      "count": 3,
+      "cards": [
+        {
+          "x": 67.5,
+          "y": 427,
+          "w": 59,
+          "h": 70
+        },
+        {
+          "x": 130.5,
+          "y": 427,
+          "w": 59,
+          "h": 70
+        },
+        {
+          "x": 193.5,
+          "y": 427,
+          "w": 59,
+          "h": 70
+        }
+      ],
+      "weapons": [
+        {
+          "x": 67.5,
+          "w": 59
+        },
+        {
+          "x": 130.5,
+          "w": 59
+        },
+        {
+          "x": 193.5,
+          "w": 59
+        }
+      ],
+      "pageHeight": 580,
+      "height": 580,
+      "bottom": 578,
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "kind": "party-layout",
+      "chrome": [
+        {
+          "tag": "HEADER",
+          "test": null,
+          "h": 32,
+          "mt": "0px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "match3-enemies",
+          "h": 69.609375,
+          "mt": "2.71875px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "match3-board",
+          "h": 303.25,
+          "mt": "2.70312px",
+          "mb": "8px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 122,
+          "mt": "2.71875px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "orb-treasures",
+          "h": 26,
+          "mt": "3px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 580,
+          "mt": "0px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 580,
+          "mt": "0px",
+          "mb": "0px"
+        }
+      ],
+      "board": {
+        "w": 266,
+        "h": 303.25
+      },
+      "count": 4,
+      "cards": [
+        {
+          "x": 36,
+          "y": 427,
+          "w": 59,
+          "h": 70
+        },
+        {
+          "x": 99,
+          "y": 427,
+          "w": 59,
+          "h": 70
+        },
+        {
+          "x": 162,
+          "y": 427,
+          "w": 59,
+          "h": 70
+        },
+        {
+          "x": 225,
+          "y": 427,
+          "w": 59,
+          "h": 70
+        }
+      ],
+      "weapons": [
+        {
+          "x": 36,
+          "w": 59
+        },
+        {
+          "x": 99,
+          "w": 59
+        },
+        {
+          "x": 162,
+          "w": 59
+        },
+        {
+          "x": 225,
+          "w": 59
+        }
+      ],
+      "pageHeight": 580,
+      "height": 580,
+      "bottom": 578,
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "kind": "party-layout",
+      "chrome": [
+        {
+          "tag": "HEADER",
+          "test": null,
+          "h": 32,
+          "mt": "0px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "match3-enemies",
+          "h": 69.609375,
+          "mt": "3.17188px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "match3-board",
+          "h": 303.25,
+          "mt": "3.1875px",
+          "mb": "8px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 120.609375,
+          "mt": "3.17188px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "orb-treasures",
+          "h": 26,
+          "mt": "3px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 580,
+          "mt": "0px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 580,
+          "mt": "0px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 580,
+          "mt": "0px",
+          "mb": "0px"
+        }
+      ],
+      "board": {
+        "w": 266,
+        "h": 303.25
+      },
+      "count": 5,
+      "cards": [
+        {
+          "x": 8,
+          "y": 428.390625,
+          "w": 57.59375,
+          "h": 68.609375
+        },
+        {
+          "x": 69.59375,
+          "y": 428.390625,
+          "w": 57.59375,
+          "h": 68.609375
+        },
+        {
+          "x": 131.1875,
+          "y": 428.390625,
+          "w": 57.609375,
+          "h": 68.609375
+        },
+        {
+          "x": 192.796875,
+          "y": 428.390625,
+          "w": 57.59375,
+          "h": 68.609375
+        },
+        {
+          "x": 254.390625,
+          "y": 428.390625,
+          "w": 57.59375,
+          "h": 68.609375
+        }
+      ],
+      "weapons": [
+        {
+          "x": 8,
+          "w": 57.59375
+        },
+        {
+          "x": 69.59375,
+          "w": 57.59375
+        },
+        {
+          "x": 131.1875,
+          "w": 57.609375
+        },
+        {
+          "x": 192.796875,
+          "w": 57.59375
+        },
+        {
+          "x": 254.390625,
+          "w": 57.59375
+        }
+      ],
+      "pageHeight": 580,
+      "height": 580,
+      "bottom": 578,
+      "width": 320,
+      "overflow": false
+    }
+  ],
+  "errors": []
+}

@@ -53,12 +53,15 @@
 }
 
 /* Single survivor: retain its usable weapon beside the enlarged card. */
+.inventory[data-side-dock="true"][data-solo-weapon="true"]{position:absolute;top:var(--last-team-top);left:8px;right:8px;width:auto;height:var(--last-team-height);margin:0;pointer-events:none;}
+.inventory[data-side-dock="true"][data-solo-weapon="true"] button{pointer-events:auto;}
 .inventory[data-solo-weapon="true"] .slots{grid-template-columns:56px 1fr;grid-template-rows:1fr;align-items:start;}
 .inventory[data-solo-weapon="true"] button:nth-child(1){grid-area:1/1;width:56px;height:64px;min-height:64px;border-radius:12px;}
 .inventory[data-solo-weapon="true"] svg{width:34px;height:34px;}
 .inventory[data-solo-weapon="true"] .slots span{font-size:14px;bottom:3px;right:6px;}
 
 /* Free party: align weapons with the same centered ally columns. */
-.inventory:not([data-side-dock="true"])[data-party-count="2"] .slots{grid-template-columns:repeat(2,minmax(0,min(140px,var(--party-card-max,140px))));justify-content:center}
-.inventory:not([data-side-dock="true"])[data-party-count="3"] .slots{grid-template-columns:repeat(3,minmax(0,min(120px,var(--party-card-max,120px))));justify-content:center}
-.inventory:not([data-side-dock="true"])[data-party-count="4"] .slots{grid-template-columns:repeat(4,minmax(0,min(110px,var(--party-card-max,110px))));justify-content:center}
+.inventory[data-party-count="2"]{--party-columns:2}
+.inventory[data-party-count="3"]{--party-columns:3}
+.inventory[data-party-count="4"]{--party-columns:4}
+.inventory:not([data-side-dock="true"]):is([data-party-count="2"],[data-party-count="3"],[data-party-count="4"]) .slots{grid-template-columns:repeat(var(--party-columns),minmax(0,var(--party-card-max,1fr)));justify-content:center}

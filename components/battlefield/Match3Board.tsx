@@ -528,7 +528,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         // 手機戰場外殼是 min-height:100dvh 的 flex column（見 Match3Board.module.css 檔尾），外殼高度會包含 flex 分配的多餘空白；
         // 這裡只扣「其他區塊本身的高度」，不扣那段空白，否則棋盤高度上限會每一幀縮一點。非 flex 時就是外殼高度，結果與原本相同。
         const flowHeight = (() => {
-          if (!wrapStyle.display.includes('flex')) return rect.height;
+          if (!wrapStyle.display.includes('flex') && cfg.id !== 'hard45') return rect.height;
           let total = number(wrapStyle.paddingTop) + number(wrapStyle.paddingBottom) + number(wrapStyle.borderTopWidth) + number(wrapStyle.borderBottomWidth), count = 0;
           for (const child of Array.from(element.children)) {
             const childStyle = getComputedStyle(child);
@@ -560,7 +560,15 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
             liveChrome += baselineHeight - teamEl.getBoundingClientRect().height;
             const room = height - (flowHeight - teamEl.getBoundingClientRect().height) - 8;
             const lane = number(t.paddingBottom);
-            const cap = Math.max(44, Math.min(contentWidth, room - decoration + inset - lane));
+            // Use the actual artwork ratio instead of reserving an empty square
+            // above every landscape beast. All cards share the tallest ratio.
+            const images = Array.from(teamEl.querySelectorAll<HTMLImageElement>('[data-testid="match3-ally"] img'));
+            for (const image of images) if (!image.naturalWidth) image.addEventListener('load', schedule, { once: true });
+            const ratios = images.filter(image => image.naturalWidth && image.naturalHeight).map(image => image.naturalWidth / image.naturalHeight);
+            const count = Number(teamEl.getAttribute('data-team-count'));
+            const ratio = count >= 2 && count <= 4 && ratios.length ? Math.min(...ratios) : 1;
+            element.style.setProperty('--party-art-ratio', String(ratio));
+            const cap = Math.max(44, Math.min(contentWidth, (room - decoration - lane) * ratio + inset));
             const capValue = Math.floor(cap) + 'px';
             if (element.style.getPropertyValue('--party-card-max') !== capValue) element.style.setProperty('--party-card-max', capValue);
           }
@@ -569,7 +577,16 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         // 最後一隻放大時棋盤以上照原位凍結（棋盤、敵方列不位移，CLS≈0），大卡只吃棋盤以下的空白。
         // 每次「多隻小卡」的量測都更新間距（在棋盤寬度設定之後），放大那一刻棋盤停在前一刻的位置。
         if (teamEl && !lastAllyOn && !foeEnlarged) compactReserve.current = { chrome: liveChrome, wrapH: flowHeight, teamH: teamEl.getBoundingClientRect().height, hold: compactReserve.current?.hold };
-        const chrome = (lastAllyOn || foeEnlarged) && compactReserve.current ? compactReserve.current.chrome : liveChrome;
+        let chrome = (lastAllyOn || foeEnlarged) && compactReserve.current ? compactReserve.current.chrome : liveChrome;
+        if (cfg.id === 'hard45') {
+          const header = element.querySelector('header');
+          const baselineCard = (contentWidth - 16) / 5 + 11;
+          const measuredFoeHeight = number(element.style.getPropertyValue('--foe-row-h')) || foesEl?.getBoundingClientRect().height || 0;
+          // Landscape enemy portraits use a compact strip; give the saved
+          // height to the player's cards, never to a party-dependent board.
+          const foeHeight = window.innerWidth >= 1000 ? Math.max(measuredFoeHeight, (contentWidth - 16) / 5 + 14) : measuredFoeHeight;
+          chrome = (header?.getBoundingClientRect().height || 32) + foeHeight + baselineCard + 52 + 26 + 3 + 8 + number(style.marginBottom) + number(wrapStyle.paddingTop) + number(wrapStyle.paddingBottom) + 4 * number(wrapStyle.rowGap);
+        }
         const available = height - chrome - 1;
         const cell = Math.max(18, Math.min((contentWidth - horizontal - (cfg.cols - 1) * number(style.columnGap)) / cfg.cols, (available - vertical - (cfg.rows - 1) * number(style.rowGap)) / cfg.rows));
         const width = cell * cfg.cols + (cfg.cols - 1) * number(style.columnGap) + horizontal;
@@ -615,7 +632,8 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           const img = live?.querySelector('img');
           if (img && !img.naturalWidth) img.addEventListener('load', schedule, { once: true });
           const ratio = img && img.naturalWidth > 0 && img.naturalHeight > 0 ? img.naturalWidth / img.naturalHeight : 1;
-          const maxByHeight = leftover > 19 ? (leftover - 19) * ratio : 0;
+          const weaponReserve = 0;
+          const maxByHeight = leftover > 19 + weaponReserve ? (leftover - 19 - weaponReserve) * ratio : 0;
           const sideDock = cfg.id === 'hard45' && window.innerWidth <= 640;
           const cap = Math.max(0, Math.min(sideDock ? contentWidth - (height <= 650 ? 176 : 136) : contentWidth * 0.72, 290, maxByHeight));
           const maxVal = `${Math.round(cap * 100) / 100}px`;
@@ -1392,7 +1410,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
                 <div className={styles.allyMeta}>{down ? '已倒下' : `${MATCH3_ORB_LABEL[u.element]}${dup ? (lead ? '・主攻' : '・輔助') : ''} ${u.energy}`}</div>
                 {rigEnabled && <span className={styles.compactEnergy} aria-hidden="true">氣 {u.energy}</span>}
               </button>
-              {rigEnabled && !down && (cfg.id === 'hard45' && lastAllyBig && root.current && window.innerWidth <= 640 ? createPortal(<button type="button" className={styles.manualEnergyOrb} data-solo-energy="true" data-testid="match3-ready-energy-orb" data-source-id={u.id} disabled={!energyReady} aria-label={`${u.name}能量寶珠，${busy ? '演出中' : over ? '本局已結束' : !full ? '能量未滿' : !fighterCanAct(u) ? '暫時受控' : '能量已滿，點擊攻擊'}`} onPointerDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); void unleash(u); }}><ElementTreasureOrb element={getProductOrbFromBrand(u.element.toLowerCase() as 'space' | 'air' | 'water' | 'fire' | 'earth')} released preview animated={false} visualScale={0.8} /><span>{!full ? `能量 ${u.energy}` : busy ? '稍候' : u.orbDropCharges ? `攻擊 ×${u.orbDropCharges}` : '攻擊'}</span></button>, root.current) : full ? <button type="button" className={styles.manualEnergyOrb} data-testid="match3-ready-energy-orb" data-source-id={u.id} disabled={!energyReady} aria-label={`${u.name}能量寶珠，${busy ? '演出中' : over ? '本局已結束' : !fighterCanAct(u) ? '暫時受控' : '能量已滿，點擊攻擊'}`} onPointerDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); void unleash(u); }}><ElementTreasureOrb element={getProductOrbFromBrand(u.element.toLowerCase() as 'space' | 'air' | 'water' | 'fire' | 'earth')} released preview animated={false} visualScale={0.8} /><span>{busy ? '稍候' : u.orbDropCharges ? `攻擊 ×${u.orbDropCharges}` : '攻擊'}</span></button> : null)}
+              {rigEnabled && !down && (cfg.id === 'hard45' && lastAllyBig && root.current ? createPortal(<button type="button" className={styles.manualEnergyOrb} data-solo-energy="true" data-testid="match3-ready-energy-orb" data-source-id={u.id} disabled={!energyReady} aria-label={`${u.name}能量寶珠，${busy ? '演出中' : over ? '本局已結束' : !full ? '能量未滿' : !fighterCanAct(u) ? '暫時受控' : '能量已滿，點擊攻擊'}`} onPointerDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); void unleash(u); }}><ElementTreasureOrb element={getProductOrbFromBrand(u.element.toLowerCase() as 'space' | 'air' | 'water' | 'fire' | 'earth')} released preview animated={false} visualScale={0.8} /><span>{!full ? `能量 ${u.energy}` : busy ? '稍候' : u.orbDropCharges ? `攻擊 ×${u.orbDropCharges}` : '攻擊'}</span></button>, root.current) : full ? <button type="button" className={styles.manualEnergyOrb} data-testid="match3-ready-energy-orb" data-source-id={u.id} disabled={!energyReady} aria-label={`${u.name}能量寶珠，${busy ? '演出中' : over ? '本局已結束' : !fighterCanAct(u) ? '暫時受控' : '能量已滿，點擊攻擊'}`} onPointerDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); void unleash(u); }}><ElementTreasureOrb element={getProductOrbFromBrand(u.element.toLowerCase() as 'space' | 'air' | 'water' | 'fire' | 'earth')} released preview animated={false} visualScale={0.8} /><span>{busy ? '稍候' : u.orbDropCharges ? `攻擊 ×${u.orbDropCharges}` : '攻擊'}</span></button> : null)}
               {!rigEnabled && full && !linkMode && <button type="button" className={`${styles.skill} ${rigEnabled && u.skillRuntime?.shield ? styles.skillWithShield : ''}`} data-testid="match3-skill" disabled={rigEnabled && !fighterCanAct(u)} onPointerDown={(e) => e.stopPropagation()} onClick={() => unleash(u)}>{rigEnabled ? (fighterCanAct(u) ? '能量攻擊' : '暫時受控') : '技能'}{rigEnabled && !!u.skillRuntime?.shield && <span className={styles.skillShieldLine} data-testid="match3-ally-shield">盾 {u.skillRuntime.shield}</span>}</button>}
             </div>
           );
