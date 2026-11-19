@@ -25,6 +25,7 @@ export function fusionDischarge(elements: readonly BeastElement[], board: readon
  * 2026-11-18：放手後加速，清除80ms、配對100/130ms、空格尾停60ms。
  * 同300組盤面平均3357→2817ms；不代表網路或真機延遲保證。
  *
+ * 2026-11-19：普通配對60/110ms、清除70ms、空格尾停40ms；300組同盤面平均2300→2175ms。
  * 不變的規則（業主核定，測試守著）：
  * - 清除 → 舊珠全部落定 → 新珠依序補入；不得整盤先消失再重落、不得突然補滿。
  * - 每段保持自然時長：不因連鎖數整串壓縮、不用手動動畫時鐘（歷史上會跳落）。
@@ -32,14 +33,14 @@ export function fusionDischarge(elements: readonly BeastElement[], board: readon
  */
 export const REFILL_TIMING = {
   /** 清除（一般／減少動態）。 */
-  clearMs: 80, reducedClearMs: 60,
+  clearMs: 70, reducedClearMs: 60,
   /** 配對停留：第一段是玩家剛拖的線，客戶已經知道，短；之後每段連鎖要看得出配到什麼。 */
-  matchFirstMs: 100, matchNextMs: 130,
+  matchFirstMs: 60, matchNextMs: 110,
   /** 單顆落程＝基礎＋係數×√落差（重力：落越遠越久，但不是整段共用最遠那顆）。 */
   fallBaseMs: 44, fallPerRootCellMs: 46,
   /** 起點錯開的單位：同欄由下往上依序、欄與欄只差 1 單位，每顆起點唯一。 */
   rippleUnitMs: 2,
-  rewardHoldMs: 260, emptyHoldMs: 60,
+  rewardHoldMs: 260, emptyHoldMs: 40,
 } as const;
 /** 單顆實際要落幾格決定它的落程；落地時間由這裡唯一決定（準）。 */
 export const fallDurationMs = (cells: number) => Math.round(REFILL_TIMING.fallBaseMs + REFILL_TIMING.fallPerRootCellMs * Math.sqrt(Math.max(1, cells)));

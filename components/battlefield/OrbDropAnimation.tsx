@@ -25,7 +25,7 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound, onCr
     const measure = () => {
       const p = parent.getBoundingClientRect(), b = board.getBoundingClientRect(), t = team.getBoundingClientRect();
       const single = team.getAttribute('data-last-ally') === 'true' ? Array.from(team.querySelectorAll<HTMLElement>('[data-testid="match3-ally"]')).find(c => Number(c.dataset.hp) > 0)?.getBoundingClientRect() : undefined;
-      const bottom = single ? single.bottom - 14 : t.bottom + 12;
+      const bottom = single ? single.top - 10 : t.bottom + 12;
       setBirthSites(drops.map(d=>{const cell=d.source?board.querySelector('[data-r="'+d.source.r+'"][data-c="'+d.source.c+'"]'):null;const c=cell?.getBoundingClientRect();return {x:c?c.left+c.width/2-t.left:t.width/2,y:c?c.top+c.height/2-b.top:16};}));
       setBounds({left:t.left-p.left,top:b.top-p.top,width:t.width,height:Math.max(1,bottom-b.top),dividerY:Math.max(b.bottom-b.top+10,bottom-b.top-(DROP_FIELD.height-555)*t.width/DROP_FIELD.width)});
     };
@@ -79,7 +79,7 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound, onCr
               {boxShadow:'0 0 18px 5px #ffda68',offset:.35},
               {boxShadow:'0 0 0 0 transparent'}
             ],{duration:reduced?1:550,easing:'ease-out'}));
-            const weapon=Array.from(root.current?.parentElement?.querySelectorAll<HTMLElement>('[data-treasure][data-owner]') ?? []).find(w=>w.dataset.owner===drop.ownerId && w.getBoundingClientRect().width>0 && w.getBoundingClientRect().height>0);
+            const weapon=Array.from(root.current?.parentElement?.querySelectorAll<HTMLElement>('[data-treasure][data-owner]') ?? []).find(w=>w.dataset.owner===drop.ownerId && (!drop.reward || (w.dataset.treasure===drop.reward.element && Number(w.dataset.variant)===drop.reward.variant)) && w.getBoundingClientRect().width>0 && w.getBoundingClientRect().height>0);
             const destination = weapon ?? card;
             if(destination && root.current && el) {
               const w=destination.getBoundingClientRect(), r=root.current.getBoundingClientRect(), e=el.getBoundingClientRect();

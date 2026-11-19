@@ -50,7 +50,7 @@
       "duplicatePrevented": true,
       "waveGatePassed": true,
       "passed": true,
-      "elapsedMs": 13,
+      "elapsedMs": 15,
       "payloadBytes": 90001,
       "playbackSeconds": 12
     },
@@ -76,7 +76,7 @@
       "duplicatePrevented": true,
       "waveGatePassed": true,
       "passed": true,
-      "elapsedMs": 16,
+      "elapsedMs": 11,
       "payloadBytes": 356943,
       "playbackSeconds": 29
     },
@@ -102,7 +102,7 @@
       "duplicatePrevented": true,
       "waveGatePassed": true,
       "passed": true,
-      "elapsedMs": 46,
+      "elapsedMs": 39,
       "payloadBytes": 1347721,
       "playbackSeconds": 107
     },
@@ -115,7 +115,7 @@
       "duplicatePrevented": true,
       "waveGatePassed": true,
       "passed": true,
-      "elapsedMs": 81,
+      "elapsedMs": 67,
       "payloadBytes": 2722692,
       "playbackSeconds": 211
     },
@@ -128,7 +128,7 @@
       "duplicatePrevented": true,
       "waveGatePassed": true,
       "passed": true,
-      "elapsedMs": 50,
+      "elapsedMs": 41,
       "payloadBytes": 2722729,
       "playbackSeconds": 211
     },
@@ -141,7 +141,7 @@
       "duplicatePrevented": true,
       "waveGatePassed": true,
       "passed": true,
-      "elapsedMs": 43,
+      "elapsedMs": 44,
       "payloadBytes": 2722618,
       "playbackSeconds": 211
     }

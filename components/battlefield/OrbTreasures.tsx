@@ -19,8 +19,10 @@ export function TreasureGlyph({ element: affinity, role }: { element: BeastEleme
   </svg>;
 }
 export default function OrbTreasures({ catalog, disabled, guard, onUse, sideDock=false }: { sideDock?: boolean; catalog: ReturnType<typeof treasureCatalog>; disabled: boolean; guard: number; onUse: (element: BeastElement, variant: number) => void }) {
-  return <div className={styles.inventory} data-testid="orb-treasures" data-side-dock={sideDock?'true':undefined} data-guard={guard}>
-    <div className={styles.slots}>{catalog.map(x => <button key={x.element+':'+x.variant} type="button" data-treasure={x.element} data-variant={x.variant} data-role={x.role} data-owner={x.ownerId} data-count={x.count} disabled={disabled || x.count < 1 || !x.available} aria-label={x.name+'，第'+x.tier+'階，'+x.count+'件，點擊釋放'} onClick={() => onUse(x.element,x.variant)} style={{ '--treasure-color': colors[x.element], '--affinity-color': colors[x.element], '--gem-color': gemColors[x.variant] } as CSSProperties}><small className={styles.tier}>{x.tier}</small><TreasureGlyph element={x.element} role={x.role}/><span>{x.count}</span></button>)}</div>
+  const visibleCatalog = catalog;
+  const soloWeapon = sideDock && visibleCatalog.length === 1;
+  return <div className={styles.inventory} data-solo-weapon={soloWeapon ? "true" : undefined} data-testid="orb-treasures" data-side-dock={sideDock?'true':undefined} data-guard={guard}>
+    <div className={styles.slots}>{visibleCatalog.map(x => <button key={x.element+':'+x.variant} type="button" data-treasure={x.element} data-variant={x.variant} data-role={x.role} data-owner={x.ownerId} data-count={x.count} disabled={disabled || x.count < 1 || !x.available} aria-label={x.name+'，第'+x.tier+'階，'+x.count+'件，點擊釋放'} onClick={() => onUse(x.element,x.variant)} style={{ '--treasure-color': colors[x.element], '--affinity-color': colors[x.element], '--gem-color': gemColors[x.variant] } as CSSProperties}><small className={styles.tier}>{x.tier}</small><TreasureGlyph element={x.element} role={x.role}/><span>{x.count}</span></button>)}</div>
   </div>;
 }
 

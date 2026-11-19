@@ -75,7 +75,8 @@ console.log('PASS nine/ten/eleven shields, legacy eight, real catches/misses, de
 // Regression: the formerly missed first ball must bounce into a living card.
 const allCatches=D.dropCatches(team);
 assert.equal(D.dropDividers(allCatches).length,4);
-assert.equal(D.dropDividers(D.dropCatches(team.map((u,i)=>({...u,hp:i===2?100:0})))).length,0);
+const soloCatches=D.dropCatches(team.map((u,i)=>({...u,hp:i===2?100:0})));
+assert.deepEqual(D.dropDividers(soloCatches),[{x:soloCatches[0].left,y:555},{x:soloCatches[0].right,y:555}]);
 assert.equal(D.dropDividers(D.dropCatches(team.map((u,i)=>({...u,hp:i===1?0:100})))).length,2);
 const split=D.simulateOrbDrops({count:2,element:'SPACE',seed:1004,launchX:4500/7,catches:allCatches});
 // Radius now matches the visible sphere; the deterministic destinations change accordingly.
@@ -93,6 +94,15 @@ for(let seed=1;seed<=300;seed++){
  }
 }
 console.log('PASS 300 trajectories do not penetrate either triangle edge');
+for(const width of [360,540,720])for(let seed=1;seed<=100;seed++){
+ const catches=D.dropCatches(team.map((u,i)=>({...u,hp:i===2?100:0})),width);
+ const ds=D.simulateOrbDrops({count:3,seed,element:'FIRE',launchX:seed%2?catches[0].left:catches[0].right,catches});
+ for(const d of ds)for(const p of d.points)for(const q of D.dropDividers(catches))for(const side of [-1,1]){
+  const ex=side*48,ey=650-q.y,l=ex*ex+ey*ey,t=Math.max(0,Math.min(1,((p.x-q.x)*ex+(p.y-q.y)*ey)/l));
+  assert(Math.hypot(p.x-q.x-ex*t,p.y-q.y-ey*t)>=D.DROP_FIELD.radius-.2,'solo card corner was penetrated');
+ }
+}
+console.log('PASS 900 balls respect both enlarged-card corner colliders');
 
 let pairContacts=0;
 for(const count of [2,3,12,48])for(let seed=1;seed<=5;seed++){

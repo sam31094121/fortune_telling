@@ -30,6 +30,8 @@ export function shieldOrbCount(shields: number): number {
 /** Existing neighbouring card edges act as physical dividers, not reward reassignment. */
 export function dropDividers(catches: readonly DropCatch[]): {x:number;y:number}[] {
   const sorted=[...catches].sort((a,b)=>a.left-b.left);
+  // 最後一張大卡：左右接取邊界各有一個實體火珠分流角，內外都依碰撞路徑判定。
+  if(sorted.length===1)return [{x:sorted[0].left,y:555},{x:sorted[0].right,y:555}];
   const dividers=sorted.slice(1).flatMap((right,i)=>{
     const left=sorted[i];
     return right.slot===left.slot+1 ? [{x:(left.right+right.left)/2,y:555}] : [];

@@ -1155,3 +1155,29 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
  .wrap[data-mode="hard45"] .team[data-last-ally="true"] .fusedUnit>.bar{left:-12px;top:var(--art-h);width:var(--art-h);height:7px;transform-origin:0 0;transform:rotate(-90deg);}
  .wrap[data-mode="hard45"] .team[data-last-ally="true"] .fusedUnit>.energy{position:absolute;left:calc(100% + 6px);top:var(--art-h);width:var(--art-h);height:6px;transform-origin:0 0;transform:rotate(-90deg);}
 }
+
+/* Raise the final-survivor board into spare space; keep its original orb size. */
+@media(max-width:640px){
+ .wrap[data-mode="hard45"][data-match3-battle-active="true"][data-hold-top="true"][data-last-ally-stage="true"] > [data-testid="match3-board"]{margin-top:max(8px,calc(var(--hold-g2, 8px) - 24px));}
+}
+
+@media(max-width:640px){
+ .wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"]{position:absolute;top:var(--last-team-top);right:8px;width:56px;height:64px;border-radius:12px;z-index:12;padding:5px 6px 16px;}
+ .manualEnergyOrb[data-solo-energy="true"] > span:last-child{font-size:11px;bottom:3px;}
+}
+
+@media(max-width:640px){
+ .wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"]{border:1px solid #b6a3d48c;background:linear-gradient(155deg,#ffffff18,transparent 38%,#0005),radial-gradient(ellipse at 50% 0%,#343044,#10121d 85%);box-shadow:inset 0 1px 0 #fff3,inset 0 -2px 0 #b6a3d4,0 2px 5px #0008;color:#fff8df;}
+ .wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"]:disabled{opacity:.7;}
+ .manualEnergyOrb[data-solo-energy="true"] > span:last-child{font-weight:800;font-variant-numeric:tabular-nums;line-height:13px;text-shadow:0 1px 3px #000;}
+}
+
+/* Single right-side supply: a round orb, without a rectangular housing. */
+@media(max-width:640px){
+ .wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"]{border:0;background:none;box-shadow:none;border-radius:50%;padding:0;}
+ .wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"] > [data-element-treasure-orb]{inset:3px auto auto 7px;width:42px;height:42px;}
+ .manualEnergyOrb[data-solo-energy="true"] > [data-element-treasure-orb]::before{inset:-5%;box-shadow:0 0 7px rgba(var(--orb-glow-rgb),.28),inset 0 0 5px rgba(var(--orb-glow-rgb),.2);opacity:.4;}
+ .manualEnergyOrb[data-solo-energy="true"] > span:last-child{bottom:1px;}
+}
+
+.manualEnergyOrb[data-solo-energy="true"]:not(:disabled) > [data-element-treasure-orb]{filter:brightness(1.12) saturate(1.12);}

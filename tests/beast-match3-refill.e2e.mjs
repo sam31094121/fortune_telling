@@ -10,6 +10,7 @@ import { spawn } from 'node:child_process';
 import { existsSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { createServer } from 'node:http';
 
 const base = process.env.MATCH3_E2E_BASE || 'http://localhost:8888';
 // MATCH3_E2E_BROWSER：非 Windows 驗收機可指定 Chromium 執行檔（同一套 CDP 流程與斷言）；未指定時仍要求 Edge。
@@ -23,6 +24,18 @@ const browser = spawn(edgePath, ['--headless=new', '--inprivate', '--no-first-ru
 let browserOutput='';browser.stderr.on('data',chunk=>{browserOutput=(browserOutput+chunk).slice(-12000);});
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const results = []; let ws; const errors = [];
+let liveServer, liveFrame, liveDone=false;
+if(process.env.MATCH3_LIVE_PORT){
+  liveServer=createServer((req,res)=>{
+    res.setHeader('Cache-Control','no-store');
+    if(req.url.startsWith('/frame')){if(!liveFrame){res.writeHead(204);res.end();return;}res.setHeader('Content-Type','image/jpeg');res.end(liveFrame);return;}
+    if(req.url==='/status'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({done:liveDone}));return;}
+    res.setHeader('Content-Type','text/html; charset=utf-8');
+    res.end('<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>寶珠連線即時試玩</title><style>body{margin:0;background:#090a12;color:#eee;text-align:center;font:14px sans-serif}header{padding:8px}img{display:block;max-width:100%;max-height:calc(100vh - 55px);margin:auto}small{color:#bbb}</style><header>寶珠連線 · 即時測試畫面<br><small id="state">獨立測試戰局，不消耗收藏；畫面每秒更新五次</small></header><img id="screen"><script>const image=document.getElementById("screen");setInterval(()=>{image.src="/frame?t="+Date.now()},200);setInterval(async()=>{const s=await(await fetch("/status")).json();if(s.done)document.getElementById("state").textContent="本輪測試已結束，保留最後畫面"},1000)</script>');
+  });
+  await new Promise(resolve=>liveServer.listen(Number(process.env.MATCH3_LIVE_PORT),'127.0.0.1',resolve));
+  console.log('Live test viewer ready');
+}
 try {
   let target;
   for (let i = 0; i < 150 && !target; i++) { await sleep(200); try { port=Number(readFileSync(path.join(profile,'DevToolsActivePort'),'utf8').split('\n')[0]);target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find(t => t.type === 'page' && t.url === 'about:blank'); } catch {} }
@@ -36,6 +49,10 @@ try {
   const wait = async (expression, timeout = 90000) => { const end = Date.now() + timeout; while (Date.now() < end) { if (await js(`Boolean(${expression})`)) return; await sleep(150); } throw Error(`Wait failed: ${expression}`); };
   const save = async name => { const shot = await send('Page.captureScreenshot', { format: 'png' }); writeFileSync(path.join(output, name + '.png'), Buffer.from(shot.data, 'base64')); };
   await send('Page.enable'); await send('Runtime.enable');
+  if(liveServer){
+    ws.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.method==='Page.screencastFrame'){liveFrame=Buffer.from(m.params.data,'base64');void send('Page.screencastFrameAck',{sessionId:m.params.sessionId}).catch(()=>{});}});
+    await send('Page.startScreencast',{format:'jpeg',quality:80,maxWidth:500,maxHeight:950,everyNthFrame:3});
+  }
   // Offline fixture adapter: authenticate the test's explicitly injected board/magic.
   // Production has no signing endpoint; authority.test separately forbids snapshot tampering.
   await send('Fetch.enable',{patterns:[{urlPattern:'*/api/beast-game/orb-turn',requestStage:'Request'}]});
@@ -155,8 +172,9 @@ try {
 
   // Deterministic input fixture, real server response and real pointer playback.
   // Isolated browser profile: never edits the customer's saved game.
-  for (const [width, length, reduced] of Array.from({length:Number(process.env.MATCH3_REPLAY_REPEAT)||1},()=>[[320,5,false],[390,6,false],[1440,7,false],[390,5,true]]).flat()) {
+  for (const [width, length, reduced] of Array.from({length:Number(process.env.MATCH3_REPLAY_REPEAT)||1},()=>[[320,5,false],[390,6,false],[768,6,false],[1440,7,false],[390,5,true]]).flat()) {
     if(process.env.MATCH3_REPLAY_CASE&&String(width)!==process.env.MATCH3_REPLAY_CASE)continue;
+    if(liveServer&&reduced)continue;
     await send('Emulation.setEmulatedMedia',{features: reduced ? [{name:'prefers-reduced-motion',value:'reduce'}] : []});
     await start(6,width);
     touchInput=width<768;await send('Emulation.setTouchEmulationEnabled',{enabled:touchInput});
@@ -210,10 +228,13 @@ try {
       const after=await geometry();await save('side-dock-'+width);
       const dock=await js(`(()=>{const es=[...document.querySelectorAll('[data-testid="orb-treasures"] button')];return es.map(e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom};});})()`);
       writeFileSync(path.join(output,'side-dock-geometry-'+width+(reduced?'-reduced':'')+'.json'),JSON.stringify({before,after,dock},null,2));
-      assert(Math.abs(before.w-after.w)<1&&Math.abs(before.y-after.y)<1,'enlarging last ally keeps board size and position: '+JSON.stringify({before,after}));
-      assert(dock.length===5&&dock.every(r=>r.w>=44&&r.h>=44&&r.x>=0&&r.right<=width+1),'side weapons retain usable touch targets');
+      assert(Math.abs(before.w-after.w)<1&&after.y<=before.y+1&&before.y-after.y<=25,'last ally preserves orb size and raises board at most 24px: '+JSON.stringify({before,after}));
+      assert(dock.length===1&&dock.every(r=>r.w>=44&&r.h>=44&&r.x>=0&&r.right<=width+1),'side weapons retain usable touch targets');
       assert(dock.every(r=>r.y>=after.y+after.h-1&&r.bottom<=(Number(process.env.MATCH3_VIEWPORT_HEIGHT)||844)),'weapons do not cover board or leave screen');
-      results.push({case:'last ally side dock',width,before,after,dock});continue;
+      const orbDock=await js(`(()=>{const e=document.querySelector('[data-solo-energy="true"]'),r=e?.getBoundingClientRect();return r?{x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom}:null;})()`);
+      assert(orbDock&&Math.abs(orbDock.w-dock[0].w)<1&&Math.abs(orbDock.h-dock[0].h)<1,'left weapon and right orb use matching touch sizes');
+      assert(orbDock.x>=after.x+after.w/2&&orbDock.right<=width&&orbDock.y>=after.y+after.h-1&&orbDock.bottom<=(Number(process.env.MATCH3_VIEWPORT_HEIGHT)||844),'right orb stays beside card and below board');
+      results.push({case:'last ally side dock',width,before,after,dock,orbDock});continue;
     }
     await state({board,magic:M.emptyMagic(board)}); await sleep(100);
     await js(`window.__replaySamples=[];window.__turns=[];window.__turnInputs=[];window.__pointerSamples=[];window.__submitAck=null;
@@ -333,4 +354,4 @@ try {
   assert.equal(errors.length,0,errors.join('\n'));writeFileSync(path.join(output,'refill-result.json'),JSON.stringify({passed:true,results,reduced:names,errors},null,2));console.log('PASS real refill, mobile/tablet/desktop, settle, unity gain, reduced motion, home: '+output);
   }
 }catch(error){writeFileSync(path.join(output,'refill-result.json'),JSON.stringify({passed:false,results,errors,error:String(error)},null,2));console.error(error);process.exitCode=1}
-finally{try{ws?.close()}catch{}try{browser.kill()}catch{}}
+finally{liveDone=true;try{ws?.close()}catch{}try{browser.kill()}catch{}if(liveServer)setTimeout(()=>liveServer.close(),300000);}

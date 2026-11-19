@@ -1,0 +1,6 @@
+{
+  "passed": false,
+  "results": [],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: side weapons retain usable touch targets"
+}
