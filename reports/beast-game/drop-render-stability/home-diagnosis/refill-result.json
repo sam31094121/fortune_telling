@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "case": "leave during refill cancels pending actions"
+    }
+  ],
+  "reduced": [
+    "Match3Board_m3hit__uE_oi"
+  ],
+  "errors": []
+}
