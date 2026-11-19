@@ -44,7 +44,7 @@ export function beginGuestOrb(raw:HardCampaign,seed:number) {
     p=parseCampaign(JSON.stringify(clean(raw)));
     delete p.comebackRecord; // Legacy unsigned data cannot claim losses for new rescue grants.
   }
-  if(!validateCampaignTeam(p,p.teamIds))throw new Error('請選定主角與四位夥伴。');
+  if(!validateCampaignTeam(p,p.teamIds))throw new Error('請選定主角，可另選最多四位夥伴。');
   const stats=Object.fromEntries(playableCards().map(c=>[c.id,campaignCardAttack(p,c.id)]));
   const initial=initialSharedOrb({...p,shared:{availableIds:p.teamIds,cards:[],stats,selectedEntries:[]}},seed,'hard45');
   p={...p,treasures:initial.treasures};

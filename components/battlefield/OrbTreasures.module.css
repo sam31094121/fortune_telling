@@ -57,3 +57,8 @@
 .inventory[data-solo-weapon="true"] button:nth-child(1){grid-area:1/1;width:56px;height:64px;min-height:64px;border-radius:12px;}
 .inventory[data-solo-weapon="true"] svg{width:34px;height:34px;}
 .inventory[data-solo-weapon="true"] .slots span{font-size:14px;bottom:3px;right:6px;}
+
+/* Free party: align weapons with the same centered ally columns. */
+.inventory:not([data-side-dock="true"])[data-party-count="2"] .slots{grid-template-columns:repeat(2,minmax(0,min(140px,var(--party-card-max,140px))));justify-content:center}
+.inventory:not([data-side-dock="true"])[data-party-count="3"] .slots{grid-template-columns:repeat(3,minmax(0,min(120px,var(--party-card-max,120px))));justify-content:center}
+.inventory:not([data-side-dock="true"])[data-party-count="4"] .slots{grid-template-columns:repeat(4,minmax(0,min(110px,var(--party-card-max,110px))));justify-content:center}

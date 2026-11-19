@@ -9,7 +9,7 @@ import { guardianOf } from '@/lib/beast-guardians';
 import { GUARDIAN_SHORT } from '@/lib/beast-game/match3/guardian-fusion';
 import type { BeastElement } from '@/lib/beast-game/elements';
 import { readLegacyCampaignStatus, importLegacyCampaign, readCampaign, selectCampaignHero, saveCampaignTeam, resetGuestCampaign } from '@/lib/beast-game/match3/hard-campaign-store';
-import { campaignHeroChoice, campaignAvailableIds, campaignCollection, campaignCardAttack, validateCampaignTeam } from '@/lib/beast-game/match3/hard-campaign';
+import { campaignHeroChoice, campaignAvailableIds, campaignCollection, campaignCardAttack, validateCampaignTeam as validateCampaignTeamSize } from '@/lib/beast-game/match3/hard-campaign';
 import { BeastCardFace } from './BeastCardTile';
 import Match3Board from './Match3Board';
 import CampaignEnhancement from './CampaignEnhancement';
@@ -35,6 +35,8 @@ const friendly = (message: string) => (isTransient(message) ? SLOW_MESSAGE : mes
 const rememberOwner = (who: Owner | null) => { try { if (who) window.sessionStorage.setItem(LAST_OWNER_KEY, who); else window.sessionStorage.removeItem(LAST_OWNER_KEY); } catch { /* 無法記住只代表要再點一次 */ } };
 type Profile = NonNullable<ReturnType<typeof readCampaign>['profile']>;
 export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?: Match3ModeId }) {
+  const variableParty = mode !== 'hard45b';
+  const validateCampaignTeam = (p: Profile, ids: readonly string[]) => validateCampaignTeamSize(p, ids) && (variableParty || ids.length === 5);
   const pool = useMemo(() => playableCards().filter(c => CARD_FACE_STATS[c.id]), []);
   const [owner, setOwner] = useState<Owner | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -241,10 +243,10 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const heroGuardian = profile.heroId ? guardianOf(profile.heroId) : null;
   const kin = (id: string) => heroGuardian && guardianOf(id)?.key === heroGuardian.key ? `${GUARDIAN_SHORT[heroGuardian.key]}宿・` : '';
   const toggle = (id: string) => { if (id !== profile.heroId && allowed.includes(id)) setSelected(s => s.includes(id) ? s.filter(x => x !== id) : s.length < 5 ? [...s, id] : s); };
-  return <section className={`${styles.picker} ${picker.stickyHost}`} data-testid="team-picker" aria-label="選擇主角的四位夥伴">
-    {home}{changePlayer}<h1 ref={teamHeading} tabIndex={-1}>第二步：點選四位夥伴</h1>{notice && <p className={styles.hint} role="status" data-testid="campaign-notice">{notice}</p>}
-    <div className={picker.companionGuide} role="status" aria-live="polite" aria-label={`已選 ${Math.max(0, selected.length - 1)} 位夥伴，共 4 位`} data-testid="team-progress">
-      <strong style={{ fontSize: 32, letterSpacing: 10, color: '#fde68a' }}>{'●'.repeat(Math.max(0, selected.length - 1))}{'○'.repeat(Math.max(0, 5 - selected.length))}{selected.length === 5 ? ' ✓' : ''}</strong>
+  return <section className={`${styles.picker} ${picker.stickyHost}`} data-testid="team-picker" aria-label={variableParty ? "選擇一至五隻出戰神獸" : "選擇主角的四位夥伴"}>
+    {home}{changePlayer}<h1 ref={teamHeading} tabIndex={-1}>{variableParty ? "第二步：選擇出戰隊伍" : "第二步：點選四位夥伴"}</h1>{notice && <p className={styles.hint} role="status" data-testid="campaign-notice">{notice}</p>}
+    <div className={picker.companionGuide} role="status" aria-live="polite" aria-label={variableParty ? `已選 ${selected.length} 隻，可直接開始` : `已選 ${Math.max(0, selected.length - 1)} 位夥伴，共 4 位`} data-testid="team-progress">
+      <strong style={{ fontSize: 24, letterSpacing: 2, color: '#fde68a' }}>{variableParty ? `${selected.length} 隻出戰` : `${Math.max(0, selected.length - 1)} / 4 位夥伴`}</strong>
     </div><h2 className={picker.sectionTitle}>主角與出戰隊伍</h2>
     <div className={picker.selectedRow} data-testid="picked-row" aria-label={`已選 ${selected.length} 張`}>{selected.map(id => <button type="button" key={id} className={picker.selectedCard} disabled={id === profile.heroId} aria-label={id === profile.heroId ? '固定主角' : `移除${pool.find(c => c.id === id)?.name}`} onClick={() => toggle(id)}>
       {face(id)}<span className={picker.remove}>{id === profile.heroId ? '主角・固定' : '移除夥伴'}</span>
@@ -267,11 +269,11 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
       {face(c.id)}<span className={picker.choiceState} data-guardian-kin={kin(c.id) ? heroGuardian?.key : undefined}>{kin(c.id)}{selected.includes(c.id) ? '已選夥伴' : '點選出戰'}</span>
     </button>)}</div>
     {error && <p role="alert">{error}</p>}
-    {selected.length === 5 && <p className={picker.readyHint} role="status" data-testid="team-ready-hint" aria-label="隊伍已就緒" style={{ fontSize: 32 }}>✓</p>}
-    <div className={`${styles.pickBar} ${picker.stickyStart}`} data-testid="start-bar"><button ref={startButton} type="button" className={`${styles.again} ${selected.length === 5 ? picker.readyStart : ''}`} data-testid="start-battle" disabled={!validateCampaignTeam(profile, selected) || saving} onClick={async () => {
+    {validateCampaignTeam(profile, selected) && <p className={picker.readyHint} role="status" data-testid="team-ready-hint" aria-label="隊伍已就緒" style={{ fontSize: 32 }}>✓</p>}
+    <div className={`${styles.pickBar} ${picker.stickyStart}`} data-testid="start-bar"><button ref={startButton} type="button" className={`${styles.again} ${validateCampaignTeam(profile, selected) ? picker.readyStart : ''}`} data-testid="start-battle" disabled={!validateCampaignTeam(profile, selected) || saving} onClick={async () => {
       setSaving(true); const result = await saveCampaignTeam(owner, selected,ownedEntries); setSaving(false);
       if (!result.ok || !result.profile) { setError(result.error || '隊伍尚未儲存，請重試。'); return; }
       setProfile(result.profile); setError(''); setRevision(n => n + 1); setPhase('battle');
-    }}>{saving ? '正在儲存隊伍…' : selected.length === 5 ? '點此開始作戰 →' : `請再點選 ${5 - selected.length} 位夥伴`}</button></div>
+    }}>{saving ? '正在儲存隊伍…' : validateCampaignTeam(profile, selected) ? `以 ${selected.length} 隻開始作戰 →` : variableParty ? '請先選擇主角' : `請再點選 ${5-selected.length} 位夥伴`}</button></div>
   </section>;
 }

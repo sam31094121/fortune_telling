@@ -111,7 +111,7 @@ export function pickLineup(rng: Rng, teamIds?: readonly string[] | null, mode: M
   const team: Unit[] = [];
   const foeNames = enemyNamesFor(mode.id);
   const unit = (c: (typeof pool)[number]): Unit => { const s = CARD_FACE_STATS[c.id]; const skill = getSkill(c.skills[0]); return { skillName: skill?.name, description: skill?.description, id: c.id, name: c.name, element: c.element, thumbnail: nonGuardianBattleArt(c.id, c.art.thumbnail), attack: campaign ? campaignAttack(campaign, c.id) : s.attack, attackExact:campaign?.shared?.stats[c.id]?.attackExact, hp: s.hp, maxHp: s.hp, energy: 0 }; };
-  if (validTeamIds(teamIds, pool.map((c) => c.id))) for (const id of teamIds) team.push(unit(pool.find((c) => c.id === id)!));
+  if (validTeamIds(teamIds, pool.map((c) => c.id), mode.id === 'hard45')) for (const id of teamIds) team.push(unit(pool.find((c) => c.id === id)!));
   else for (const el of MATCH3_ORB_ELEMENTS) {
     const c = shuffled.find((x) => x.element === el && !foeNames.includes(x.name)); if (c) team.push(unit(c));
   }
@@ -194,7 +194,7 @@ export default function Match3Board({ resumeBattleId, treasurePractice, seed, te
       const owner = cfg.id === 'medium' ? null : progressOwner;
       const campaign = campaignEnabled && owner ? readCampaign(owner) : null;
       if (campaignEnabled && (!campaign?.ok || !campaign.profile)) { setInitError(campaign?.error ?? '請先選擇主角及夥伴'); return; }
-      if (!resumeId.current && campaign?.profile && !validateCampaignTeam(campaign.profile, teamIds ?? [])) { setInitError('請先選擇主角及四張已解鎖夥伴'); return; }
+      if (!resumeId.current && campaign?.profile && !validateCampaignTeam(campaign.profile, teamIds ?? [])) { setInitError('請先選擇主角，可另選最多四張已解鎖夥伴'); return; }
       let shared: {guestBattleToken?:string;guestBattleId?:string;guestVersion?:number;token?:string;battleId?:string;version?:number;outcome?:OrbOutcome;totalDamage?:number;lastDamage?:number;initial?:import('@/lib/beast-game/match3/resolve-turn').TurnInput} = {};
       if(owner==='self' && campaign?.profile){
         sharedStart.current??=crypto.randomUUID();
@@ -545,7 +545,24 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         const foesEl = element.querySelector<HTMLElement>('[data-testid="match3-enemies"]');
         const lastAllyOn = teamEl?.getAttribute('data-last-ally') === 'true';
         const foeEnlarged = foesEl?.getAttribute('data-guardian-duel') === 'true' || foesEl?.getAttribute('data-last-foe') === 'true';
-        const liveChrome = flowHeight - box.height;
+        let liveChrome = flowHeight - box.height;
+        // Free-party card growth must not change the five-slot board budget.
+        if (cfg.id === 'hard45' && teamEl && !lastAllyOn) {
+          const ally = teamEl.querySelector<HTMLElement>('[data-testid="match3-ally"]');
+          const art = ally?.querySelector<HTMLElement>('.' + styles.allyCard);
+          if (ally && art) {
+            const a = getComputedStyle(ally), t = getComputedStyle(teamEl);
+            const baselineWidth = (teamEl.getBoundingClientRect().width - 4 * number(t.columnGap)) / 5;
+            const inset = number(a.paddingLeft) + number(a.paddingRight) + number(a.borderLeftWidth) + number(a.borderRightWidth);
+            const decoration = ally.getBoundingClientRect().height - art.getBoundingClientRect().height;
+            const baselineHeight = Math.max(0, baselineWidth - inset) + decoration;
+            liveChrome += baselineHeight - teamEl.getBoundingClientRect().height;
+            const room = height - (flowHeight - teamEl.getBoundingClientRect().height) - 8;
+            const cap = Math.max(baselineWidth, room - decoration + inset);
+            const capValue = Math.floor(cap) + 'px';
+            if (element.style.getPropertyValue('--party-card-max') !== capValue) element.style.setProperty('--party-card-max', capValue);
+          }
+        }
         // 手機 flex 版面（B 版）：記住「多隻小卡」時棋盤以上的兩段間距與棋盤以下的空白。
         // 最後一隻放大時棋盤以上照原位凍結（棋盤、敵方列不位移，CLS≈0），大卡只吃棋盤以下的空白。
         // 每次「多隻小卡」的量測都更新間距（在棋盤寬度設定之後），放大那一刻棋盤停在前一刻的位置。
@@ -692,7 +709,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const foeExiting = foes.some(f => f.hp <= 0 && !retiredFoes.has(f.id));
   const lastFoeBig = lastFoeReady && lastFoeSettled && !foeExiting;
   // 業主 2026-11-11（手機實測回報）：我方只剩最後一隻神獸時，同樣放大成魔王般的大卡片（與敵方對稱）。
-  const lastAllyReady = rigEnabled && team.length > 1 && !over && team.filter(u => u.hp > 0).length === 1;
+  const lastAllyReady = rigEnabled && team.length >= 1 && !over && team.filter(u => u.hp > 0).length === 1;
   const [lastAllySettled, setLastAllySettled] = useState(false);
   useEffect(() => {
     if (!lastAllyReady) setLastAllySettled(false);
@@ -1323,7 +1340,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         {treasures.map(x => <p key={x.element+':'+x.variant}>{x.name}：{x.description}</p>)}
         <p data-testid="match3-guardian-fusion-help">四象合體：主角四象與自己統領的星宿（青龍：角亢氐房心尾箕；朱雀：井鬼柳星張翼軫；白虎：奎婁胃昴畢觜參；玄武：斗牛女虛危室壁），在同一步或緊接的下一步都打出傷害，就會連成星宿線並亮起合體印；合體後，下一次拖珠（連同它帶出的連線攻擊、能量技）休息一次，不再合體。只是特效，不加傷害、不改規則。</p>
         <p>五行補血與盾牌組合請點開「五行與盾牌目標」。獲勝挑戰下一關，落敗原難度重試。</p>
-      </div> : <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊，本次寶珠攻擊強化1.5倍；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，二至四色合體清除整盤對應顏色；五色只消耗連到的盾牌，其餘寶珠依原屬性升為盾牌並保留高數值，空位補普通珠，依實際消除數量替對應卡片充能，最多充滿現有技能條；雙色或三色減傷50%、四色減傷60%並回復10%生命、五色只升盾，不附帶攻擊、回血、減傷或法寶；防護只限本輪、不疊加。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「{rigEnabled ? '能量攻擊' : '技能'}」。{rigEnabled && '我方原卡招牌技能依登場、攻擊、受創及回合時機自動觸發，沿用原次數；能量按鈕保留通用攻擊，不另消耗回合。敵方從第八關起逐步啟用原卡技能；沒有抽棄牌區，抽棄牌效果不適用。'}{rigEnabled ? '每次非空寶石捷連線都算一次回合，誤按一、二顆或無效路線也會由對方反擊一次；連三顆起才可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。儲存能量的單卡與多卡攻擊不消耗回合，也不觸發反擊。全關卡五對五。第一關五張幼子、第二至第七關五張成獸；第八關起，敵方前四格為成獸，第五格為一張神獸，前四張倒下後才參戰並可被攻擊，後續始終只有這一個神獸席位，通關後依白虎、朱雀、青龍、玄武輪替，失敗重試不換；每次由一張存活卡反擊。第八關及之後連六顆以上即可攻擊，第一至第七關維持各關門檻；對方強度繼續逐關提高。獲勝升一關，落敗保留難度重試；本人進度保存在這個瀏覽器，親友進度只在本分頁保留，重新選擇親友會重來。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>)}
+      </div> : <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊，本次寶珠攻擊強化1.5倍；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，二至四色合體清除整盤對應顏色；五色只消耗連到的盾牌，其餘寶珠依原屬性升為盾牌並保留高數值，空位補普通珠，依實際消除數量替對應卡片充能，最多充滿現有技能條；雙色或三色減傷50%、四色減傷60%並回復10%生命、五色只升盾，不附帶攻擊、回血、減傷或法寶；防護只限本輪、不疊加。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「{rigEnabled ? '能量攻擊' : '技能'}」。{rigEnabled && '我方原卡招牌技能依登場、攻擊、受創及回合時機自動觸發，沿用原次數；能量按鈕保留通用攻擊，不另消耗回合。敵方從第八關起逐步啟用原卡技能；沒有抽棄牌區，抽棄牌效果不適用。'}{rigEnabled ? '每次非空寶石捷連線都算一次回合，誤按一、二顆或無效路線也會由對方反擊一次；連三顆起才可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。儲存能量的單卡與多卡攻擊不消耗回合，也不觸發反擊。寶石捷連線我方可選一至五隻，困難 II 維持五隻；對手關卡陣容維持五隻。第一關五張幼子、第二至第七關五張成獸；第八關起，敵方前四格為成獸，第五格為一張神獸，前四張倒下後才參戰並可被攻擊，後續始終只有這一個神獸席位，通關後依白虎、朱雀、青龍、玄武輪替，失敗重試不換；每次由一張存活卡反擊。第八關及之後連六顆以上即可攻擊，第一至第七關維持各關門檻；對方強度繼續逐關提高。獲勝升一關，落敗保留難度重試；本人進度保存在這個瀏覽器，親友進度只在本分頁保留，重新選擇親友會重來。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>)}
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 
@@ -1341,7 +1358,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       {!rigEnabled && <div className={styles.legend} aria-hidden="true">{MATCH3_ORB_ELEMENTS.map((e) => <span key={e}><i style={{ background: ORB_COLOR[e] }} />{MATCH3_ORB_LABEL[e]}</span>)}</div>}
 
       <div className={rigEnabled ? styles.srOnly : styles.secHead}><span>出戰神獸（點卡設優先；滿能量點「技能」）</span><span data-testid="match3-damage">傷害 {totalDmg ?? '暫時無法取得'}</span></div>
-      <div className={`${styles.team} ${linkMode ? styles.linkOn : ''}`} data-last-ally={lastAllyBig || undefined}>
+      <div className={`${styles.team} ${linkMode ? styles.linkOn : ''}`} data-last-ally={lastAllyBig || undefined} data-team-count={cfg.id === 'hard45' ? team.length : undefined}>
         {team.map((u) => {
           const down = u.hp <= 0;
           const full = !down && u.energy >= ENERGY_MAX;
@@ -1379,7 +1396,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           );
         })}
       </div>
-      {rigEnabled && (campaignEnabled || treasurePractice) && <OrbTreasures catalog={lastAllyBig ? treasures.filter(x => x.ownerId === (held?.lastAllyId ?? team.find(u => u.hp > 0)?.id)) : treasures} sideDock={cfg.id==='hard45'&&lastAllyBig} disabled={busy || !!over} guard={treasureGuard} onUse={useTreasure}/>}
+      {rigEnabled && (campaignEnabled || treasurePractice) && <OrbTreasures partyCount={cfg.id === 'hard45' ? team.length : undefined} catalog={lastAllyBig ? treasures.filter(x => x.ownerId === (held?.lastAllyId ?? team.find(u => u.hp > 0)?.id)) : treasures} sideDock={cfg.id==='hard45'&&lastAllyBig} disabled={busy || !!over} guard={treasureGuard} onUse={useTreasure}/>}
       {orbDrops && <OrbDropAnimation drops={orbDrops.drops} catches={orbDrops.catches} onSound={cue} onCredit={drop => { const reward=drop.reward; if(reward)setTreasures(items=>items.map(x=>x.ownerId===drop.ownerId && x.element===reward.element && x.variant===reward.variant && reward.count>x.count ? {...x,count:reward.count} : x)); }} onDone={() => { const finish=finishOrbDrops.current; finishOrbDrops.current=null; setOrbDrops(null); finish?.(); }}/>}
       {rigEnabled && !mobileActionless && actions}
       <TreasureAnimation flight={treasureFlight}/>

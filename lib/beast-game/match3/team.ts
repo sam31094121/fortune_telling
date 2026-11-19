@@ -55,7 +55,7 @@ export function shareEnergy<T extends U & { energy: number }>(team: readonly T[]
   });
 }
 
-/** 外部傳入的 teamIds 是否可用：剛好 TEAM_SIZE 張、id 不重複、都在卡池內（同屬性允許）。 */
-export function validTeamIds(ids: readonly string[] | null | undefined, pool: readonly string[]): ids is string[] {
-  return !!ids && ids.length === TEAM_SIZE && new Set(ids).size === ids.length && ids.every((i) => pool.includes(i));
+/** 外部傳入的 teamIds 是否可用：預設 TEAM_SIZE 張，明確允許時可一至 TEAM_SIZE 張；id 不重複、都在卡池內（同屬性允許）。 */
+export function validTeamIds(ids: readonly string[] | null | undefined, pool: readonly string[], allowPartial = false): ids is string[] {
+  return !!ids && (allowPartial ? ids.length >= 1 && ids.length <= TEAM_SIZE : ids.length === TEAM_SIZE) && new Set(ids).size === ids.length && ids.every((i) => pool.includes(i));
 }

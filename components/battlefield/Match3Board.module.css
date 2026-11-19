@@ -1187,3 +1187,10 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 }
 
 .manualEnergyOrb[data-solo-energy="true"]:not(:disabled) > [data-element-treasure-orb]{filter:brightness(1.12) saturate(1.12);}
+
+/* Variable player party: keep occupied cards together, without empty five-slot gaps. */
+.wrap[data-mode="hard45"] .team[data-team-count="1"]:not([data-last-ally="true"]) { grid-template-columns: minmax(0, 150px); justify-content: center; }
+.wrap[data-mode="hard45"] .team[data-team-count="2"] { grid-template-columns: repeat(2,minmax(0,min(140px,var(--party-card-max,140px)))); justify-content: center; }
+.wrap[data-mode="hard45"] .team[data-team-count="3"] { grid-template-columns: repeat(3,minmax(0,min(120px,var(--party-card-max,120px)))); justify-content: center; }
+.wrap[data-mode="hard45"] .team[data-team-count="4"] { grid-template-columns: repeat(4,minmax(0,min(110px,var(--party-card-max,110px)))); justify-content: center; }
+.wrap[data-mode="hard45"] .team[data-last-ally="true"] { grid-template-columns: minmax(0,min(72%,290px,var(--last-ally-max,290px))); }

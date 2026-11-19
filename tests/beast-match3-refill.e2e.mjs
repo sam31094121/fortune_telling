@@ -134,7 +134,7 @@ try {
     if(await js('!!document.querySelector("[data-testid=pick-hero]")')) {
       await click('[data-testid="pick-hero"]'); await click('[data-testid="confirm-hero"]');
       await wait(`document.querySelectorAll('[data-testid="pick-card"]').length>=4`);
-      const choices=await js(`[...document.querySelectorAll('[data-testid="pick-card"]')].slice(0,4).map(c=>c.dataset.id)`);
+      const choices=await js(`[...document.querySelectorAll('[data-testid="pick-card"]')].slice(0,${Math.max(0,Number(process.env.MATCH3_PARTY_COUNT||5)-1)}).map(c=>c.dataset.id)`);
       for(const id of choices)await click('[data-testid="pick-card"][data-id="'+id+'"]');
       // Wait for the real selection flow; never force-enable the start button.
       await wait(`(()=>{const b=document.querySelector('[data-testid="start-battle"]');return b&&!b.disabled;})()`);
@@ -170,6 +170,18 @@ try {
 
   await send('Page.addScriptToEvaluateOnNewDocument',{source:'window.__gains=[];const createGain=AudioContext.prototype.createGain;AudioContext.prototype.createGain=function(){const g=createGain.call(this);window.__gains.push(g);return g}'});
 
+  if(process.env.MATCH3_PARTY_AUDIT==='1'){
+    let fixedBoard;
+    for(const count of [1,2,3,4,5]){
+      process.env.MATCH3_PARTY_COUNT=String(count);await start(0,Number(process.env.MATCH3_PARTY_WIDTH)||390);await sleep(1200);
+      const layout=await js(`(()=>{const cards=[...document.querySelectorAll('[data-testid="match3-ally"]')];const b=document.querySelector('[data-testid="match3-board"]').getBoundingClientRect();return {board:{w:b.width,h:b.height},count:cards.length,cards:cards.map(e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}}),weapons:[...document.querySelectorAll('[data-testid="orb-treasures"] button')].map(e=>{const r=e.getBoundingClientRect();return {x:r.x,w:r.width}}),width:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth}})()`);
+      if(!fixedBoard)fixedBoard=layout.board;assert(Math.abs(layout.board.w-fixedBoard.w)<=1&&Math.abs(layout.board.h-fixedBoard.h)<=1,'board size must stay fixed across party counts');
+      assert.equal(layout.count,count);assert(!layout.overflow);assert(layout.cards.every(r=>r.w>40&&r.h>40&&r.x>=0&&r.x+r.w<=layout.width+1));
+      for(let i=1;i<count;i++)assert(layout.cards[i].x>=layout.cards[i-1].x+layout.cards[i-1].w,'cards must not overlap');
+      if(count>1){assert.equal(layout.weapons.length,count);for(let i=0;i<count;i++)assert(Math.abs(layout.cards[i].x+layout.cards[i].w/2-layout.weapons[i].x-layout.weapons[i].w/2)<=1,'weapon must align with its ally');}
+      await save('party-'+count);results.push({kind:'party-layout',...layout});console.log('Party layout',count,'PASS');await sleep(liveServer?4500:0);
+    }
+  }
   if(process.env.MATCH3_LAYOUT_AUDIT==='1'){
     await start(18,390);
     const initial=await snap();const board=Array.from({length:8},(_,r)=>initial.cells.filter(c=>c.r===r).map(c=>c.el));
@@ -190,7 +202,7 @@ try {
   }
   // Deterministic input fixture, real server response and real pointer playback.
   // Isolated browser profile: never edits the customer's saved game.
-  for (const [width, length, reduced] of (process.env.MATCH3_LAYOUT_AUDIT==='1'?[]:Array.from({length:Number(process.env.MATCH3_REPLAY_REPEAT)||1},()=>[[320,5,false],[390,6,false],[768,6,false],[1440,7,false],[390,5,true]]).flat())) {
+  for (const [width, length, reduced] of ((process.env.MATCH3_LAYOUT_AUDIT==='1'||process.env.MATCH3_PARTY_AUDIT==='1')?[]:Array.from({length:Number(process.env.MATCH3_REPLAY_REPEAT)||1},()=>[[320,5,false],[390,6,false],[768,6,false],[1440,7,false],[390,5,true]]).flat())) {
     if(process.env.MATCH3_REPLAY_CASE&&String(width)!==process.env.MATCH3_REPLAY_CASE)continue;
     if(liveServer&&reduced)continue;
     await send('Emulation.setEmulatedMedia',{features: reduced ? [{name:'prefers-reduced-motion',value:'reduce'}] : []});

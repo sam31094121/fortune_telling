@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     if (!Array.isArray(p.magic) || p.magic.length !== rows || p.magic.some(r => !Array.isArray(r) || r.length !== 7 || r.some(n => !integer(n,0,1000000)))) throw new Error('invalid');
     if (!Array.isArray(p.path) || p.path.length > 56 || p.path.some(c => !c || !integer(c.r,0,rows-1) || !integer(c.c,0,6))) throw new Error('invalid');
     for (const side of [p.team,p.foes]) {
-      if (!Array.isArray(side) || side.length !== 5 || new Set(side.map(f => f.id)).size !== 5) throw new Error('invalid');
+      if (!Array.isArray(side) || (side === p.team && p.mode === 'hard45' ? side.length < 1 || side.length > 5 : side.length !== 5) || new Set(side.map(f => f.id)).size !== side.length) throw new Error('invalid');
       for (const f of side) if (!getCard(f.id) || getCard(f.id)!.element !== f.element || !integer(f.maxHp,1,10000000) || !integer(f.hp,0,f.maxHp) || !Number.isSafeInteger(f.attack) || !integer(f.attack,0,side===p.team&&shared?Number.MAX_SAFE_INTEGER:10000000)) throw new Error('invalid');
     }
     if (p.team.some(f => !integer(f.energy,0,100)) || p.foes.some(f => !integer(f.cd,0,1000)) || !['tap-lead','first-attacks','all-attack'].includes(p.rule) || !p.chosen || typeof p.chosen !== 'object' || Array.isArray(p.chosen)) throw new Error('invalid');

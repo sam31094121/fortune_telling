@@ -103,14 +103,14 @@ export function enhanceCampaignProfile(p: HardCampaign, operationId: string, you
 }
 export function validateCampaignTeam(p: HardCampaign, ids: readonly string[]): boolean {
   const available = new Set(campaignAvailableIds(p));
-  return !!p.heroId && ids.length === 5 && ids[0] === p.heroId && new Set(ids).size === 5 && ids.every(id => available.has(id));
+  return !!p.heroId && ids.length >= 1 && ids.length <= 5 && ids[0] === p.heroId && new Set(ids).size === ids.length && ids.every(id => available.has(id));
 }
 export function chooseCampaignHero(p: HardCampaign, id: string): HardCampaign {
   const choice = campaignHeroChoice(p);
   if (!campaignGuardianIds().includes(id) || choice === 'locked') throw new Error('主角目前不可更換');
   // Existing players already beyond stage eight confirm their guardian once,
   // rather than receiving an immediate second prompt after initial adoption.
-  const next = { ...p, heroId: id, heroChoiceUsed: p.wins >= 8, teamIds: p.teamIds.length === 5 ? [id, ...p.teamIds.slice(1)] : [] };
+  const next = { ...p, heroId: id, heroChoiceUsed: p.wins >= 8, teamIds: p.teamIds.length >= 1 ? [id, ...p.teamIds.slice(1)] : [] };
   if (next.teamIds.length && !validateCampaignTeam(next, next.teamIds)) next.teamIds = [];
   return next;
 }
