@@ -22,7 +22,7 @@ console.log('PASS last-ally enlarge structure');
 
 assert(src.includes("const foeEnlarged = foesEl?.getAttribute('data-guardian-duel') === 'true' || foesEl?.getAttribute('data-last-foe') === 'true';"), '雙方大卡時棋盤預算要認得敵方大魔王');
 assert(src.includes('if (teamEl && !lastAllyOn && !foeEnlarged) compactReserve.current'), '只有雙方都還是多隻小卡時才更新棋盤高度預算，避免敵方大卡先登場把寶珠撐大');
-assert(src.includes('const chrome = (lastAllyOn || foeEnlarged) && compactReserve.current'), '我方或敵方大卡登場都沿用放大前的棋盤預算');
+assert(/\b(?:const|let) chrome = \(lastAllyOn \|\| foeEnlarged\) && compactReserve\.current/.test(src), '我方或敵方大卡登場都沿用放大前的棋盤預算');
 console.log('PASS both-last-boss compact reserve');
 // 11/14 米其林：結算前凍結排版（擊倒魔王／爆炸／結果不跳版、寶珠不變大、我方放大卡不縮回）
 assert(/heldLayout\.current \?\?= liveLayout\.current;/.test(src) && src.includes('const held = over ? heldLayout.current : null;'), '結束後沿用結束前一刻的排版直到下一局');

@@ -175,6 +175,7 @@ try {
     let fixedBoard;
     for(const count of [1,2,3,4,5]){
       process.env.MATCH3_PARTY_COUNT=String(count);await start(0,Number(process.env.MATCH3_PARTY_WIDTH)||390);await sleep(1200);
+      await wait(`document.querySelectorAll('[data-testid="orb-treasures"] button').length===${count}`);
       const layout=await js(`(()=>{const cards=[...document.querySelectorAll('[data-testid="match3-ally"]')];const b=document.querySelector('[data-testid="match3-board"]').getBoundingClientRect();return {chrome:[...document.querySelector('[data-testid="match3-board"]').parentElement.children].filter(e=>{const s=getComputedStyle(e);return s.display!=='none'&&s.position!=='absolute'}).map(e=>({tag:e.tagName,test:e.getAttribute('data-testid'),h:e.getBoundingClientRect().height,mt:getComputedStyle(e).marginTop,mb:getComputedStyle(e).marginBottom})),board:{w:b.width,h:b.height},count:cards.length,cards:cards.map(e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}}),weapons:[...document.querySelectorAll('[data-testid="orb-treasures"] button')].map(e=>{const r=e.getBoundingClientRect();return {x:r.x,w:r.width}}),pageHeight:document.documentElement.scrollHeight,height:innerHeight,bottom:Math.max(...[...document.querySelectorAll('[data-testid="match3-ally"],[data-testid="orb-treasures"] button')].map(e=>e.getBoundingClientRect().bottom)),width:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth}})()`);
       if(!fixedBoard){fixedBoard=layout.board;if(process.env.MATCH3_DEBUG_LAYOUT)console.log(JSON.stringify(layout));}assert(Math.abs(layout.board.w-fixedBoard.w)<=1&&Math.abs(layout.board.h-fixedBoard.h)<=1,'board size must stay fixed across party counts '+JSON.stringify({count,expected:fixedBoard,actual:layout.board,chrome:layout.chrome}));
       if(process.env.MATCH3_FIT_AUDIT==='1')assert(layout.pageHeight<=layout.height+1,'page must not require vertical scrolling '+JSON.stringify({count,pageHeight:layout.pageHeight,height:layout.height}));
@@ -182,6 +183,14 @@ try {
       assert.equal(layout.count,count);assert(!layout.overflow);assert(layout.cards.every(r=>r.w>40&&r.h>40&&r.x>=0&&r.x+r.w<=layout.width+1));
       for(let i=1;i<count;i++)assert(layout.cards[i].x>=layout.cards[i-1].x+layout.cards[i-1].w,'cards must not overlap');
       if(count>1){assert.equal(layout.weapons.length,count);for(let i=0;i<count;i++)assert(Math.abs(layout.cards[i].x+layout.cards[i].w/2-layout.weapons[i].x-layout.weapons[i].w/2)<=1,'weapon must align with its ally');}
+      if(process.env.MATCH3_REFRESH_AUDIT==='1'){
+        await send('Page.reload',{ignoreCache:true});
+        await wait(`document.querySelectorAll('[data-testid="match3-ally"]').length===${count}`);
+        await sleep(1200);
+        const reloaded=await js(`(()=>{const b=document.querySelector('[data-testid="match3-board"]').getBoundingClientRect(),c=document.querySelector('[data-testid="match3-ally"]').getBoundingClientRect();return {board:b.width,card:c.width}})()`);
+        assert(Math.abs(reloaded.board-layout.board.w)<=1&&Math.abs(reloaded.card-layout.cards[0].w)<=1,'reload must retain board and party proportions');
+        layout.reload=reloaded;
+      }
       if(process.env.MATCH3_PARTY_ENERGY==='1'){
         await state();await sleep(500);
         for(let wait=0;wait<40&&await js(`document.querySelectorAll('[data-testid="orb-treasures"] button').length`)!==count;wait++)await sleep(250);
@@ -192,6 +201,12 @@ try {
         layout.ready=ready;
       }
       await save('party-'+count);results.push({kind:'party-layout',...layout});console.log('Party layout',count,'PASS');await sleep(liveServer?4500:0);
+    }
+    if(Number(process.env.MATCH3_PARTY_WIDTH)>=1000 && Number(process.env.MATCH3_VIEWPORT_HEIGHT)<=960){
+      const layouts=results.filter(r=>r.kind==='party-layout');
+      const five=layouts.find(r=>r.count===5).cards[0].w;
+      for(const count of [2,3,4])assert(layouts.find(r=>r.count===count).cards[0].w>=five*1.15,'smaller laptop parties must visibly enlarge artwork versus five allies: '+count);
+      assert(layouts.find(r=>r.count===1).cards[0].w>=layouts.find(r=>r.count===2).cards[0].w,'solo card must not be smaller than two-party cards');
     }
   }
   if(process.env.MATCH3_LAYOUT_AUDIT==='1'){

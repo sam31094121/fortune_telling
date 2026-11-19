@@ -518,7 +518,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       }
       const height = viewport?.height ?? window.innerHeight;
       const boardElement = element.querySelector<HTMLElement>('[data-testid="match3-board"]');
-      if (boardElement && window.matchMedia('(max-width: 900px), (max-height: 960px)').matches) {
+      if (boardElement && (cfg.id === 'hard45' || window.matchMedia('(max-width: 900px), (max-height: 960px)').matches)) {
         const box = boardElement.getBoundingClientRect(), style = getComputedStyle(boardElement), wrapStyle = getComputedStyle(element);
         const number = (v: string) => Number.parseFloat(v) || 0;
         const vertical = number(style.paddingTop) + number(style.paddingBottom) + number(style.borderTopWidth) + number(style.borderBottomWidth);
@@ -627,7 +627,9 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           const reserve = compactReserve.current;
           const hold = wrapStyle.display.includes('flex') ? reserve?.hold : undefined;
           // 凍結棋盤以上時，大卡可用高度＝原隊伍列＋棋盤以下的空白（留 8px 與棋盤分開）；其餘情況照原本算法。
-          const leftover = reserve ? (hold ? hold.teamH + hold.below - 8 : reserve.teamH + Math.max(0, height - reserve.wrapH)) : 0;
+          const leftover = cfg.id === 'hard45'
+            ? Math.max(0, top + height - boardElement.getBoundingClientRect().bottom - 16)
+            : reserve ? (hold ? hold.teamH + hold.below - 8 : reserve.teamH + Math.max(0, height - reserve.wrapH)) : 0;
           const live = Array.from(teamEl.querySelectorAll<HTMLElement>('[data-testid="match3-ally"]')).find(a => Number(a.getAttribute('data-hp')) > 0);
           const img = live?.querySelector('img');
           if (img && !img.naturalWidth) img.addEventListener('load', schedule, { once: true });
