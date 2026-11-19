@@ -1226,3 +1226,8 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode="hard45"][data-match3-battle-active="true"] > *{flex-shrink:0;}
 
 }
+
+/* 2026-11-19 業主要求：攻擊寶珠下面不放任何字，亮＝能攻擊、不亮＝不行；寶珠置中，不再為文字留底。 */
+.manualEnergyOrb { padding: 3px; }
+.wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"] { height: 56px; padding: 0; }
+.wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"] > [data-element-treasure-orb] { inset: 7px auto auto 7px; }
