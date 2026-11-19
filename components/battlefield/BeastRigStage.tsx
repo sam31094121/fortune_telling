@@ -166,6 +166,8 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
   const canvas = useRef<HTMLCanvasElement>(null);
   const shadow = useRef<HTMLSpanElement>(null);
   const images = useRef<Map<RigFrameId, HTMLImageElement>>(new Map());
+  // 解碼後的點陣圖：畫布每格重畫直接用，不會被瀏覽器圖片快取淘汰後又在主執行緒重新解碼。
+  const bitmaps = useRef<Map<RigFrameId, ImageBitmap>>(new Map());
   const raf = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const hiddenArt = useRef<{ image: HTMLImageElement; visibility: string } | null>(null);
@@ -176,6 +178,7 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
   useEffect(() => {
     setLoaded(false);
     images.current = new Map();
+    bitmaps.current = new Map();
     let cancelled = false;
     let pending = rig.frames.length;
     let failed = false;
@@ -184,14 +187,19 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
       const image = new Image();
       image.decoding = 'async';
       image.onload = () => {
-        if (cancelled) return;
-        map.set(spec.id, image);
-        if (--pending === 0 && !failed) { images.current = map; setLoaded(true); onReady?.(true); }
+        // 先在背景解碼完才算就緒：否則第一次出招畫到畫布時才在主執行緒解碼（單張約 140ms），按寶珠就會卡一下。
+        const settle = () => {
+          if (cancelled) return;
+          map.set(spec.id, image);
+          if (--pending === 0 && !failed) { images.current = map; setLoaded(true); onReady?.(true); }
+        };
+        const toBitmap = () => (typeof createImageBitmap === 'function' ? createImageBitmap(image).then((bitmap) => { if (cancelled) bitmap.close(); else bitmaps.current.set(spec.id, bitmap); }, () => undefined) : Promise.resolve()).then(settle);
+        if (typeof image.decode === 'function') image.decode().then(toBitmap, toBitmap); else toBitmap();
       };
       image.onerror = () => { if (!cancelled && !failed) { failed = true; onReady?.(false); } };
       image.src = rigFrameUrl(rig, spec.id);
     }
-    return () => { cancelled = true; };
+    return () => { cancelled = true; bitmaps.current.forEach((b) => b.close()); };
     // rig 與 onReady 在整個掛載期間不變
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rig.dir]);
@@ -296,7 +304,7 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
             // 只畫這個三角形涵蓋的那一小塊來源圖（外擴 1px），不重畫整張
             const bx = Math.max(0, Math.min(s0x, s1x, s2x) - 1); const by = Math.max(0, Math.min(s0y, s1y, s2y) - 1);
             const bw = Math.min(iw - bx, Math.max(s0x, s1x, s2x) - bx + 1); const bh = Math.min(ih - by, Math.max(s0y, s1y, s2y) - by + 1);
-            ctx.drawImage(image, bx, by, bw, bh, bx, by, bw, bh);
+            ctx.drawImage(bitmaps.current.get(layer.frame) ?? image, bx, by, bw, bh, bx, by, bw, bh);
           };
           for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
             const i00 = j * (cols + 1) + i; const i10 = i00 + 1; const i01 = i00 + cols + 1; const i11 = i01 + 1;
@@ -309,7 +317,7 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
             ctx.restore();
           }
           ctx.setTransform(base);
-        } else ctx.drawImage(image, -dw * 0.5, -dh * 0.92, dw, dh);
+        } else ctx.drawImage(bitmaps.current.get(layer.frame) ?? image, -dw * 0.5, -dh * 0.92, dw, dh);
         ctx.restore();
       }
       ctx.restore();
