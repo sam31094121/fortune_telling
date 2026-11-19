@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "scope": "replay-only",
+  "results": [
+    {
+      "case": "recorded match then clear",
+      "width": 1440,
+      "length": 7,
+      "reduced": false,
+      "chains": 1,
+      "releaseToReadyMs": 3445
+    }
+  ],
+  "errors": []
+}
