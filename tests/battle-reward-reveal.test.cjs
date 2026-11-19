@@ -31,7 +31,7 @@ ok(/status=\{savingReward \? 'saving' : wonCard \? 'saved' : 'failed'\}/.test(bo
 ok(/card=\{wonCard \? </.test(board), '沒有後端已保存的卡就不傳卡片');
 ok(/campaignEnabled && over === 'win' && \(\s*<BattleRewardReveal/.test(board), '只在寶珠闖關模式贏了才出現');
 ok(board.indexOf('<BattleResultBanner') < board.indexOf('<BattleRewardReveal'), '戰利品緊接在勝負橫幅之後');
-ok(board.indexOf('<BattleRewardReveal') < board.indexOf("'挑戰下一關'"), '戰利品排在下一步按鈕之前');
+ok(board.indexOf('<BattleRewardReveal') < board.indexOf('data-testid="match3-next"'), '戰利品排在下一步按鈕之前');
 ok(!/campaignRewardCard/.test(board), '舊的內嵌獎勵區塊已移除');
 
 // 版面：內容比螢幕高時蓋板要能捲，戰利品不能被擠出畫面

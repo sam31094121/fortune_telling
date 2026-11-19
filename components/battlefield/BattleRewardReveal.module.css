@@ -175,6 +175,23 @@
 @keyframes treasureBurst { from { opacity: 0; transform: translateY(0) scale(.3); } 20% { opacity: 1; } to { opacity: 0; transform: translateY(calc(var(--r, 120px) * -1)) scale(.6); } }
 @keyframes treasureEmber { 0% { opacity: 0; transform: translateY(0) scale(.6); } 15% { opacity: .95; } 100% { opacity: 0; transform: translateY(-170px) scale(1); } }
 @keyframes treasurePulse { 0%, 100% { opacity: .7; } 50% { opacity: 1; } }
+/* 2026-11-19 業主要求：戰利品不得突然冒出問號。保存中＝封印卡背在金光與升空光點中緩緩呼吸（神秘感），
+   保存成功＝一道白金閃光後卡片翻面登場（儀式感）。光環、旋轉金光沿用同一舞台，翻牌時不重來。純視覺。 */
+.sealedWrap { position: relative; z-index: 2; width: min(190px, 62%); animation: sealedBreath 2.4s ease-in-out infinite; filter: drop-shadow(0 0 22px #ffd575aa) drop-shadow(0 8px 14px #000a); }
+.sealed { display: grid; place-items: center; width: 100%; aspect-ratio: 63 / 88; border-radius: 12px; border: 2px solid #e9c56d;
+  background: radial-gradient(circle at 50% 42%, #5b3f17 0%, #2a1c10 52%, #120d12 100%); box-shadow: inset 0 0 26px #f8c75855; overflow: hidden; position: relative; }
+.sealed::before { content: ''; position: absolute; inset: 7px; border: 1px solid #f8d98a99; border-radius: 8px; }
+.sealed::after { content: ''; position: absolute; inset: -20% -60%; background: linear-gradient(100deg, transparent 42%, #fff6 50%, transparent 58%); animation: sealedShine 2.6s ease-in-out infinite; }
+.sealed span { font-size: 64px; line-height: 1; color: #f8d98a; text-shadow: 0 0 18px #ffd575; }
+.flash { position: absolute; inset: 0; z-index: 5; pointer-events: none; background: radial-gradient(circle at 50% 50%, #fff 0%, #ffeab0aa 35%, transparent 70%); animation: treasureFlash .9s ease-out both; }
+@keyframes sealedBreath { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-4px) scale(1.025); } }
+@keyframes sealedShine { 0% { transform: translateX(-70%); } 60%, 100% { transform: translateX(70%); } }
+@keyframes treasureFlash { 0% { opacity: 0; } 18% { opacity: 1; } 100% { opacity: 0; } }
+.stage .cardWrap > * { animation-delay: .22s; }
+@media (prefers-reduced-motion: reduce) {
+  .sealedWrap, .sealed::after, .flash { animation: none; }
+  .flash { display: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .reveal[data-presentation='orb-victory'] .heading, .rays, .ring2, .embers i, .pedestal, .stage .cardWrap, .stage .cardWrap::after, .sparks i::after { animation: none; }
   .embers, .ring2 { display: none; }
