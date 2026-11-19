@@ -423,6 +423,11 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 /* 困難版七乘七依手機可用寬度等比例縮放。 */
 .wrap[data-mode^="hard"] .board { --orb-gap: clamp(2px, .9vw, 4px); gap: var(--orb-gap); padding: 4px; }
 .wrap[data-mode^="hard"] .orb { min-width: 0; min-height: 0; aspect-ratio: 1; container-type: inline-size; }
+/* Readability preview: use the board's internal space before moving confirmed controls. */
+.wrap[data-mode="hard45"] .board { --orb-gap:2px; padding:2px; margin-bottom:0; }
+.wrap[data-mode="hard45"] .board .air .gem,
+.wrap[data-mode="hard45"] .board .water .gem { inset:4%; }
+.wrap[data-mode="hard45"] .board .earth .gem { inset:8%; }
 
 /* 魔法珠威力：實際數值的琉璃金邊徽章，留在格內避免蓋到相鄰寶珠。 */
 .wrap[data-mode^="hard"] .power {
@@ -1200,12 +1205,15 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode="hard45"] .team:is([data-team-count="2"],[data-team-count="3"],[data-team-count="4"]):not([data-last-ally="true"]) .fusedUnit > .allyCard > img:first-child {height:var(--art-h);aspect-ratio:auto;object-fit:contain;}
 .wrap[data-mode="hard45"] .team[data-last-ally="true"] { grid-template-columns: minmax(0,min(72%,290px,var(--last-ally-max,290px))); }
 
-/* Reserve a stable energy-orb lane between each card and its weapon. */
-.wrap[data-mode="hard45"] .team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"]){padding-bottom:52px;}
-.wrap[data-mode="hard45"] .team[data-team-count]:not([data-last-ally="true"]) .manualEnergyOrb{top:auto;bottom:-48px;right:auto;left:50%;transform:translateX(-50%);width:44px;height:44px;border:0;background:none;box-shadow:none;padding:0;}
-.wrap[data-mode="hard45"] .team[data-team-count]:not([data-last-ally="true"]) .manualEnergyOrb > [data-element-treasure-orb]{inset:0 auto auto 4px;width:36px;height:36px;}
+/* Preview: reserve the attack target above each card; keep weapons directly below. */
+.wrap[data-mode="hard45"] .team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"]){padding-top:44px;padding-bottom:0;}
+.wrap[data-mode="hard45"] .team[data-team-count]:not([data-last-ally="true"]) .manualEnergyOrb{top:-44px;bottom:auto;right:auto;left:50%;transform:translateX(-50%);width:44px;height:44px;border:0;background:none;box-shadow:none;padding:0;}
+.wrap[data-mode="hard45"] .team[data-team-count]:not([data-last-ally="true"]) .manualEnergyOrb > [data-element-treasure-orb]{inset:39px auto auto 15px;width:14px;height:14px;}
 
 /* Keep each card/orb/weapon group together; distribute spare room above it. */
+.wrap[data-mode="hard45"] .team:not([data-last-ally="true"]) ~ [data-testid="orb-treasures"]:not([data-side-dock="true"]){margin-top:0;}
+.wrap[data-mode="hard45"] .team:not([data-last-ally="true"]) ~ [data-testid="orb-treasures"]:not([data-side-dock="true"]) button{border-top-left-radius:0;border-top-right-radius:0;box-shadow:inset 0 1px 0 #ffffff12;}
+.wrap[data-mode="hard45"] .team:not([data-last-ally="true"]) .fusedUnit > .bar::before{border-bottom-left-radius:0;border-bottom-right-radius:0;}
 @media(max-width:640px){
  .wrap[data-mode="hard45"][data-match3-battle-active="true"]:has(.team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"])){justify-content:flex-start;}
  .wrap[data-mode="hard45"][data-match3-battle-active="true"]:has(.team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"])) > .foes,
@@ -1231,3 +1239,10 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .manualEnergyOrb { padding: 3px; }
 .wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"] { height: 56px; padding: 0; }
 .wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"] > [data-element-treasure-orb] { inset: 7px auto auto 7px; }
+
+/* Position preview: reserve the board's downward travel without moving ally controls. */
+.wrap[data-mode="hard45"] > .board { margin-bottom:48px; }
+.wrap[data-mode="hard45"] .sel::after { border:0; box-shadow:none; }
+.wrap[data-mode="hard45"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] {
+ height:calc(100% + var(--board-preview-drop, 0px));
+}

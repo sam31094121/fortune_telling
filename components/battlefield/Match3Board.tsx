@@ -540,6 +540,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       }
       const height = viewport?.height ?? window.innerHeight;
       const boardElement = element.querySelector<HTMLElement>('[data-testid="match3-board"]');
+      if (boardElement && cfg.id === 'hard45') boardElement.style.transform = '';
       if (boardElement && (cfg.id === 'hard45' || window.matchMedia('(max-width: 900px), (max-height: 960px)').matches)) {
         const box = boardElement.getBoundingClientRect(), style = getComputedStyle(boardElement), wrapStyle = getComputedStyle(element);
         const number = (v: string) => Number.parseFloat(v) || 0;
@@ -581,7 +582,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
             const baselineHeight = Math.max(0, baselineWidth - inset) + decoration;
             liveChrome += baselineHeight - teamEl.getBoundingClientRect().height;
             const room = height - (flowHeight - teamEl.getBoundingClientRect().height) - 8;
-            const lane = number(t.paddingBottom);
+            const lane = number(t.paddingTop) + number(t.paddingBottom);
             // Use the actual artwork ratio instead of reserving an empty square
             // above every landscape beast. All cards share the tallest ratio.
             const images = Array.from(teamEl.querySelectorAll<HTMLImageElement>('[data-testid="match3-ally"] img'));
@@ -607,7 +608,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           // Landscape enemy portraits use a compact strip; give the saved
           // height to the player's cards, never to a party-dependent board.
           const foeHeight = window.innerWidth >= 1000 ? Math.max(measuredFoeHeight, (contentWidth - 16) / 5 + 14) : measuredFoeHeight;
-          chrome = (header?.getBoundingClientRect().height || 32) + foeHeight + baselineCard + 52 + 26 + 3 + 8 + number(style.marginBottom) + number(wrapStyle.paddingTop) + number(wrapStyle.paddingBottom) + 4 * number(wrapStyle.rowGap);
+          chrome = (header?.getBoundingClientRect().height || 32) + foeHeight + baselineCard + 44 + 26 + 3 + 8 + number(style.marginBottom) + number(wrapStyle.paddingTop) + number(wrapStyle.paddingBottom) + 4 * number(wrapStyle.rowGap);
         }
         const available = height - chrome - 1;
         const cell = Math.max(18, Math.min((contentWidth - horizontal - (cfg.cols - 1) * number(style.columnGap)) / cfg.cols, (available - vertical - (cfg.rows - 1) * number(style.rowGap)) / cfg.rows));
@@ -676,6 +677,17 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           const dockTop=Math.max(boardBottom+8, Math.min(tb.top, top+height-dockHeight-8));
           element.style.setProperty('--last-team-top', (dockTop-eb.top)+'px');
           element.style.setProperty('--last-team-height', dockHeight+'px');
+        }
+        // Preview: move only the board into the spare space above the attack controls.
+        if (cfg.id === 'hard45' && teamEl) {
+          const bounds = boardElement.getBoundingClientRect();
+          const controls = Array.from(element.querySelectorAll<HTMLElement>('.' + styles.manualEnergyOrb))
+            .filter(control => control.getClientRects().length > 0);
+          const nextTop = Math.min(teamEl.getBoundingClientRect().top, ...controls.map(control => control.getBoundingClientRect().top));
+          const cardExtra = Math.max(0, Math.min(48, nextTop - bounds.bottom - 8));
+          const drop = Math.max(0, Math.min(56, nextTop - bounds.bottom - 2));
+          boardElement.style.transform = `translateY(${Math.floor(drop)}px)`;
+          element.style.setProperty('--board-preview-drop', `${Math.floor(cardExtra)}px`);
         }
         rect = element.getBoundingClientRect();
       } else element.style.removeProperty('--compact-board-width');
