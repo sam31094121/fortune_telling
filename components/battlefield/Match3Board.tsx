@@ -578,7 +578,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
             const leftoverPre = hold.teamH + hold.below - 8;
             const ratios = Array.from(teamEl.querySelectorAll<HTMLImageElement>('[data-testid="match3-ally"] img')).map(i => i.naturalWidth > 0 && i.naturalHeight > 0 ? i.naturalWidth / i.naturalHeight : 1);
             const rMin = ratios.length ? Math.min(...ratios) : 1;
-            const preWidth = cfg.id === 'hard45' && window.innerWidth <= 640 ? contentWidth - (height <= 650 ? 216 : 128) : contentWidth * 0.72;
+            const preWidth = cfg.id === 'hard45' && window.innerWidth <= 640 ? contentWidth - (height <= 650 ? 176 : 104) : contentWidth * 0.72;
             const pre = Math.max(0, Math.min(preWidth, 290, leftoverPre > 19 ? (leftoverPre - 19) * rMin : 0));
             const preVal = `${Math.round(pre * 100) / 100}px`;
             if (element.style.getPropertyValue('--last-ally-max') !== preVal) element.style.setProperty('--last-ally-max', preVal);
@@ -598,7 +598,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           const ratio = img && img.naturalWidth > 0 && img.naturalHeight > 0 ? img.naturalWidth / img.naturalHeight : 1;
           const maxByHeight = leftover > 19 ? (leftover - 19) * ratio : 0;
           const sideDock = cfg.id === 'hard45' && window.innerWidth <= 640;
-          const cap = Math.max(0, Math.min(sideDock ? contentWidth - (height <= 650 ? 216 : 128) : contentWidth * 0.72, 290, maxByHeight));
+          const cap = Math.max(0, Math.min(sideDock ? contentWidth - (height <= 650 ? 176 : 104) : contentWidth * 0.72, 290, maxByHeight));
           const maxVal = `${Math.round(cap * 100) / 100}px`;
           const ratioVal = String(Math.round(ratio * 1000) / 1000);
           if (element.style.getPropertyValue('--last-ally-max') !== maxVal) element.style.setProperty('--last-ally-max', maxVal);

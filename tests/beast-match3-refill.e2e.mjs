@@ -20,7 +20,7 @@ let port;
 const profile = mkdtempSync(path.join(os.tmpdir(), 'match3-mobile-review-'));
 const output = process.env.MATCH3_SOUND_OUTPUT || path.join(os.tmpdir(),'match3-replay-acceptance-20261109');
 mkdirSync(output, { recursive: true });
-const browser = spawn(edgePath, ['--headless=new', '--inprivate', '--no-first-run', '--disable-default-apps', '--hide-scrollbars', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'], { stdio: ['ignore','ignore','pipe'], windowsHide: true });
+const browser = spawn(edgePath, ['--headless=new', '--inprivate', '--no-first-run', '--disable-default-apps', ...(process.env.MATCH3_LAYOUT_AUDIT==='1'?[]:['--hide-scrollbars']), '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'], { stdio: ['ignore','ignore','pipe'], windowsHide: true });
 let browserOutput='';browser.stderr.on('data',chunk=>{browserOutput=(browserOutput+chunk).slice(-12000);});
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const results = []; let ws; const errors = [];
@@ -153,7 +153,7 @@ try {
     const b=matrix.find(h=>typeof h.memoizedState[0][0]==='string'), m=matrix.find(h=>typeof h.memoizedState[0][0]==='number');
     const t=chosen.find(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length&&h.memoizedState[0]?.energy!==undefined&&h.memoizedState[0]?.hp!==undefined);
     const e=chosen.find(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length&&h.memoizedState[0]?.cd!==undefined&&h.memoizedState[0]?.hp!==undefined);
-    if(${JSON.stringify(fixture)} && typeof ${JSON.stringify(fixture)} === 'object'){const f=${JSON.stringify(fixture)};b.queue.dispatch(f.board);m.queue.dispatch(f.magic);if(f.lastAlly)t.queue.dispatch(t.memoizedState.map((u,i)=>({...u,hp:i?0:u.hp})));}
+    if(${JSON.stringify(fixture)} && typeof ${JSON.stringify(fixture)} === 'object'){const f=${JSON.stringify(fixture)};b.queue.dispatch(f.board);m.queue.dispatch(f.magic);if(f.lastAlly && ${process.env.MATCH3_LAYOUT_AUDIT === '1'})e.queue.dispatch(e.memoizedState.map((u,i)=>({...u,hp:i===4?0:u.hp})));if(f.lastAlly)t.queue.dispatch(t.memoizedState.map((u,i)=>({...u,hp:i?0:u.hp})));}
     else if(${JSON.stringify(fixture)}){const els=['FIRE','WATER','AIR','SPACE','EARTH'];const board=Array.from({length:8},(_,r)=>Array.from({length:7},(_,c)=>els[(r*2+c)%5]));const magic=Array.from({length:8},()=>Array(7).fill(0));for(let c=0;c<3;c++)magic[3][c]=7;board[6][0]=board[6][1]=board[6][2]='EARTH';b.queue.dispatch(board);m.queue.dispatch(magic);}
     if(${process.env.MATCH3_FEEDBACK_AUDIT === '1'})t.queue.dispatch(t.memoizedState.map(u=>({...u,hp:Math.max(1,Math.floor(u.maxHp/2))})));
     if(${process.env.MATCH3_DROP_AUDIT === '1'}){t.queue.dispatch(t.memoizedState.map((u,i)=>({...u,hp:${process.env.MATCH3_SOLO_DROP === '1'}&&i?0:Math.max(1,Math.floor(u.maxHp/3)),attack:1,energy:0})));e.queue.dispatch(e.memoizedState.map(u=>({...u,hp:10000,maxHp:10000,attack:1,attackEnergy:0})));}
@@ -170,9 +170,27 @@ try {
 
   await send('Page.addScriptToEvaluateOnNewDocument',{source:'window.__gains=[];const createGain=AudioContext.prototype.createGain;AudioContext.prototype.createGain=function(){const g=createGain.call(this);window.__gains.push(g);return g}'});
 
+  if(process.env.MATCH3_LAYOUT_AUDIT==='1'){
+    await start(18,390);
+    const initial=await snap();const board=Array.from({length:8},(_,r)=>initial.cells.filter(c=>c.r===r).map(c=>c.el));
+    await state({board,magic:Array.from({length:8},()=>Array(7).fill(7)),lastAlly:true});
+    for(const height of (process.env.MATCH3_LAYOUT_HEIGHT?[Number(process.env.MATCH3_LAYOUT_HEIGHT)]:[844,700,680,650,640,600,580,720])){
+      process.env.MATCH3_VIEWPORT_HEIGHT=String(height);await start(18,435);await state({board,magic:Array.from({length:8},()=>Array(7).fill(7)),lastAlly:true});
+      await send('Emulation.setDeviceMetricsOverride',{width:435,height,deviceScaleFactor:2,mobile:false});await sleep(700);
+      const samples=await js(`new Promise(resolve=>{const a=[];function frame(){const b=document.querySelector('[data-testid="match3-board"]'),r=b.closest('section'),t=document.querySelector('[data-testid="match3-ally"]')?.parentElement;const box=e=>{const r=e.getBoundingClientRect();return [r.x,r.y,r.width,r.height]};a.push({board:box(b),root:box(r),team:box(t),lock:r.dataset.match3ScrollLock,width:document.documentElement.clientWidth,scroll:scrollY,style:r.getAttribute('style')});if(a.length<120)requestAnimationFrame(frame);else resolve(a)}requestAnimationFrame(frame)})`);
+      writeFileSync(path.join(output,'layout-'+height+'.json'),JSON.stringify(samples));
+      const spread=Math.max(...[0,1,2,3].map(i=>Math.max(...samples.map(s=>s.board[i]))-Math.min(...samples.map(s=>s.board[i]))));
+      assert(spread<=1,'Idle board must not oscillate: '+height+' drift '+spread);
+      const gutter=await js(`(()=>{const h=document.documentElement,old=h.style.overflow,read=()=>document.querySelector('[data-testid="match3-board"]').getBoundingClientRect().x;h.style.overflow='scroll';const a=read();h.style.overflow='hidden';const b=read();h.style.overflow=old;return {a,b,drift:Math.abs(a-b),gutter:getComputedStyle(h).scrollbarGutter,ancestors:(()=>{const out=[];for(let e=document.querySelector('[data-testid=match3-board]');e;e=e.parentElement){const r=e.getBoundingClientRect(),s=getComputedStyle(e);out.push({tag:e.tagName,cls:e.className,x:r.x,w:r.width,position:s.position,width:s.width,overflow:s.overflow})}return out})()}})()`);
+      assert(gutter.drift<=1,'Scrollbar visibility must not move board: '+JSON.stringify(gutter));
+      results.push({kind:'layout-stability',height,spread,gutter});
+      console.log('Layout',height,'board drift',spread,'scrollbar drift',gutter.drift);
+    }
+    process.exitCode=0;
+  }
   // Deterministic input fixture, real server response and real pointer playback.
   // Isolated browser profile: never edits the customer's saved game.
-  for (const [width, length, reduced] of Array.from({length:Number(process.env.MATCH3_REPLAY_REPEAT)||1},()=>[[320,5,false],[390,6,false],[768,6,false],[1440,7,false],[390,5,true]]).flat()) {
+  for (const [width, length, reduced] of (process.env.MATCH3_LAYOUT_AUDIT==='1'?[]:Array.from({length:Number(process.env.MATCH3_REPLAY_REPEAT)||1},()=>[[320,5,false],[390,6,false],[768,6,false],[1440,7,false],[390,5,true]]).flat())) {
     if(process.env.MATCH3_REPLAY_CASE&&String(width)!==process.env.MATCH3_REPLAY_CASE)continue;
     if(liveServer&&reduced)continue;
     await send('Emulation.setEmulatedMedia',{features: reduced ? [{name:'prefers-reduced-motion',value:'reduce'}] : []});
@@ -214,9 +232,23 @@ try {
       assert.equal(reply.treasure.catalog.reduce((sum,c)=>sum+c.count,0),caught.length);
       if(caught.length){
         const owner=caught[0].ownerId,u=reply.beforeCounter.team.find(u=>u.id===owner);assert.equal(u.hp,u.maxHp);assert.equal(u.energy,100);
+        await wait(`document.querySelector('[data-testid="match3-ready-energy-orb"][data-source-id="${owner}"]')?.disabled===false`,15000);
+        await save('before-energy-'+width);
+        writeFileSync(path.join(output,'energy-button-'+width+'.json'),JSON.stringify(await js(`(()=>{const e=document.querySelector('[data-testid="match3-ready-energy-orb"]');return {button:e?{disabled:e.disabled,label:e.getAttribute('aria-label')}:null,team:window.__dropReply?.counter?.team?.map(u=>({id:u.id,hp:u.hp,energy:u.energy,charges:u.orbDropCharges}))};})()`),null,2));
         await click('[data-testid="match3-ready-energy-orb"][data-source-id="'+owner+'"]');
-        await wait('window.__dropReply?.action==="energy"');
+        await wait('window.__dropReply?.action==="energy"',20000);
         const attack=await js('window.__dropReply');assert(attack.actualDamage>=5000);assert(attack.foes.some(f=>f.orbDropCounterBlocked));
+        if(process.env.MATCH3_WEAPON_AUDIT==='1'){
+          await wait('document.querySelector("[data-testid=match3-board]").getAttribute("aria-busy")!=="true"');
+          const weapon=await js(`(()=>{const e=[...document.querySelectorAll('[data-treasure]')].find(e=>!e.disabled&&Number(e.dataset.count)>0);return e?{element:e.dataset.treasure,variant:Number(e.dataset.variant),count:Number(e.dataset.count)}:null;})()`);
+          assert(weapon,'caught weapon is available for manual use');
+          await click('[data-treasure="'+weapon.element+'"][data-variant="'+weapon.variant+'"]');
+          await wait('!!window.__dropReply?.effect');
+          const used=await js('window.__dropReply');assert.equal(used.effect.element,weapon.element);assert.equal(used.effect.variant,weapon.variant);
+          assert.equal(used.catalog.find(x=>x.element===weapon.element&&x.variant===weapon.variant).count,weapon.count-1,'one manual click consumes exactly one weapon');
+          await wait('document.querySelector("[data-testid=match3-board]").getAttribute("aria-busy")!=="true"');
+          assert(used.effect.damage>0,'manual weapon produces actual damage');
+        }
       }
       await save('drop-result-'+width+'-'+n);results.push({case:'server pinball',width,reduced,shields:n,drops:reply.treasure.drops.map(d=>({owner:d.ownerId,duration:d.durationMs,impacts:d.impacts.length})),caught:caught.length});continue;
     }
@@ -325,8 +357,9 @@ try {
     await start(0,width);
     await js('document.querySelector("[data-testid=match3-board]").scrollIntoView({block:"center",behavior:"instant"})');
     await js('window.__falls=[];window.__watch=true;function sampleFall(){const b=document.querySelector("[data-testid=match3-board]");if(b?.dataset.refilling){const cells=[...b.querySelectorAll("[data-fall-from]")];window.__falls.push({busy:b.getAttribute("aria-busy"),disabled:document.querySelector("[data-testid=open-picker]").disabled,overflow:getComputedStyle(b).overflow,cells:cells.map(c=>({r:+c.dataset.r,from:+c.dataset.fallFrom,delay:parseFloat(getComputedStyle(c).animationDelay),animation:getComputedStyle(c).animationName,transform:getComputedStyle(c).transform,opacity:getComputedStyle(c).opacity}))})}if(window.__watch)requestAnimationFrame(sampleFall)}requestAnimationFrame(sampleFall)');
-    const play=drag(findPath((await snap()).cells,3));
-    await wait('document.querySelector("[data-testid=match3-board]")?.dataset.refilling === "true"');await sleep(120);await save('refill-moving-'+width);await play;
+    const baseline=await snap();writeFileSync(path.join(output,'free-play-before-'+width+'.json'),JSON.stringify(baseline,null,2));
+    const play=drag(findPath(baseline.cells,3));
+    await wait('document.querySelector("[data-testid=match3-board]")?.dataset.refilling === "true"',20000);await sleep(120);await save('refill-moving-'+width);await play;
     const observations=await js('window.__watch=false;window.__falls');
     assert(observations.length>2,'actual falling frames must render');
     assert(observations.every(f=>f.busy==='true'&&f.disabled&&f.overflow==='hidden'),'no input while unsettled and entering beads stay inside board');

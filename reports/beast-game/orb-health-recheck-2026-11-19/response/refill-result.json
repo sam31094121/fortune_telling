@@ -1,0 +1,62 @@
+{
+  "passed": true,
+  "scope": "replay-only",
+  "results": [
+    {
+      "case": "recorded match then clear",
+      "width": 320,
+      "length": 5,
+      "reduced": false,
+      "chains": 5,
+      "releaseToReadyMs": 4142,
+      "requestMs": 2309,
+      "responseToFirstMatchMs": -2236,
+      "inputFeedbackMs": 30
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 6,
+      "reduced": false,
+      "chains": 3,
+      "releaseToReadyMs": 4594,
+      "requestMs": 1736,
+      "responseToFirstMatchMs": -1670,
+      "inputFeedbackMs": 27
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 768,
+      "length": 6,
+      "reduced": false,
+      "chains": 6,
+      "releaseToReadyMs": 4148,
+      "requestMs": 2366,
+      "responseToFirstMatchMs": -2303,
+      "inputFeedbackMs": 25
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 1440,
+      "length": 7,
+      "reduced": false,
+      "chains": 3,
+      "releaseToReadyMs": 3500,
+      "requestMs": 3364,
+      "responseToFirstMatchMs": -3294,
+      "inputFeedbackMs": 28
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 5,
+      "reduced": true,
+      "chains": 3,
+      "releaseToReadyMs": 1366,
+      "requestMs": 930,
+      "responseToFirstMatchMs": -851,
+      "inputFeedbackMs": 27
+    }
+  ],
+  "errors": []
+}

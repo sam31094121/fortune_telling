@@ -1,0 +1,32 @@
+{
+  "sampleCount": 120,
+  "consecutiveStates": [
+    {
+      "frames": 120,
+      "state": {
+        "board": [
+          56.5,
+          140.9375,
+          322,
+          367.46875
+        ],
+        "root": [
+          0,
+          0,
+          435,
+          640
+        ],
+        "team": [
+          8,
+          525.71875,
+          419,
+          104.28125
+        ],
+        "lock": "true",
+        "width": 435,
+        "scroll": 0,
+        "style": "--accent: #ff8a5c; --foe-row-h: 94.61px; --foe-room-up: 0px; --compact-board-width: 322px; --hold-g1: 0.33px; --hold-g2: 8.33px; --last-ally-max: 121.69px; --last-ally-art-ratio: 1.333; --last-team-top: 525.71875px; --last-team-height: 104.28125px;"
+      }
+    }
+  ]
+}

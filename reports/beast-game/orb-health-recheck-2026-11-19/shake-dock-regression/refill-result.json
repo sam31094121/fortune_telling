@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "scope": "replay-only",
+  "results": [
+    {
+      "case": "server pinball",
+      "width": 390,
+      "reduced": false,
+      "shields": 10,
+      "drops": [
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2612.8,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5732.8,
+          "impacts": 10
+        }
+      ],
+      "caught": 2
+    },
+    {
+      "case": "server pinball",
+      "width": 390,
+      "reduced": true,
+      "shields": 10,
+      "drops": [
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2612.8,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5732.8,
+          "impacts": 10
+        }
+      ],
+      "caught": 2
+    }
+  ],
+  "errors": []
+}

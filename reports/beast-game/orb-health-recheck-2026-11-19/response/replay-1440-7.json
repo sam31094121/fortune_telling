@@ -1,0 +1,270 @@
+{
+  "evidence": "Compact audit",
+  "samples": [
+    {
+      "epoch": "1",
+      "t": 14788.599999999627,
+      "chain": 1,
+      "busy": "true",
+      "pointer": "none"
+    },
+    {
+      "epoch": "6",
+      "t": 15716.599999999627,
+      "chain": 2,
+      "busy": "true",
+      "pointer": "none"
+    },
+    {
+      "epoch": "11",
+      "t": 16474.599999999627,
+      "chain": 3,
+      "busy": "true",
+      "pointer": "none"
+    }
+  ],
+  "pointers": [
+    {
+      "type": "pointermove",
+      "x": 560.140625,
+      "y": 659.328125,
+      "hit": [
+        "7",
+        "0"
+      ],
+      "coalesced": [
+        {
+          "x": 560.140625,
+          "y": 659.328125
+        }
+      ],
+      "rect": {
+        "x": 535.5,
+        "y": 634.6875,
+        "w": 49.28125,
+        "h": 49.28125
+      }
+    },
+    {
+      "type": "pointerdown",
+      "x": 560.140625,
+      "y": 659.328125,
+      "hit": [
+        "7",
+        "0"
+      ],
+      "coalesced": [],
+      "rect": {
+        "x": 535.5,
+        "y": 634.6875,
+        "w": 49.28125,
+        "h": 49.28125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 613.421875,
+      "y": 659.328125,
+      "hit": [
+        "7",
+        "1"
+      ],
+      "coalesced": [
+        {
+          "x": 613.421875,
+          "y": 659.328125
+        }
+      ],
+      "rect": {
+        "x": 588.78125,
+        "y": 634.6875,
+        "w": 49.28125,
+        "h": 49.28125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 666.703125,
+      "y": 659.328125,
+      "hit": [
+        "7",
+        "2"
+      ],
+      "coalesced": [
+        {
+          "x": 666.703125,
+          "y": 659.328125
+        }
+      ],
+      "rect": {
+        "x": 642.0625,
+        "y": 634.6875,
+        "w": 49.28125,
+        "h": 49.28125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 719.9921875,
+      "y": 659.3359375,
+      "hit": [
+        "7",
+        "3"
+      ],
+      "coalesced": [
+        {
+          "x": 719.9921875,
+          "y": 659.3359375
+        }
+      ],
+      "rect": {
+        "x": 695.34375,
+        "y": 634.6875,
+        "w": 49.296875,
+        "h": 49.296875
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 773.28125,
+      "y": 659.328125,
+      "hit": [
+        "7",
+        "4"
+      ],
+      "coalesced": [
+        {
+          "x": 773.28125,
+          "y": 659.328125
+        }
+      ],
+      "rect": {
+        "x": 748.640625,
+        "y": 634.6875,
+        "w": 49.28125,
+        "h": 49.28125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 826.5625,
+      "y": 659.328125,
+      "hit": [
+        "7",
+        "5"
+      ],
+      "coalesced": [
+        {
+          "x": 826.5625,
+          "y": 659.328125
+        }
+      ],
+      "rect": {
+        "x": 801.921875,
+        "y": 634.6875,
+        "w": 49.28125,
+        "h": 49.28125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 879.84375,
+      "y": 659.328125,
+      "hit": [
+        "7",
+        "6"
+      ],
+      "coalesced": [
+        {
+          "x": 879.84375,
+          "y": 659.328125
+        }
+      ],
+      "rect": {
+        "x": 855.203125,
+        "y": 634.6875,
+        "w": 49.28125,
+        "h": 49.28125
+      }
+    },
+    {
+      "type": "pointerup",
+      "x": 879.84375,
+      "y": 659.328125,
+      "hit": [
+        "7",
+        "6"
+      ],
+      "coalesced": [],
+      "rect": {
+        "x": 855.203125,
+        "y": 634.6875,
+        "w": 49.28125,
+        "h": 49.28125
+      }
+    }
+  ],
+  "events": [
+    {
+      "element": "FIRE",
+      "count": 7,
+      "cascadeStep": 1,
+      "eligible": false,
+      "power": 7,
+      "target": "beast_a22"
+    },
+    {
+      "element": "EARTH",
+      "count": 4,
+      "cascadeStep": 2,
+      "eligible": true,
+      "power": 4,
+      "target": "beast_a22"
+    },
+    {
+      "element": "FIRE",
+      "count": 3,
+      "cascadeStep": 3,
+      "eligible": false,
+      "power": 3,
+      "target": "beast_a22"
+    },
+    {
+      "type": "magicOrbSpawn",
+      "r": 7,
+      "c": 6,
+      "element": "FIRE",
+      "power": 7
+    },
+    {
+      "type": "magicOrbSpawn",
+      "r": 0,
+      "c": 3,
+      "element": "EARTH",
+      "power": 4
+    },
+    {
+      "type": "energy",
+      "element": "FIRE",
+      "gain": 100,
+      "fill": false
+    },
+    {
+      "type": "energy",
+      "element": "EARTH",
+      "gain": 40,
+      "fill": false
+    }
+  ],
+  "turn": {
+    "damage": 0,
+    "outcome": null,
+    "referee": {
+      "verdict": "PASS",
+      "action": "KEEP_ANIMATION",
+      "reason": "前端演的跟後端算的逐格一致，維持畫面。",
+      "serverDigest": "661d23172b8e",
+      "claimDigest": "661d23172b8e"
+    }
+  }
+}

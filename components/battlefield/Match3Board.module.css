@@ -725,6 +725,12 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .skillFeedback { position: absolute; z-index: 9; left: 0; right: 0; top: 32%; padding: 3px 2px; border-radius: 5px; background: #253a45ee; color: #fff2d2; font-size: 10px; line-height: 1.3; text-align: center; pointer-events: none; }
 .runtimeShield { position: absolute; z-index: 3; left: 2px; bottom: 3px; border-radius: 4px; padding: 1px 3px; font-size: 10px; line-height: 1.2; color: #d5f0ff; background: #183442ee; pointer-events: none; }
 
+/* Keep the battle width stable when fit detection toggles scrolling. Mobile overlay scrollbars reserve no extra space. */
+:global(html):has(.wrap[data-mode="hard45"][data-match3-battle-active="true"]) { scrollbar-gutter: stable; }
+.wrap[data-mode="hard45"][data-match3-battle-active="true"] { overflow-x: clip; overflow-y: visible; }
+/* A second body scroll container would gain/lose a gutter when root locking changes. */
+:global(body):has(.wrap[data-mode="hard45"][data-match3-battle-active="true"]) { overflow-x: clip; overflow-y: visible; }
+
 /* Lock only a fully visible hard battlefield. No inline body styles or scroll offsets are changed. */
 :global(html):has(.wrap[data-match3-scroll-lock="true"]),
 :global(body):has(.wrap[data-match3-scroll-lock="true"]) { overflow: hidden; overscroll-behavior: none; }
