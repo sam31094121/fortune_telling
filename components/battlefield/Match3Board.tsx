@@ -276,6 +276,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const energyClickLock = useRef(false);
   const skillVisualKey = useRef(0);
   const [strike, setStrike] = useState<Match3Strike | null>(null);
+  const strikeRef = useRef<Match3Strike | null>(null); strikeRef.current = strike;
   const [attackCaption, setAttackCaption] = useState<{ side: 'ally' | 'enemy'; text: string; hint?: boolean } | null>(null);
   // 阿修羅死亡動畫：只吃伺服端回合結果（orb-turn／寶器）產生的擊倒事件；播放中暫緩 .down 與退場，播完（或保底逾時）才恢復。
   const [knockouts, setKnockouts] = useState<KnockoutEvent[]>([]);
@@ -312,11 +313,32 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         later(()=>setOutgoing([]),900);
       });
   };
+  // 前端先演、後端判決：能量技／連線攻擊一按下就先起手（只有動作與音效，沒有傷害數字、不動血量）。
+  // 傷害、生命、擊倒仍只看後端回覆；回覆失敗就收掉這段起手演出。
+  const previewStrikeKey = useRef(0);
+  const startAttackPreview = (attackerIds: string[], foe: Foe) => {
+    if (!rigEnabled || !attackerIds.length) return;
+    const key = ++strikeKey.current; previewStrikeKey.current = key; hadRig.current = true;
+    setStrike({ key, targetId: foe.id, attackerIds }); cue('charge');
+    setFired(new Set(attackerIds)); later(() => setFired(new Set()), 700);
+    later(() => setStrike(current => current?.key === key ? null : current), RIG_STRIKE_MS);
+  };
+  const cancelAttackPreview = () => {
+    const key = previewStrikeKey.current; previewStrikeKey.current = 0;
+    if (key) { setStrike(current => current?.key === key ? null : current); setFired(new Set()); }
+  };
   const showStrike = (hits: readonly { attackerId?: string | null; amount: number }[], foe: Foe, after: Foe, charge = false, actualDamage?: number, summon?: Match3Strike['summon']) => {
     if (!rigEnabled) return;
     showOutgoing(hits, foe);
     const attackerIds = summon ? [summon.guardianId] : match3RigAttackers(hits, foe.hp, after.hp, actualDamage);
     hadRig.current = attackerIds.length > 0;
+    // 起手演出已經在播且攻擊者一致：沿用，不重播第二次。
+    const previewed = previewStrikeKey.current ? strikeRef.current : null;
+    previewStrikeKey.current = 0;
+    if (previewed && !summon && attackerIds.length && previewed.attackerIds.length === attackerIds.length && attackerIds.every(id => previewed.attackerIds.includes(id))) {
+      setAttackCaption({ side: 'ally', text: hits.filter(h => h.amount > 0 && h.attackerId).map(h => `${team.find(u => u.id === h.attackerId)?.name ?? getCard(h.attackerId!)?.name ?? '暫時無法取得'} → ${foe.name} −${h.amount}`).join('；') + `｜生命 ${foe.hp} → ${after.hp}` });
+      return;
+    }
     const next = attackerIds.length ? { key: ++strikeKey.current, targetId: foe.id, attackerIds, summon } : null;
     setStrike(next);
     if (hits.some(h => h.amount > 0 && h.attackerId)) setAttackCaption({ side: 'ally', text: hits.filter(h => h.amount > 0 && h.attackerId).map(h => `${team.find(u => u.id === h.attackerId)?.name ?? getCard(h.attackerId!)?.name ?? '暫時無法取得'} → ${foe.name} −${h.amount}`).join('；') + `｜生命 ${foe.hp} → ${after.hp}` });
@@ -1204,8 +1226,9 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     const foe = foes[ti]; const amt = skillAmount(rigEnabled ? fighterEffectiveAttack(u) : u.attack, u.element, foe.element);
     const spentTeam = team.map(x => x.id === u.id ? { ...x, energy: 0 } : x);
     const actionId = rigEnabled ? cardActionId('skill') : '';
+    if (rigEnabled) startAttackPreview([u.id], foe);
     const applied = rigEnabled ? await requestCardAttack('energy', [u.id], `${init.seed}:energy:${++energyActionKey.current}`, actionId) : null;
-    if (rigEnabled && !applied) return;
+    if (rigEnabled && !applied) { cancelAttackPreview(); return; }
     const damaged = applied?.foes ?? damageFoe(foes, ti, amt);
     const nextTeam = applied?.team ?? spentTeam;
     const actualAmount = applied?.actualDamage ?? amt;
@@ -1239,8 +1262,9 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     const amt = linkDamage(cards.map((c) => rigEnabled ? fighterEffectiveAttack(c) : c.attack)); const foe = foes[ti];
     const spentTeam = team.map((u) => ids.includes(u.id) ? { ...u, energy: u.energy - LINK_ENERGY_COST } : u);
     const actionId = rigEnabled ? cardActionId('link') : '';
+    if (rigEnabled) startAttackPreview(cards.map((c) => c.id), foe);
     const applied = rigEnabled ? await requestCardAttack('link', cards.map((c) => c.id), `${init.seed}:energy:${++energyActionKey.current}`, actionId) : null;
-    if (rigEnabled && !applied) return false;
+    if (rigEnabled && !applied) { cancelAttackPreview(); return false; }
     const damaged = applied?.foes ?? damageFoe(foes, ti, amt);
     const nextTeam = applied?.team ?? spentTeam;
     const actualAmount = applied?.actualDamage ?? amt;
