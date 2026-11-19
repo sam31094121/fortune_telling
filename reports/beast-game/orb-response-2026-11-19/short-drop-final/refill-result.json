@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "scope": "replay-only",
+  "results": [
+    {
+      "case": "server pinball",
+      "width": 320,
+      "reduced": false,
+      "shields": 10,
+      "drops": [
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2772.8,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 5680,
+          "impacts": 9
+        }
+      ],
+      "caught": 1
+    }
+  ],
+  "errors": []
+}

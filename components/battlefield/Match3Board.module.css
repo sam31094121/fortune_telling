@@ -33,6 +33,9 @@
 .fire .lbl { top: 12%; }
 .earth { --c: #c39324; } .earth .gem { border-radius: 18%; inset: 12%; }
 .sel { transform: scale(1.08); }
+.board[data-submitting="true"] .sel::after { animation: submittedOrbPulse 520ms ease-in-out infinite alternate; }
+@keyframes submittedOrbPulse { from { opacity: 1; } to { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .board[data-submitting="true"] .sel::after { animation: none; } }
 .sel::after { content: ''; position: absolute; inset: -1px; border-radius: 12px; border: 2px solid var(--seal); box-shadow: 0 0 10px rgba(201,164,92,.7); pointer-events: none; }
 /* 魔法珠：金色光環＋右上角威力數字 */
 .magic::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #ffe3a1; box-shadow: 0 0 12px 3px rgba(255,214,120,.75), inset 0 0 8px rgba(255,240,200,.6);
@@ -420,6 +423,11 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 /* 困難版七乘七依手機可用寬度等比例縮放。 */
 .wrap[data-mode^="hard"] .board { --orb-gap: clamp(2px, .9vw, 4px); gap: var(--orb-gap); padding: 4px; }
 .wrap[data-mode^="hard"] .orb { min-width: 0; min-height: 0; aspect-ratio: 1; container-type: inline-size; }
+/* Readability preview: use the board's internal space before moving confirmed controls. */
+.wrap[data-mode="hard45"] .board { --orb-gap:2px; padding:2px; margin-bottom:0; }
+.wrap[data-mode="hard45"] .board .air .gem,
+.wrap[data-mode="hard45"] .board .water .gem { inset:4%; }
+.wrap[data-mode="hard45"] .board .earth .gem { inset:8%; }
 
 /* 魔法珠威力：實際數值的琉璃金邊徽章，留在格內避免蓋到相鄰寶珠。 */
 .wrap[data-mode^="hard"] .power {
@@ -721,6 +729,12 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 }
 .skillFeedback { position: absolute; z-index: 9; left: 0; right: 0; top: 32%; padding: 3px 2px; border-radius: 5px; background: #253a45ee; color: #fff2d2; font-size: 10px; line-height: 1.3; text-align: center; pointer-events: none; }
 .runtimeShield { position: absolute; z-index: 3; left: 2px; bottom: 3px; border-radius: 4px; padding: 1px 3px; font-size: 10px; line-height: 1.2; color: #d5f0ff; background: #183442ee; pointer-events: none; }
+
+/* Keep the battle width stable when fit detection toggles scrolling. Mobile overlay scrollbars reserve no extra space. */
+:global(html):has(.wrap[data-mode="hard45"][data-match3-battle-active="true"]) { scrollbar-gutter: stable; }
+.wrap[data-mode="hard45"][data-match3-battle-active="true"] { overflow-x: clip; overflow-y: visible; }
+/* A second body scroll container would gain/lose a gutter when root locking changes. */
+:global(body):has(.wrap[data-mode="hard45"][data-match3-battle-active="true"]) { overflow-x: clip; overflow-y: visible; }
 
 /* Lock only a fully visible hard battlefield. No inline body styles or scroll offsets are changed. */
 :global(html):has(.wrap[data-match3-scroll-lock="true"]),
@@ -1141,3 +1155,100 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .board[data-dragging='true'] .orb .sweep::before,
 .board[data-dragging='true'] .orb .facet::before,
 .board[data-dragging='true'] .orb.magic::before { animation-play-state: paused; }
+
+.turnFeedback{display:flex;justify-content:space-between;gap:6px;min-height:22px;padding:2px 6px;font-size:12px;line-height:18px;color:#f5e7bd;pointer-events:none;}
+.turnFeedback b{color:#ffd977;font-variant-numeric:tabular-nums;}
+.healReceipt{position:absolute;right:2px;bottom:18px;z-index:5;padding:1px 3px;background:rgba(9,35,24,.92);color:#adffca;font-size:11px;line-height:15px;white-space:nowrap;pointer-events:none;border-radius:4px;}
+
+/* 手機戰鬥保持一屏：狀態供讀屏使用，不新增頂部文字列；詳細回復紀錄由玩法展開。 */
+@media(max-width:640px){
+  .wrap[data-mode="hard45"][data-match3-battle-active="true"] > .turnFeedback{position:absolute;width:1px;height:1px;min-height:0;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;}
+  .wrap[data-mode="hard45"][data-match3-battle-active="true"] > .supportResult{display:none;}
+  .wrap[data-mode="hard45"][data-match3-battle-active="true"] > .attackCaption[data-hint="false"]{display:none;}
+}
+
+@media(max-width:640px){
+ .wrap[data-mode="hard45"][data-last-ally-stage="true"] .team[data-last-ally="true"]{margin-bottom:8px;}
+ .wrap[data-mode="hard45"] .team[data-last-ally="true"] .fusedUnit>.bar{left:-12px;top:var(--art-h);width:var(--art-h);height:7px;transform-origin:0 0;transform:rotate(-90deg);}
+ .wrap[data-mode="hard45"] .team[data-last-ally="true"] .fusedUnit>.energy{position:absolute;left:calc(100% + 6px);top:var(--art-h);width:var(--art-h);height:6px;transform-origin:0 0;transform:rotate(-90deg);}
+}
+
+/* Raise the final-survivor board into spare space; keep its original orb size. */
+@media(max-width:640px){
+ .wrap[data-mode="hard45"][data-match3-battle-active="true"][data-hold-top="true"][data-last-ally-stage="true"] > [data-testid="match3-board"]{margin-top:max(8px,calc(var(--hold-g2, 8px) - 24px));}
+}
+
+ .wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"]{position:absolute;top:var(--last-team-top);right:8px;width:56px;height:64px;border-radius:12px;z-index:12;padding:5px 6px 16px;}
+ .manualEnergyOrb[data-solo-energy="true"] > span:last-child{font-size:11px;bottom:3px;}
+
+ .wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"]{border:1px solid #b6a3d48c;background:linear-gradient(155deg,#ffffff18,transparent 38%,#0005),radial-gradient(ellipse at 50% 0%,#343044,#10121d 85%);box-shadow:inset 0 1px 0 #fff3,inset 0 -2px 0 #b6a3d4,0 2px 5px #0008;color:#fff8df;}
+ .wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"]:disabled{opacity:.7;}
+ .manualEnergyOrb[data-solo-energy="true"] > span:last-child{font-weight:800;font-variant-numeric:tabular-nums;line-height:13px;text-shadow:0 1px 3px #000;}
+
+/* Single right-side supply: a round orb, without a rectangular housing. */
+ .wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"]{border:0;background:none;box-shadow:none;border-radius:50%;padding:0;}
+ .wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"] > [data-element-treasure-orb]{inset:3px auto auto 7px;width:42px;height:42px;}
+ .manualEnergyOrb[data-solo-energy="true"] > [data-element-treasure-orb]::before{inset:-5%;box-shadow:0 0 7px rgba(var(--orb-glow-rgb),.28),inset 0 0 5px rgba(var(--orb-glow-rgb),.2);opacity:.4;}
+ .manualEnergyOrb[data-solo-energy="true"] > span:last-child{bottom:1px;}
+
+.manualEnergyOrb[data-solo-energy="true"]:not(:disabled) > [data-element-treasure-orb]{filter:brightness(1.12) saturate(1.12);}
+
+/* Variable player party: keep occupied cards together, without empty five-slot gaps. */
+@media(min-width:1000px) and (max-height:960px){
+ .wrap[data-mode="hard45"] .foes:not([data-guardian-duel="true"]):not([data-last-foe="true"]) .fusedUnit{max-width:64px;margin-inline:auto;}
+}
+.wrap[data-mode="hard45"] .team[data-team-count="1"]:not([data-last-ally="true"]) { grid-template-columns: minmax(0, 150px); justify-content: center; }
+.wrap[data-mode="hard45"] .team[data-team-count="2"] { --party-columns:2; }
+.wrap[data-mode="hard45"] .team[data-team-count="3"] { --party-columns:3; }
+.wrap[data-mode="hard45"] .team[data-team-count="4"] { --party-columns:4; }
+.wrap[data-mode="hard45"] .team:is([data-team-count="2"],[data-team-count="3"],[data-team-count="4"]):not([data-last-ally="true"]) {
+ grid-template-columns:repeat(var(--party-columns),minmax(0,var(--party-card-max,1fr)));justify-content:center;
+}
+.wrap[data-mode="hard45"] .team:is([data-team-count="2"],[data-team-count="3"],[data-team-count="4"]):not([data-last-ally="true"]) .fusedUnit {
+ --art-h:calc(100cqw / var(--party-art-ratio,1));--bar-top:calc(var(--art-h) - var(--join));
+}
+.wrap[data-mode="hard45"] .team:is([data-team-count="2"],[data-team-count="3"],[data-team-count="4"]):not([data-last-ally="true"]) .fusedUnit > .allyCard,
+.wrap[data-mode="hard45"] .team:is([data-team-count="2"],[data-team-count="3"],[data-team-count="4"]):not([data-last-ally="true"]) .fusedUnit > .allyCard > img:first-child {height:var(--art-h);aspect-ratio:auto;object-fit:contain;}
+.wrap[data-mode="hard45"] .team[data-last-ally="true"] { grid-template-columns: minmax(0,min(72%,290px,var(--last-ally-max,290px))); }
+
+/* Preview: reserve the attack target above each card; keep weapons directly below. */
+.wrap[data-mode="hard45"] .team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"]){padding-top:44px;padding-bottom:0;}
+.wrap[data-mode="hard45"] .team[data-team-count]:not([data-last-ally="true"]) .manualEnergyOrb{top:-24px;bottom:auto;right:auto;left:50%;transform:translateX(-50%);width:28px;height:28px;min-height:28px;border:0;background:none;box-shadow:none;padding:0;}
+.wrap[data-mode="hard45"] .team[data-team-count]:not([data-last-ally="true"]) .manualEnergyOrb > [data-element-treasure-orb]{inset:13px auto auto 7px;width:14px;height:14px;}
+
+/* Keep each card/orb/weapon group together; distribute spare room above it. */
+.wrap[data-mode="hard45"] .team:not([data-last-ally="true"]) ~ [data-testid="orb-treasures"]:not([data-side-dock="true"]){margin-top:0;}
+.wrap[data-mode="hard45"] .team:not([data-last-ally="true"]) ~ [data-testid="orb-treasures"]:not([data-side-dock="true"]) button{border-top-left-radius:0;border-top-right-radius:0;box-shadow:inset 0 1px 0 #ffffff12;}
+.wrap[data-mode="hard45"] .team:not([data-last-ally="true"]) .fusedUnit > .bar::before{border-bottom-left-radius:0;border-bottom-right-radius:0;}
+@media(max-width:640px){
+ .wrap[data-mode="hard45"][data-match3-battle-active="true"]:has(.team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"])){justify-content:flex-start;}
+ .wrap[data-mode="hard45"][data-match3-battle-active="true"]:has(.team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"])) > .foes,
+ .wrap[data-mode="hard45"][data-match3-battle-active="true"]:has(.team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"])) > .board,
+ .wrap[data-mode="hard45"][data-match3-battle-active="true"]:has(.team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"])) > .team{margin-top:auto;}
+}
+.wrap[data-mode="hard45"] .team:not([data-last-ally="true"]) .manualEnergyOrb > [data-element-treasure-orb]::before{inset:-5%;box-shadow:0 0 5px rgba(var(--orb-glow-rgb),.22);opacity:.45;}
+/* Keep attack counts readable against the static orb without moving the control. */
+.wrap[data-mode="hard45"] .manualEnergyOrb > span:last-child{z-index:3;font-variant-numeric:tabular-nums;text-shadow:0 1px 2px #080b12,0 0 3px #080b12;background:linear-gradient(90deg,transparent,#10121dcc 25%,#10121dcc 75%,transparent);border-radius:6px;}
+
+/* All hard45 viewports keep combat explanations inside the help panel. */
+.wrap[data-mode="hard45"][data-match3-battle-active="true"] > .turnFeedback{position:absolute;width:1px;height:1px;min-height:0;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;}
+.wrap[data-mode="hard45"][data-match3-battle-active="true"] > .supportResult,
+.wrap[data-mode="hard45"][data-match3-battle-active="true"] > .attackCaption[data-hint="false"]{display:none;}
+/* Count real content on tablets as on phones, without min-height feedback. */
+@media(min-width:641px){
+.wrap[data-mode="hard45"][data-match3-battle-active="true"]{display:flex;flex-direction:column;justify-content:space-between;}
+.wrap[data-mode="hard45"][data-match3-battle-active="true"] > *{flex-shrink:0;}
+
+}
+
+/* 2026-11-19 業主要求：攻擊寶珠下面不放任何字，亮＝能攻擊、不亮＝不行；寶珠置中，不再為文字留底。 */
+.manualEnergyOrb { padding: 3px; }
+.wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"] { height: 56px; padding: 0; }
+.wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"] > [data-element-treasure-orb] { inset: 7px auto auto 7px; }
+
+/* Position preview: reserve the board's downward travel without moving ally controls. */
+.wrap[data-mode="hard45"] > .board { margin-bottom:36px; }
+.wrap[data-mode="hard45"] .sel::after { border:0; box-shadow:none; }
+.wrap[data-mode="hard45"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] {
+ height:calc(100% + var(--board-preview-drop, 0px));
+}

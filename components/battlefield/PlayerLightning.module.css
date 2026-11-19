@@ -1,22 +1,41 @@
 .discharge { pointer-events: none; }
-.channel { animation: discharge 650ms ease-out both; }
-.halo { opacity: .16; filter: blur(2px); }
-.branches { opacity: .58; }
-.core { opacity: .95; }
-.impact { opacity: 0; transform-box: fill-box; transform-origin: center; animation: contact 220ms 650ms ease-out both; }
+/* 整體：80ms 內劈到終點，再快速頻閃衰減（總長沿用 650ms，不拖慢後續演出）。 */
+.channel { animation: discharge 650ms linear both; mix-blend-mode: screen; }
+.bloom { opacity: .10; }
+.halo { opacity: .24; }
+.branches { opacity: .7; stroke-dasharray: 60; animation: branchGrow 160ms ease-out both; }
+.side { opacity: .55; }
+.body { opacity: .95; }
+.core { opacity: 1; }
+/* 劈下：由起點畫到終點 */
+.bloom, .halo, .side, .body, .core { stroke-dasharray: 1; stroke-dashoffset: 1; animation: strike 80ms cubic-bezier(.2,.8,.3,1) forwards; }
+.impact { opacity: 0; transform-box: fill-box; transform-origin: center; animation: contact 260ms 70ms ease-out both; }
+.flare { opacity: .5; }
+.shock { transform-box: fill-box; transform-origin: center; animation: shock 260ms 70ms ease-out both; }
+.spark { opacity: 0; animation: spark 340ms ease-out both; }
+@keyframes strike { to { stroke-dashoffset: 0; } }
+@keyframes branchGrow { from { stroke-dashoffset: 60; } to { stroke-dashoffset: 0; } }
 @keyframes discharge {
   0% { opacity: 0; }
-  10% { opacity: .95; }
-  24% { opacity: .55; }
-  42% { opacity: .85; }
-  70% { opacity: .35; }
+  8% { opacity: 1; }
+  16% { opacity: .55; }
+  24% { opacity: 1; }
+  34% { opacity: .5; }
+  46% { opacity: .85; }
+  62% { opacity: .3; }
   100% { opacity: 0; }
 }
 @keyframes contact {
-  from { opacity: .85; transform: scale(.7); }
-  to { opacity: 0; transform: scale(1.15); }
+  from { opacity: 1; transform: scale(.5); }
+  to { opacity: 0; transform: scale(1.3); }
+}
+@keyframes shock { from { transform: scale(.4); } to { transform: scale(1.5); } }
+@keyframes spark {
+  0% { opacity: 1; transform: translate(0, 0); }
+  100% { opacity: 0; transform: translate(var(--sx), var(--sy)); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .channel { animation: none; opacity: .45; }
-  .halo, .branches, .impact { display: none; animation: none; }
+  .channel { animation: none; opacity: .6; }
+  .bloom, .halo, .side, .body, .core { animation: none; stroke-dashoffset: 0; }
+  .branches, .impact, .spark, .shock { display: none; animation: none; }
 }

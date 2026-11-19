@@ -1,0 +1,104 @@
+[
+  {
+    "path": "/nameology",
+    "status": 200,
+    "ms": 1736,
+    "length": 34081
+  },
+  {
+    "path": "/beast-game",
+    "status": 200,
+    "ms": 3091,
+    "length": 31080
+  },
+  {
+    "path": "/star-beasts",
+    "status": 200,
+    "ms": 176,
+    "length": 79873
+  },
+  {
+    "path": "/insight",
+    "status": 200,
+    "ms": 127,
+    "length": 38467
+  },
+  {
+    "path": "/numerology",
+    "status": 200,
+    "ms": 1053,
+    "length": 35934
+  },
+  {
+    "path": "/match",
+    "status": 200,
+    "ms": 2075,
+    "length": 39642
+  },
+  {
+    "path": "/music",
+    "status": 200,
+    "ms": 2580,
+    "length": 27728
+  },
+  {
+    "path": "/bazi",
+    "status": 200,
+    "ms": 2018,
+    "length": 37166
+  },
+  {
+    "path": "/zodiac",
+    "status": 200,
+    "ms": 1512,
+    "length": 37231
+  },
+  {
+    "path": "/tarot",
+    "status": 200,
+    "ms": 982,
+    "length": 30121
+  },
+  {
+    "path": "/growth-center",
+    "status": 200,
+    "ms": 2850,
+    "length": 33230
+  },
+  {
+    "path": "/nameology?mode=bazi",
+    "status": 200,
+    "ms": 239,
+    "length": 34136
+  },
+  {
+    "path": "/dual-chart",
+    "status": 200,
+    "ms": 3062,
+    "length": 27799
+  },
+  {
+    "path": "/ghost-asura",
+    "status": 200,
+    "ms": 2460,
+    "length": 46671
+  },
+  {
+    "path": "/red-luan-heartbeat",
+    "status": 200,
+    "ms": 3736,
+    "length": 48591
+  },
+  {
+    "path": "/3D",
+    "status": 200,
+    "ms": 2111,
+    "length": 26667
+  },
+  {
+    "path": "/nine-grid",
+    "status": 200,
+    "ms": 2230,
+    "length": 31397
+  }
+]

@@ -8,6 +8,7 @@ import { resolveOrbTurn, type TurnInput } from './match3/resolve-turn';
 import { resolveCardAttackTurn } from './match3/card-attack';
 import { resolveTreasureUse, emptyTreasureBook } from './match3/treasures';
 import { orbOutcome } from './match3/battle-outcome';
+import { nextComebackRecord } from './match3/comeback';
 
 /** Signed, tab-held guest state. No database, wallet, login or customer collection. */
 export interface GuestOrbTicket { kind:'battle'; practice?:true; id:string; version:number; seed:number; input:TurnInput; profile:HardCampaign }
@@ -41,8 +42,9 @@ export function beginGuestOrb(raw:HardCampaign,seed:number) {
     // Preserve existing tab-only legacy progress; validate its original receipt format.
     // Historical unsigned progress cannot be retroactively authenticated.
     p=parseCampaign(JSON.stringify(clean(raw)));
+    delete p.comebackRecord; // Legacy unsigned data cannot claim losses for new rescue grants.
   }
-  if(!validateCampaignTeam(p,p.teamIds))throw new Error('請選定主角與四位夥伴。');
+  if(!validateCampaignTeam(p,p.teamIds))throw new Error('請選定主角，可另選最多四位夥伴。');
   const stats=Object.fromEntries(playableCards().map(c=>[c.id,campaignCardAttack(p,c.id)]));
   const initial=initialSharedOrb({...p,shared:{availableIds:p.teamIds,cards:[],stats,selectedEntries:[]}},seed,'hard45');
   p={...p,treasures:initial.treasures};
@@ -54,8 +56,8 @@ export function openGuestOrb(token:unknown):GuestOrbTicket {
 }
 /** The request contributes intentions only. Stats, HP, seed, progress and rewards are signed. */
 export function guestOrbInput(ticket:GuestOrbTicket,request:TurnInput):TurnInput {
-  const {path,target,rule,chosen,action,attackerId,linkIds,treasureElement,treasureVariant}=request;
-  return {...ticket.input,path,target,rule,chosen,action,attackerId,linkIds,treasureElement,treasureVariant,actionId:`guest:${ticket.id}:${ticket.version}`,eventId:`guest:${ticket.id}:${ticket.version}`,seed:action?ticket.seed:(ticket.seed+ticket.input.move*2654435761)>>>0};
+  const {path,target,rule,chosen,action,attackerId,linkIds,treasureElement,treasureVariant,singleCatchWidth}=request;
+  return {...ticket.input,path,target,rule,chosen,action,attackerId,linkIds,treasureElement,treasureVariant,singleCatchWidth,actionId:`guest:${ticket.id}:${ticket.version}`,eventId:`guest:${ticket.id}:${ticket.version}`,seed:action?ticket.seed:(ticket.seed+ticket.input.move*2654435761)>>>0};
 }
 export function resolveGuestOrb(ticket:GuestOrbTicket,input:TurnInput) {
   if(orbOutcome(ticket.input.team,ticket.input.foes)!==null)throw new Error('本局已結束。');
@@ -63,12 +65,14 @@ export function resolveGuestOrb(ticket:GuestOrbTicket,input:TurnInput) {
   if(input.action==='energy'||input.action==='link'){
     const r=resolveCardAttackTurn(input);response=r;next={...ticket.input,team:r.team,foes:r.foes};
   }else if(input.action==='treasure'){
-    const r=resolveTreasureUse(input,input.treasureElement!,input.treasureVariant??0);response=r;next={...ticket.input,team:r.team,foes:r.foes,treasures:r.book,treasureGuard:r.guardScale};
+    const r=resolveTreasureUse(input,input.treasureElement!,input.treasureVariant??0);response=r;next={...ticket.input,team:r.team,foes:r.foes,treasures:r.book,treasureGuard:r.guardScale,comeback:r.comeback,comebackText:r.comebackText};
   }else{
-    const r=resolveOrbTurn(input);response=r;next={...ticket.input,board:r.res.board,magic:r.res.magic,team:r.counter.team,foes:r.counter.foes,treasures:r.treasure.book,treasureGuard:r.nextTreasureGuard,attackBoost:r.nextBoost,move:ticket.input.move+(input.path.length?1:0)};
+    const r=resolveOrbTurn(input);response=r;next={...ticket.input,board:r.res.board,magic:r.res.magic,team:r.counter.team,foes:r.counter.foes,treasures:r.treasure.book,treasureGuard:r.nextTreasureGuard,attackBoost:r.nextBoost,move:ticket.input.move+(input.path.length?1:0),comeback:r.comeback,comebackText:r.comebackText};
   }
   // Existing guest rule: no permanent treasure book; reward stays in this tab only.
   let profile={...ticket.profile,treasures:next.treasures};
+  const outcome=orbOutcome(next.team,next.foes);
+  if(!ticket.practice&&input.comeback&&(outcome==='win'||outcome==='lose'))profile={...profile,comebackRecord:nextComebackRecord(input.wins,ticket.profile.comebackRecord,outcome)};
   if(!ticket.practice&&orbOutcome(next.team,next.foes)==='win')profile={...campaignWin(profile,'guest-win:'+ticket.id,ticket.input.wins).profile,treasures:emptyTreasureBook()};
   const updated:GuestOrbTicket={...ticket,version:ticket.version+1,input:next,profile};
   return {...response,guestBattleToken:sealGuestOrb(updated),guestVersion:updated.version,guestProfile:signedProfile(profile)};

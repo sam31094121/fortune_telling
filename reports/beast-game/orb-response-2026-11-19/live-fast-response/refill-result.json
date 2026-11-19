@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "scope": "replay-only",
+  "results": [
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 6,
+      "reduced": false,
+      "chains": 3,
+      "releaseToReadyMs": 4602,
+      "requestMs": 3077,
+      "responseToFirstMatchMs": -3016,
+      "inputFeedbackMs": 25
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 6,
+      "reduced": false,
+      "chains": 5,
+      "releaseToReadyMs": 4104,
+      "requestMs": 898,
+      "responseToFirstMatchMs": -840,
+      "inputFeedbackMs": 22
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 6,
+      "reduced": false,
+      "chains": 4,
+      "releaseToReadyMs": 5483,
+      "requestMs": 1070,
+      "responseToFirstMatchMs": -991,
+      "inputFeedbackMs": 31
+    }
+  ],
+  "errors": []
+}

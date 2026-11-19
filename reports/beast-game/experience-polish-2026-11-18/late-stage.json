@@ -1,0 +1,455 @@
+{
+  "scope": "45 fixed-seed first-attempt drag-only runs; same five-card team, affinity stars, no manual skills or treasures; diagnostic, not full player win rates",
+  "rows": [
+    {
+      "level": 50,
+      "stars": 0,
+      "seed": 1,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 12700
+    },
+    {
+      "level": 50,
+      "stars": 0,
+      "seed": 2,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 12699
+    },
+    {
+      "level": 50,
+      "stars": 0,
+      "seed": 3,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 12699
+    },
+    {
+      "level": 50,
+      "stars": 0,
+      "seed": 4,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 12699
+    },
+    {
+      "level": 50,
+      "stars": 0,
+      "seed": 5,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 12700
+    },
+    {
+      "level": 50,
+      "stars": 3,
+      "seed": 1,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 12700
+    },
+    {
+      "level": 50,
+      "stars": 3,
+      "seed": 2,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 12699
+    },
+    {
+      "level": 50,
+      "stars": 3,
+      "seed": 3,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 12699
+    },
+    {
+      "level": 50,
+      "stars": 3,
+      "seed": 4,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 12699
+    },
+    {
+      "level": 50,
+      "stars": 3,
+      "seed": 5,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 12700
+    },
+    {
+      "level": 50,
+      "stars": 5,
+      "seed": 1,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 12700
+    },
+    {
+      "level": 50,
+      "stars": 5,
+      "seed": 2,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 12699
+    },
+    {
+      "level": 50,
+      "stars": 5,
+      "seed": 3,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 5,
+      "startHp": 571,
+      "enemyHp": 12699
+    },
+    {
+      "level": 50,
+      "stars": 5,
+      "seed": 4,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 12699
+    },
+    {
+      "level": 50,
+      "stars": 5,
+      "seed": 5,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 12700
+    },
+    {
+      "level": 100,
+      "stars": 0,
+      "seed": 1,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24689
+    },
+    {
+      "level": 100,
+      "stars": 0,
+      "seed": 2,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24689
+    },
+    {
+      "level": 100,
+      "stars": 0,
+      "seed": 3,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24691
+    },
+    {
+      "level": 100,
+      "stars": 0,
+      "seed": 4,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24690
+    },
+    {
+      "level": 100,
+      "stars": 0,
+      "seed": 5,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24690
+    },
+    {
+      "level": 100,
+      "stars": 3,
+      "seed": 1,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24689
+    },
+    {
+      "level": 100,
+      "stars": 3,
+      "seed": 2,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24689
+    },
+    {
+      "level": 100,
+      "stars": 3,
+      "seed": 3,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24691
+    },
+    {
+      "level": 100,
+      "stars": 3,
+      "seed": 4,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24690
+    },
+    {
+      "level": 100,
+      "stars": 3,
+      "seed": 5,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24690
+    },
+    {
+      "level": 100,
+      "stars": 5,
+      "seed": 1,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24689
+    },
+    {
+      "level": 100,
+      "stars": 5,
+      "seed": 2,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24689
+    },
+    {
+      "level": 100,
+      "stars": 5,
+      "seed": 3,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24691
+    },
+    {
+      "level": 100,
+      "stars": 5,
+      "seed": 4,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24690
+    },
+    {
+      "level": 100,
+      "stars": 5,
+      "seed": 5,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 24690
+    },
+    {
+      "level": 150,
+      "stars": 0,
+      "seed": 1,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 36680
+    },
+    {
+      "level": 150,
+      "stars": 0,
+      "seed": 2,
+      "outcome": "lose",
+      "turns": 8,
+      "counters": 5,
+      "startHp": 571,
+      "enemyHp": 36679
+    },
+    {
+      "level": 150,
+      "stars": 0,
+      "seed": 3,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 36680
+    },
+    {
+      "level": 150,
+      "stars": 0,
+      "seed": 4,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 36679
+    },
+    {
+      "level": 150,
+      "stars": 0,
+      "seed": 5,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 36680
+    },
+    {
+      "level": 150,
+      "stars": 3,
+      "seed": 1,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 36680
+    },
+    {
+      "level": 150,
+      "stars": 3,
+      "seed": 2,
+      "outcome": "lose",
+      "turns": 8,
+      "counters": 5,
+      "startHp": 571,
+      "enemyHp": 36679
+    },
+    {
+      "level": 150,
+      "stars": 3,
+      "seed": 3,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 36680
+    },
+    {
+      "level": 150,
+      "stars": 3,
+      "seed": 4,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 36679
+    },
+    {
+      "level": 150,
+      "stars": 3,
+      "seed": 5,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 36680
+    },
+    {
+      "level": 150,
+      "stars": 5,
+      "seed": 1,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 36680
+    },
+    {
+      "level": 150,
+      "stars": 5,
+      "seed": 2,
+      "outcome": "lose",
+      "turns": 8,
+      "counters": 5,
+      "startHp": 571,
+      "enemyHp": 36679
+    },
+    {
+      "level": 150,
+      "stars": 5,
+      "seed": 3,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 36680
+    },
+    {
+      "level": 150,
+      "stars": 5,
+      "seed": 4,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 36679
+    },
+    {
+      "level": 150,
+      "stars": 5,
+      "seed": 5,
+      "outcome": "lose",
+      "turns": 9,
+      "counters": 6,
+      "startHp": 571,
+      "enemyHp": 36680
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "passed": false,
+  "results": [
+    {
+      "kind": "party-layout",
+      "chrome": [
+        {
+          "tag": "HEADER",
+          "test": null,
+          "h": 32,
+          "mt": "0px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "match3-enemies",
+          "h": 93.609375,
+          "mt": "0.97px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "match3-board",
+          "h": 372.44451904296875,
+          "mt": "8px",
+          "mb": "8px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 148.96875,
+          "mt": "6.95312px",
+          "mb": "8px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 680,
+          "mt": "0px",
+          "mb": "0px"
+        }
+      ],
+      "board": {
+        "w": 326.08001708984375,
+        "h": 372.44451904296875
+      },
+      "count": 1,
+      "cards": [
+        {
+          "x": 124.375,
+          "y": 521.03125,
+          "w": 181.25,
+          "h": 148.96875
+        }
+      ],
+      "weapons": [
+        {
+          "x": 8,
+          "w": 56
+        }
+      ],
+      "pageHeight": 680,
+      "height": 680,
+      "bottom": 670,
+      "width": 430,
+      "overflow": false,
+      "ready": {
+        "board": {
+          "x": 51.959991455078125,
+          "y": 140.578125,
+          "w": 326.08001708984375,
+          "h": 372.44451904296875
+        },
+        "orbs": [
+          {
+            "x": 366,
+            "y": 521.03125,
+            "w": 56,
+            "h": 56
+          }
+        ],
+        "weapons": [
+          {
+            "x": 8,
+            "y": 521.03125,
+            "w": 56,
+            "h": 64
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: board size must stay fixed across party counts {\"count\":2,\"expected\":{\"w\":326.08001708984375,\"h\":372.44451904296875},\"actual\":{\"w\":322.239990234375,\"h\":368.0585021972656},\"chrome\":[{\"tag\":\"HEADER\",\"test\":null,\"h\":32,\"mt\":\"0px\",\"mb\":\"0px\"},{\"tag\":\"DIV\",\"test\":\"match3-enemies\",\"h\":93.609375,\"mt\":\"2.71875px\",\"mb\":\"0px\"},{\"tag\":\"DIV\",\"test\":\"match3-board\",\"h\":368.0585021972656,\"mt\":\"2.70312px\",\"mb\":\"8px\"},{\"tag\":\"DIV\",\"test\":null,\"h\":138.75,\"mt\":\"2.71875px\",\"mb\":\"0px\"},{\"tag\":\"DIV\",\"test\":\"orb-treasures\",\"h\":26,\"mt\":\"0px\",\"mb\":\"0px\"},{\"tag\":\"DIV\",\"test\":null,\"h\":680,\"mt\":\"0px\",\"mb\":\"0px\"},{\"tag\":\"DIV\",\"test\":null,\"h\":680,\"mt\":\"0px\",\"mb\":\"0px\"}]}"
+}

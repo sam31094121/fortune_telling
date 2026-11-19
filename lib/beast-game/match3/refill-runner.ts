@@ -22,6 +22,8 @@ function committed(commit: () => Promise<void>, signal: AbortSignal): Promise<vo
   });
 }
 function visibleWait(clock: RefillClock, duration: number, signal: AbortSignal, progress?: (elapsed: number, late: boolean) => void): Promise<void> {
+  if(signal.aborted)return Promise.reject(cancelled());
+  if(duration<=0 && clock.visible()){progress?.(0,false);return Promise.resolve();}
   return new Promise((resolve, reject) => {
     let handle: number | null = null, last: number | null = null, elapsed = 0;
     const clean = () => { if (handle !== null) clock.cancel(handle); unsubscribe(); signal.removeEventListener('abort', abort); };

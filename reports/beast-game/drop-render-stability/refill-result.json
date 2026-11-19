@@ -1,0 +1,81 @@
+{
+  "passed": true,
+  "scope": "replay-only",
+  "results": [
+    {
+      "case": "drop render work",
+      "width": 390,
+      "reduced": false,
+      "drops": 4,
+      "statusWrites": 12,
+      "maxStatusWrites": 12
+    },
+    {
+      "case": "server pinball",
+      "width": 390,
+      "reduced": false,
+      "shields": 11,
+      "drops": [
+        {
+          "owner": "beast_y19",
+          "duration": 4067.2000000000003,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_y03",
+          "duration": 5720,
+          "impacts": 10
+        },
+        {
+          "owner": "beast_y14",
+          "duration": 5812.8,
+          "impacts": 9
+        },
+        {
+          "owner": "beast_y03",
+          "duration": 4027.2000000000003,
+          "impacts": 8
+        }
+      ],
+      "caught": 4
+    },
+    {
+      "case": "drop render work",
+      "width": 390,
+      "reduced": true,
+      "drops": 4,
+      "statusWrites": 8,
+      "maxStatusWrites": 12
+    },
+    {
+      "case": "server pinball",
+      "width": 390,
+      "reduced": true,
+      "shields": 11,
+      "drops": [
+        {
+          "owner": "beast_y19",
+          "duration": 4067.2000000000003,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_y03",
+          "duration": 5720,
+          "impacts": 10
+        },
+        {
+          "owner": "beast_y14",
+          "duration": 5812.8,
+          "impacts": 9
+        },
+        {
+          "owner": "beast_y03",
+          "duration": 4027.2000000000003,
+          "impacts": 8
+        }
+      ],
+      "caught": 4
+    }
+  ],
+  "errors": []
+}

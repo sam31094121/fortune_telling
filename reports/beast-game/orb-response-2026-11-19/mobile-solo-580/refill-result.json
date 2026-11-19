@@ -1,0 +1,96 @@
+{
+  "passed": true,
+  "scope": "replay-only",
+  "results": [
+    {
+      "case": "last ally side dock",
+      "width": 320,
+      "before": {
+        "x": 8,
+        "y": 120.625,
+        "w": 304,
+        "h": 346.75
+      },
+      "after": {
+        "x": 8,
+        "y": 118.125,
+        "w": 304,
+        "h": 346.75
+      },
+      "dock": [
+        {
+          "x": 8,
+          "y": 480,
+          "w": 56,
+          "h": 64,
+          "right": 64,
+          "bottom": 544
+        }
+      ]
+    },
+    {
+      "case": "last ally side dock",
+      "width": 390,
+      "before": {
+        "x": 51.5,
+        "y": 130.3125,
+        "w": 287,
+        "h": 327.375
+      },
+      "after": {
+        "x": 51.5,
+        "y": 129.96875,
+        "w": 287,
+        "h": 327.375
+      },
+      "dock": [
+        {
+          "x": 8,
+          "y": 475.671875,
+          "w": 56,
+          "h": 64,
+          "right": 64,
+          "bottom": 539.671875
+        }
+      ]
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 1440,
+      "length": 7,
+      "reduced": false,
+      "chains": 2,
+      "releaseToReadyMs": 4127,
+      "requestMs": 80,
+      "responseToFirstMatchMs": -10,
+      "inputFeedbackMs": 27
+    },
+    {
+      "case": "last ally side dock",
+      "width": 390,
+      "before": {
+        "x": 51.5,
+        "y": 130.3125,
+        "w": 287,
+        "h": 327.375
+      },
+      "after": {
+        "x": 51.5,
+        "y": 129.96875,
+        "w": 287,
+        "h": 327.375
+      },
+      "dock": [
+        {
+          "x": 8,
+          "y": 475.671875,
+          "w": 56,
+          "h": 64,
+          "right": 64,
+          "bottom": 539.671875
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

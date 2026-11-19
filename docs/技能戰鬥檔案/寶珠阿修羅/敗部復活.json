@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "normalRallies": 1,
+  "criticalPercent": 30,
+  "rallyHealPercent": 35,
+  "boostActions": 3,
+  "attackMultiplier": 1.5,
+  "treasureAttackMultiplier": 2,
+  "rareTreasureDamagePercent": 50,
+  "rareTreasureHealPercent": 50,
+  "rescueAfterLosses": 2,
+  "rescueStrikes": 5,
+  "shieldHealPercent": 10,
+  "challengeStage": 5,
+  "challengeHpMultiplier": 1.1,
+  "challengeAttackMultiplier": 1.05
+}

@@ -1,5 +1,6 @@
 import 'server-only';
-import { exactBonus, cultivationTarget, type CultivationChange } from './cultivation';
+import { balancedSnapshot,proportionalBonus } from './cultivation-balance';
+import { exactBonus, cultivationTarget, canCultivatePair, type CultivationChange } from './cultivation';
 import { fedCounter, type CultivationSnapshot } from './cultivation-transaction';
 import { attackBonusCap, starProgress, activeFoodChainRule, type StarProgress } from './cultivation-rules';
 import { getCard, playableCards } from './registry';
@@ -37,15 +38,18 @@ export function describeCultivationChange(change: CultivationChange) {
   const before = exactBonus(change.beforeBonus), after = exactBonus(change.afterBonus), added = exactBonus(change.addedBonus);
   const orbBase = BigInt(target.stats.attack), battleBase = battleBaseAttack(target.id);
   const fedBefore = change.fedBefore, fedAfter = change.fedAfter;
+  const battleBefore=change.rule==='v4'?proportionalBonus(battleBase,change.powerBefore??0):before;
+  const battleAfter=change.rule==='v4'?proportionalBonus(battleBase,change.powerAfter??0):after;
   return {
     ...change,
+    addedBattleBonus:(battleAfter-battleBefore).toString(),
     rule: change.rule ?? 'v1',
-    layer: material.form === 'YOUNG' ? 'YOUNG_TO_ADULT' as const : 'ADULT_TO_GUARDIAN' as const,
+    layer: (change.rule === 'v3'||change.rule==='v4') ? 'CULTIVATION' as const : material.form === 'YOUNG' ? 'YOUNG_TO_ADULT' as const : 'ADULT_TO_GUARDIAN' as const,
     materialName: material.name, targetName: target.name, materialForm: material.form, targetForm: target.form,
     targetBaseAttack: String(target.stats.attack),
     addedPercent: percentOf(added, target.stats.attack), totalPercentBefore: percentOf(before, target.stats.attack), totalPercentAfter: percentOf(after, target.stats.attack),
     beforeOrbAttack: (orbBase + before).toString(), afterOrbAttack: (orbBase + after).toString(),
-    beforeBattleAttack: (battleBase + before).toString(), afterBattleAttack: (battleBase + after).toString(),
+    beforeBattleAttack: (battleBase + (change.rule==='v4'?proportionalBonus(battleBase,change.powerBefore??0):before)).toString(), afterBattleAttack: (battleBase + (change.rule==='v4'?proportionalBonus(battleBase,change.powerAfter??0):after)).toString(),
     starsBefore: fedBefore === undefined ? null : stars(target.form, fedBefore),
     starsAfter: fedAfter === undefined ? null : stars(target.form, fedAfter),
     consumed: true as const,
@@ -55,7 +59,8 @@ export type CultivationFeedback = ReturnType<typeof describeCultivationChange>;
 
 /** Both game-specific original attack bases are preserved; the owned-copy bonus is shared. */
 export function cultivationView(snapshot: CultivationSnapshot) {
-  const fedOf = fedCounter(snapshot), v2 = activeFoodChainRule() === 'v2';
+  if(activeFoodChainRule()==='v4')snapshot=balancedSnapshot(snapshot);
+  const fedOf = fedCounter(snapshot), rule = activeFoodChainRule(), v2 = rule !== 'v1';
   const seen=new Map<string,number>();
   const totals=new Map<string,number>();
   for(const copy of snapshot.state.cards)totals.set(copy.cardId,(totals.get(copy.cardId)??0)+1);
@@ -66,22 +71,23 @@ export function cultivationView(snapshot: CultivationSnapshot) {
     const target = cultivationTarget(copy.cardId);
     const copyNumber=(seen.get(copy.cardId)??0)+1;seen.set(copy.cardId,copyNumber);
     return { id: copy.id, cardId: copy.cardId, name: card.name, form: card.form, copyLabel:`同款第 ${copyNumber} 張／共 ${totals.get(copy.cardId)} 張`,
-      protected: snapshot.state.protectedIds.includes(copy.id), materialTargetCardId: target,
+      protected: snapshot.state.protectedIds.includes(copy.id), materialTargetCardId: target, materialTargetCardIds: playableCards().filter(t=>canCultivatePair(card.id,t.id,rule)).map(t=>t.id),
       materialTargetName: target ? getCard(target)?.name ?? null : null,
       // 這張卡能吃哪些材料（後端算好的說明，前端要不要顯示由畫面決定）：幼子只餵同星宿成獸，成獸只餵所屬四象。
-      acceptsMaterialsText: card.form === 'YOUNG' ? null : `只有${feederNames(card.id)}可以吃`,
+      acceptsMaterialsText: card.form === 'YOUNG' ? null : (rule === 'v3'||rule==='v4') ? '可選不同卡種材料；同屬性或材料相生給目標的加成較高。' : `只有${feederNames(card.id)}可以吃`,
       bonus: bonus.toString(), orbAttack: (BigInt(card.stats.attack) + bonus).toString(),
-      battleAttack: (battleBaseAttack(card.id) + bonus).toString(),
+      battleAttack: (battleBaseAttack(card.id) + (rule==='v4'?proportionalBonus(battleBaseAttack(card.id),copy.powerUnits??0):bonus)).toString(),
       // 食物鏈顯示欄位（只讀；伺服端算好）。
       bonusPercent: percentOf(bonus, card.stats.attack).label,
-      ...(v2 && card.form !== 'YOUNG' ? (() => { const st = stars(card.form, fed); return { bonusCap: cap.toString(), atBonusCap: bonus >= cap, stars: st,
+      ...(v2 && card.form !== 'YOUNG' ? (() => { const st = stars(card.form, fed); return { ...(rule === 'v2' ? {bonusCap: cap.toString()} : {}), atBonusCap: rule === 'v2' && bonus >= cap, stars: st,
         // 2026-11-16 批次吃卡：還能再吃幾張到五星封頂（伺服端算好，前端不做減法）。
         feedRoom: st ? Math.max(0, st.capFeeds - st.fed) : 0 }; })() : {}),
       fed };
   });
   return { revision: snapshot.revision, cards, collectionCards: cards.map(c=>({id:c.id,cardId:c.cardId,source:'DUEL_WIN' as const,at:''})), protectedIds: snapshot.state.protectedIds,
     pendingBattle: snapshot.pendingBattle,
-    foodChainRule: v2 ? 'v2' as const : 'v1' as const,
+    pendingBattleHref: !snapshot.pendingBattle ? null : snapshot.pendingBattle.startsWith('card:') ? '/beast-game/battlefield' : snapshot.pendingBattle.startsWith('orb:') ? (snapshot.orbRun?.input.mode === 'hard45b' ? '/beast-game/match3-hard2' : '/beast-game/match3-hard') : null,
+    foodChainRule: rule,
     shards:snapshot.shards,starterPack:snapshot.starterPack,
     granted:(snapshot.creditedIds??[]).filter(id=>id.startsWith('copy:growth:')).map(id=>id.slice('copy:growth:'.length)),
     canProtectFive: new Set(cards.map(c => c.cardId)).size >= 5,
@@ -96,5 +102,5 @@ export function cultivationChangeView(change: CultivationChange) {
   const orbBase=BigInt(target.stats.attack),battleBase=battleBaseAttack(target.id);
   return {...change,targetName:target.name,materialName:material.name,materialCount:1,
     materialBaseAttack:String(material.stats.attack),orbBeforeAttack:String(orbBase+before),orbAfterAttack:String(orbBase+after),
-    battleBeforeAttack:String(battleBase+before),battleAfterAttack:String(battleBase+after)};
+    battleBeforeAttack:String(battleBase+(change.rule==='v4'?proportionalBonus(battleBase,change.powerBefore??0):before)),battleAfterAttack:String(battleBase+(change.rule==='v4'?proportionalBonus(battleBase,change.powerAfter??0):after))};
 }

@@ -1,0 +1,12 @@
+{
+  "samples": 500,
+  "baseline": {
+    "medianMs": 0.22550000000001091,
+    "p95Ms": 0.5003000000000384
+  },
+  "current": {
+    "medianMs": 0.23329999999998563,
+    "p95Ms": 0.5118999999999687
+  },
+  "scope": "Same seeded synthetic valid turns; CPU only, not network or customer latency; original HEAD resolver vs current; no animation timer changes"
+}

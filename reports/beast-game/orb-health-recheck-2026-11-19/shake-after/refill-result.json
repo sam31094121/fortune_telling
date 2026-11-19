@@ -1,0 +1,40 @@
+{
+  "passed": false,
+  "results": [
+    {
+      "kind": "layout-stability",
+      "height": 844,
+      "spread": 0,
+      "gutter": {
+        "a": 8,
+        "b": 8,
+        "drift": 0,
+        "gutter": "stable"
+      }
+    },
+    {
+      "kind": "layout-stability",
+      "height": 700,
+      "spread": 0,
+      "gutter": {
+        "a": 15,
+        "b": 15,
+        "drift": 0,
+        "gutter": "stable"
+      }
+    },
+    {
+      "kind": "layout-stability",
+      "height": 680,
+      "spread": 0,
+      "gutter": {
+        "a": 24,
+        "b": 24,
+        "drift": 0,
+        "gutter": "stable"
+      }
+    }
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: Scrollbar visibility must not move board: {\"a\":37,\"b\":44.5,\"drift\":7.5,\"gutter\":\"stable\"}"
+}

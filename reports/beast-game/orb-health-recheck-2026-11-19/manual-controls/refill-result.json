@@ -1,0 +1,6 @@
+{
+  "passed": false,
+  "results": [],
+  "errors": [],
+  "error": "Error: Wait failed: window.__dropReply?.action===\"energy\""
+}

@@ -37,7 +37,7 @@ export const LINK_ENERGY_COST = 50;
 export const LINK_BASE_MULTIPLIER = 3;
 export const LINK_BONUS_PER_EXTRA = 0.5;
 
-export interface Match3Foe { id: string; element: BeastElement; hp: number; maxHp: number; attack: number; cd: number; attackEnergy?: number; lastChargeTurn?: string; skillRuntime?: FoeSkillState; lastCounterTurn?: string; lastCounterPhase?: string; appliedPlayerHitIds?: string[] }
+export interface Match3Foe { id: string; element: BeastElement; hp: number; maxHp: number; attack: number; cd: number; attackEnergy?: number; lastChargeTurn?: string; skillRuntime?: FoeSkillState; lastCounterTurn?: string; lastCounterPhase?: string; appliedPlayerHitIds?: string[]; orbDropCounterBlocked?: boolean }
 interface Ally { id: string; element: BeastElement; hp: number; energy: number; maxHp?: number; attack?: number; skillRuntime?: FoeSkillState }
 
 /** Only the current five-card encounter reserves its fifth guardian until all four escorts fall. */
@@ -98,7 +98,7 @@ export function damageFoeWithSkills<F extends Match3Foe, T extends SkillFoe & { 
   return { foes: reactionEnabled ? result : initializeAvailableFoes(result, stage), team: nextTeam, skillEvents, actualDamage };
 }
 
-export interface CounterHit { enemy: number; enemyId: string; targetId: string; damage: number; hpBefore: number; hpAfter: number; actualDamage: number }
+export interface CounterHit { enemy: number; enemyId: string; targetId: string; damage: number; hpBefore: number; hpAfter: number; actualDamage: number; blocked?: boolean }
 
 /** 一步結束後的敵方回合：每隻存活敵人倒數 -1，歸零者攻擊我方 HP 最低存活卡並重置倒數。 */
 export function counterPhase<T extends Ally, F extends Match3Foe>(team: readonly T[], foes: readonly F[], every: number = ENEMY_COUNTER_EVERY, singleTurn?: number, shieldGuard: boolean | number = false, strategyStage?: number, skillContext?: { turnId: string; energyGate?: boolean }): { team: T[]; foes: F[]; hits: CounterHit[]; skillEvents: OrbSkillEvent[] } {
@@ -120,6 +120,11 @@ export function counterPhase<T extends Ally, F extends Match3Foe>(team: readonly
     const f=nf[ei];if(f.hp<=0)continue;
     if (energyGate && (f.skillRuntime?.stunnedTurns ?? 0) > 0) {
       nf[ei] = tickFoeSkillDurations(f);
+      continue;
+    }
+    if (f.orbDropCounterBlocked) {
+      nf[ei] = { ...f, orbDropCounterBlocked:false, attackEnergy:energyGate ? 0 : f.attackEnergy, ...(eventId===undefined?{}:{lastCounterTurn:eventId}) };
+      hits.push({enemy:ei,enemyId:f.id,targetId:t[ti].id,damage:0,hpBefore:t[ti].hp,hpAfter:t[ti].hp,actualDamage:0,blocked:true});
       continue;
     }
     const actionEventId=eventId===undefined?undefined:eventId+':enemy:'+ei;

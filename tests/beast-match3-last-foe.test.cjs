@@ -11,7 +11,7 @@ assert(src.split('!bigFoe').length - 1 === 1, '欄位排版跟著放大狀態');
 assert(src.includes("data-fused={rigEnabled ? (bigFoe ? 'duel' : true) : undefined}"), '一體成型幾何跟著放大狀態');
 console.log('PASS last-foe enlarge structure');
 // 我方最後一隻（業主手機實測回報）
-assert(/const lastAllyReady = rigEnabled && team\.length > 1 && !over && team\.filter\(u => u\.hp > 0\)\.length === 1;/.test(src), '我方只剩一隻存活');
+assert(/const lastAllyReady = rigEnabled && team\.length >= 1 && !over && team\.filter\(u => u\.hp > 0\)\.length === 1;/.test(src), '單隻開場或只剩一隻存活均使用大卡');
 assert(/else if \(!busy\) setLastAllySettled\(true\)/.test(src), '我方放大也等動畫結束');
 assert(src.includes('data-last-ally={lastAllyBig || undefined}'), '標記我方最後一隻');
 const css = fs.readFileSync('components/battlefield/Match3Board.module.css', 'utf8');
@@ -22,7 +22,7 @@ console.log('PASS last-ally enlarge structure');
 
 assert(src.includes("const foeEnlarged = foesEl?.getAttribute('data-guardian-duel') === 'true' || foesEl?.getAttribute('data-last-foe') === 'true';"), '雙方大卡時棋盤預算要認得敵方大魔王');
 assert(src.includes('if (teamEl && !lastAllyOn && !foeEnlarged) compactReserve.current'), '只有雙方都還是多隻小卡時才更新棋盤高度預算，避免敵方大卡先登場把寶珠撐大');
-assert(src.includes('const chrome = (lastAllyOn || foeEnlarged) && compactReserve.current'), '我方或敵方大卡登場都沿用放大前的棋盤預算');
+assert(/\b(?:const|let) chrome = \(lastAllyOn \|\| foeEnlarged\) && compactReserve\.current/.test(src), '我方或敵方大卡登場都沿用放大前的棋盤預算');
 console.log('PASS both-last-boss compact reserve');
 // 11/14 米其林：結算前凍結排版（擊倒魔王／爆炸／結果不跳版、寶珠不變大、我方放大卡不縮回）
 assert(/heldLayout\.current \?\?= liveLayout\.current;/.test(src) && src.includes('const held = over ? heldLayout.current : null;'), '結束後沿用結束前一刻的排版直到下一局');

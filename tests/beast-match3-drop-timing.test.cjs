@@ -88,8 +88,8 @@ const avg = a => a.reduce((x, y) => x + y, 0) / a.length;
 const q = (a, p) => [...a].sort((x, y) => x - y)[Math.min(a.length - 1, Math.floor(a.length * p))];
 
 // ── 快：真實連線的總時間（改之前：平均約 8100ms、第一段約 1500ms、P90 約 16300ms） ──
-ok(avg(totals) <= 4000, `一次連線平均 ≤ 4000ms（實測 ${Math.round(avg(totals))}ms，改之前約 8100ms）`);
-ok(q(totals, .9) <= 8500, `一次連線 P90 ≤ 8500ms（實測 ${q(totals, .9)}ms，改之前約 16300ms）`);
+ok(avg(totals) <= 3000, `一次連線平均 ≤ 3000ms（實測 ${Math.round(avg(totals))}ms，改之前約 8100ms）`);
+ok(q(totals, .9) <= 6200, `一次連線 P90 ≤ 6200ms（實測 ${q(totals, .9)}ms，改之前約 16300ms）`);
 ok(avg(firsts) <= 700, `沒連鎖時（第一段）平均 ≤ 700ms（實測 ${Math.round(avg(firsts))}ms，改之前約 1500ms）`);
 // 規則：不因連鎖數壓縮——最長的連鎖仍然比短的久（沒有全域上限）
 const longest = samples.map((s, i) => ({ steps: steps[i], total: totals[i] })).sort((a, b) => b.steps - a.steps)[0];

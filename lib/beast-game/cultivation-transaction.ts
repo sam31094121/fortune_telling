@@ -1,4 +1,5 @@
 import 'server-only';
+import { balancedSnapshot } from './cultivation-balance';
 import { fuseCultivation, replaceCultivationMainTeam, type CultivationState, type CultivationChange, type FusionChoice } from './cultivation';
 import { activeFoodChainRule, receiptRule, type FoodChainRule } from './cultivation-rules';
 
@@ -14,6 +15,7 @@ export interface CultivationSnapshot {
   shards?: import('../beast-collection-ledger').ShardLedger;
   starterPack?: string;
   orbTreasures?: import('./match3/treasures').TreasureBook;
+  orbComeback?: import('./match3/comeback').ComebackRecord;
   cardOutcomes?: Record<string,string>;
   exchanges?: Record<string,{kind:string;cardId:string}>;
   orbRun?: {id:string;version:number;seed:number;totalDamage?:number;lastDamage?:number;input:import('./match3/resolve-turn').TurnInput;last?:{version:number;command:string;response:unknown}};
@@ -33,7 +35,7 @@ export function fedCounter(snapshot: Pick<CultivationSnapshot, 'receipts' | 'sta
 }
 /** 預覽與正式合體共用同一套規則（伺服端權威）。 */
 export function fuseSnapshot(snapshot: CultivationSnapshot, choices: FusionChoice[], rule: FoodChainRule = activeFoodChainRule()) {
-  return { rule, ...fuseCultivation(snapshot.state, choices, { rule, fedOf: fedCounter(snapshot) }) };
+  return { rule, ...fuseCultivation((rule==='v4'?balancedSnapshot(snapshot):snapshot).state, choices, { rule, fedOf: fedCounter(snapshot) }) };
 }
 /** 依收據上的規則版本重算（審計／測試用）：舊收據沒有 rule 欄＝v1。 */
 export function replayCultivationReceipt(before: CultivationSnapshot, receipt: CultivationReceipt) {
@@ -61,7 +63,7 @@ export async function transactCultivation(repository: CultivationRepository, own
   if (current.pendingBattle) throw new Error('戰鬥尚未結算，暫不能合體或更換主力。');
   const result = command.type === 'FUSE' ? fuseSnapshot(current, command.choices) : { rule: undefined, state: replaceCultivationMainTeam(current.state, command.ids), changes: [] };
   const revision = (BigInt(current.revision) + 1n).toString();
-  const receipt: CultivationReceipt = { operationId, command: key, revision, changes: result.changes, ...(result.rule === 'v2' ? { rule: 'v2' as const } : {}) };
+  const receipt: CultivationReceipt = { operationId, command: key, revision, changes: result.changes, ...(result.rule ? { rule: result.rule } : {}) };
   const next = { ...current, revision, state: result.state, receipts: [...current.receipts, receipt] };
   if (await repository.compareAndSwap(owner, current.revision, next)) return { snapshot: next, receipt, duplicate: false };
   // The other writer may be the identical request whose response was lost.

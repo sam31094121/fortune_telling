@@ -323,11 +323,25 @@ const BEHAVIOR_CHECKS = [
     timeoutMs: 180000,
   },
   {
+    id: 'BEAST_ORB_LAYOUT_STABILITY',
+    module: 'beast_orb_layout',
+    title: '寶石捷連線：短螢幕靜止盤面與捲軸切換不抖動',
+    script: 'test:beast-layout-stability',
+    timeoutMs: 180000,
+  },
+  {
     id: 'BEAST_ORB_REPLAY',
     module: 'beast_orb_replay',
     title: '寶珠逐輪真實連線：5/6/7顆、保留珠、手機桌面先標示再消除',
     script: 'test:beast-match3-replay',
     timeoutMs: 240000,
+  },
+  {
+    id: 'BEAST_ORB_DROP_RENDER_STABILITY',
+    module: 'beast_orb_render_stability',
+    title: '寶石捷連線：掉珠狀態僅按變化更新、接取計數與手動攻擊正常',
+    script: 'test:beast-drop-render-stability',
+    timeoutMs: 180000,
   },
   {
     id: 'BEAST_INTERACTIVE',

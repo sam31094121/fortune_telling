@@ -1,0 +1,2585 @@
+{
+  "passed": true,
+  "scope": "replay-only",
+  "results": [
+    {
+      "case": "server pinball",
+      "width": 390,
+      "reduced": false,
+      "shields": 17,
+      "drops": [
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2612.8,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5680,
+          "impacts": 9
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5692.8,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 3120,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1867.2,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3652.8,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4932.8,
+          "impacts": 10
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4772.8,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 2507.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4412.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 1867.2,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 5892.8,
+          "impacts": 11
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6520,
+          "impacts": 44
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3400,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 3387.2000000000003,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 2387.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 3360,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 5480,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2652.8,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 4680,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 2227.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 4092.8,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4972.8,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 5267.200000000001,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 4027.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 2972.8,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3720,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3187.2000000000003,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2160,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 2320,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3732.8,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1840,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5120,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 4052.8,
+          "impacts": 11
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2200,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 4052.8,
+          "impacts": 21
+        },
+        {
+          "owner": null,
+          "duration": 4387.2,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1787.2,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 2760,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 3332.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 3080,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 2560,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4960,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 1852.8000000000002,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4092.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 5572.8,
+          "impacts": 93
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4852.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 2307.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 4372.8,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 3080,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 3907.2000000000003,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 4640,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 2720,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 4507.2,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 2080,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 2040,
+          "impacts": 3
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6212.8,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3692.8,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5040,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 3732.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 5800,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 2280,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 2360,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 6867.200000000001,
+          "impacts": 11
+        },
+        {
+          "owner": null,
+          "duration": 4067.2000000000003,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6240,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 3907.2000000000003,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5507.200000000001,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4267.2,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2187.2000000000003,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 2707.2000000000003,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 2492.8,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 2720,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5027.200000000001,
+          "impacts": 12
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4467.2,
+          "impacts": 12
+        },
+        {
+          "owner": null,
+          "duration": 4880,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 2292.8,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2907.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 2280,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 4187.2,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5507.200000000001,
+          "impacts": 16
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3267.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4187.2,
+          "impacts": 5
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4747.2,
+          "impacts": 9
+        },
+        {
+          "owner": null,
+          "duration": 6507.200000000001,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 3772.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 4012.8,
+          "impacts": 5
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5560,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 3532.8,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2960,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 5067.200000000001,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 4972.8,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 5412.8,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 2492.8,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 6667.200000000001,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1852.8000000000002,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3307.2000000000003,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 3760,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4200,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 4332.8,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 2360,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 3412.8,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 4040,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4507.2,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 4920,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 5147.200000000001,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 3812.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2532.8,
+          "impacts": 5
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 7427.200000000001,
+          "impacts": 12
+        },
+        {
+          "owner": null,
+          "duration": 4040,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 5040,
+          "impacts": 9
+        },
+        {
+          "owner": null,
+          "duration": 2280,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 3572.8,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 2507.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5627.200000000001,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2787.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 2187.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 3812.8,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 1800,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5000,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 3560,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 3412.8,
+          "impacts": 3
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5547.200000000001,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 1772.8000000000002,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1800,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 2840,
+          "impacts": 3
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5132.8,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6040,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 2680,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 2520,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 2187.2000000000003,
+          "impacts": 3
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3120,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3572.8,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 5867.200000000001,
+          "impacts": 168
+        },
+        {
+          "owner": null,
+          "duration": 6227.200000000001,
+          "impacts": 10
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5772.8,
+          "impacts": 13
+        },
+        {
+          "owner": null,
+          "duration": 2427.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 2040,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4452.8,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4772.8,
+          "impacts": 36
+        },
+        {
+          "owner": null,
+          "duration": 4252.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 3827.2000000000003,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 7080,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 3440,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 3347.2000000000003,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6600,
+          "impacts": 12
+        },
+        {
+          "owner": null,
+          "duration": 4652.8,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 2387.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 3480,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1707.2,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 4652.8,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3440,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 3492.8,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 4440,
+          "impacts": 11
+        },
+        {
+          "owner": null,
+          "duration": 2467.2000000000003,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 2947.2000000000003,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 3907.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6332.8,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 4412.8,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 2372.8,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 4452.8,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3800,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 3080,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3320,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3532.8,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 1772.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 2612.8,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 5440,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 4760,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5092.8,
+          "impacts": 9
+        },
+        {
+          "owner": null,
+          "duration": 4267.2,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1827.2,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 2307.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2520,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6147.200000000001,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 4332.8,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 2427.2000000000003,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 4187.2,
+          "impacts": 5
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3067.2000000000003,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4880,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 3547.2000000000003,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 2347.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 4227.2,
+          "impacts": 11
+        },
+        {
+          "owner": null,
+          "duration": 3800,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 4667.2,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 2347.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3680,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 2280,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 2760,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 5092.8,
+          "impacts": 9
+        },
+        {
+          "owner": null,
+          "duration": 5012.8,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3227.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 5120,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 2040,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 3120,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 4080,
+          "impacts": 27
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4000,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 2560,
+          "impacts": 3
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3932.8,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1747.2,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 3880,
+          "impacts": 5
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3532.8,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3640,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 5252.8,
+          "impacts": 8
+        }
+      ],
+      "caught": 70
+    },
+    {
+      "case": "server pinball",
+      "width": 390,
+      "reduced": true,
+      "shields": 17,
+      "drops": [
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2612.8,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5680,
+          "impacts": 9
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5692.8,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 3120,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1867.2,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3652.8,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4932.8,
+          "impacts": 10
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4772.8,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 2507.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4412.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 1867.2,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 5892.8,
+          "impacts": 11
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6520,
+          "impacts": 44
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3400,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 3387.2000000000003,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 2387.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 3360,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 5480,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2652.8,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 4680,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 2227.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 4092.8,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4972.8,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 5267.200000000001,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 4027.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 2972.8,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3720,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3187.2000000000003,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2160,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 2320,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3732.8,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1840,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5120,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 4052.8,
+          "impacts": 11
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2200,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 4052.8,
+          "impacts": 21
+        },
+        {
+          "owner": null,
+          "duration": 4387.2,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1787.2,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 2760,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 3332.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 3080,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 2560,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4960,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 1852.8000000000002,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4092.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 5572.8,
+          "impacts": 93
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4852.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 2307.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 4372.8,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 3080,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 3907.2000000000003,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 4640,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 2720,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 4507.2,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 2080,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 2040,
+          "impacts": 3
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6212.8,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3692.8,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5040,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 3732.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 5800,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 2280,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 2360,
+          "impacts": 3
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6867.200000000001,
+          "impacts": 11
+        },
+        {
+          "owner": null,
+          "duration": 4067.2000000000003,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6240,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3907.2000000000003,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5507.200000000001,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4267.2,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2187.2000000000003,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 2707.2000000000003,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 2492.8,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 2720,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5027.200000000001,
+          "impacts": 12
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4467.2,
+          "impacts": 12
+        },
+        {
+          "owner": null,
+          "duration": 4880,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 2292.8,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2907.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 2280,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 4187.2,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5507.200000000001,
+          "impacts": 16
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3267.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4187.2,
+          "impacts": 5
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4747.2,
+          "impacts": 9
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6507.200000000001,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 3772.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 4012.8,
+          "impacts": 5
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5560,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 3532.8,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2960,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 5067.200000000001,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 4972.8,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 5412.8,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 2492.8,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 6667.200000000001,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1852.8000000000002,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3307.2000000000003,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 3760,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4200,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 4332.8,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 2360,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 3412.8,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 4040,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4507.2,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 4920,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 5147.200000000001,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 3812.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2532.8,
+          "impacts": 5
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 7427.200000000001,
+          "impacts": 12
+        },
+        {
+          "owner": null,
+          "duration": 4040,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 5040,
+          "impacts": 9
+        },
+        {
+          "owner": null,
+          "duration": 2280,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 3572.8,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 2507.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5627.200000000001,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2787.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 2187.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 3812.8,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 1800,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5000,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 3560,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 3412.8,
+          "impacts": 3
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5547.200000000001,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 1772.8000000000002,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1800,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 2840,
+          "impacts": 3
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5132.8,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6040,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 2680,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 2520,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 2187.2000000000003,
+          "impacts": 3
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3120,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3572.8,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 5867.200000000001,
+          "impacts": 168
+        },
+        {
+          "owner": null,
+          "duration": 6227.200000000001,
+          "impacts": 10
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5772.8,
+          "impacts": 13
+        },
+        {
+          "owner": null,
+          "duration": 2427.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 2040,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4452.8,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4772.8,
+          "impacts": 36
+        },
+        {
+          "owner": null,
+          "duration": 4252.8,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 3827.2000000000003,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 7080,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 3440,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 3347.2000000000003,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6600,
+          "impacts": 12
+        },
+        {
+          "owner": null,
+          "duration": 4652.8,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 2387.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 3480,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1707.2,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 4652.8,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3440,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 3492.8,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 4440,
+          "impacts": 11
+        },
+        {
+          "owner": null,
+          "duration": 2467.2000000000003,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 2947.2000000000003,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 3907.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6332.8,
+          "impacts": 10
+        },
+        {
+          "owner": null,
+          "duration": 4412.8,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 2372.8,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 4452.8,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3800,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 3080,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3320,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3532.8,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 1772.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 2612.8,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5440,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 4760,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 5092.8,
+          "impacts": 9
+        },
+        {
+          "owner": null,
+          "duration": 4267.2,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1827.2,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 2307.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 2520,
+          "impacts": 4
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 6147.200000000001,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 4332.8,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 2427.2000000000003,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4187.2,
+          "impacts": 5
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3067.2000000000003,
+          "impacts": 6
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4880,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3547.2000000000003,
+          "impacts": 6
+        },
+        {
+          "owner": null,
+          "duration": 2347.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 4227.2,
+          "impacts": 11
+        },
+        {
+          "owner": null,
+          "duration": 3800,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 4667.2,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 2347.2000000000003,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3680,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 2280,
+          "impacts": 2
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 2760,
+          "impacts": 3
+        },
+        {
+          "owner": null,
+          "duration": 5092.8,
+          "impacts": 9
+        },
+        {
+          "owner": null,
+          "duration": 5012.8,
+          "impacts": 8
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3227.2000000000003,
+          "impacts": 4
+        },
+        {
+          "owner": null,
+          "duration": 5120,
+          "impacts": 8
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 2040,
+          "impacts": 2
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3120,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 4080,
+          "impacts": 27
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 4000,
+          "impacts": 5
+        },
+        {
+          "owner": null,
+          "duration": 2560,
+          "impacts": 3
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3932.8,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 1732.8000000000002,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 1747.2,
+          "impacts": 1
+        },
+        {
+          "owner": null,
+          "duration": 3880,
+          "impacts": 5
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3532.8,
+          "impacts": 7
+        },
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3640,
+          "impacts": 7
+        },
+        {
+          "owner": null,
+          "duration": 5252.8,
+          "impacts": 8
+        }
+      ],
+      "caught": 77
+    }
+  ],
+  "errors": []
+}

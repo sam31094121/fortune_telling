@@ -1,0 +1,6 @@
+{
+  "passed": false,
+  "results": [],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: Scrollbar visibility must not move board: {\"a\":37,\"b\":44.5,\"drift\":7.5,\"gutter\":\"stable\",\"ancestors\":[{\"tag\":\"DIV\",\"cls\":\"Match3Board_board__Vqx8b \",\"x\":44.5,\"w\":331,\"position\":\"relative\",\"width\":\"331px\",\"overflow\":\"visible\"},{\"tag\":\"SECTION\",\"cls\":\"Match3Board_wrap__JkiG4\",\"x\":0,\"w\":420,\"position\":\"relative\",\"width\":\"420px\",\"overflow\":\"hidden auto\"},{\"tag\":\"DIV\",\"cls\":\"min-h-dvh bg-slate-950 font-sans text-slate-100\",\"x\":0,\"w\":420,\"position\":\"static\",\"width\":\"420px\",\"overflow\":\"visible\"},{\"tag\":\"BODY\",\"cls\":\"font-sans antialiased app-mobile-device app-low-power-device app-lite-effects app-stress-mode\",\"x\":0,\"w\":420,\"position\":\"static\",\"width\":\"420px\",\"overflow\":\"clip visible\"},{\"tag\":\"HTML\",\"cls\":\"\",\"x\":0,\"w\":420,\"position\":\"static\",\"width\":\"420px\",\"overflow\":\"hidden\"}]}"
+}

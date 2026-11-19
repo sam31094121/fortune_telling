@@ -1,5 +1,6 @@
 /**
- * 食物鏈（卡吃卡）規則參數——全部是「待平衡暫定值」，使用者 2026-11-15 22:20 拍板採計畫推薦做法：
+ * 歷史 v2 食物鏈參數（供舊收據重播）；2026-11-18 新操作改用下方 v3，權威規格見神獸合體五星強化.md。
+ * 以下為 2026-11-15 歷史決議：
  *   1A 每吃一張的加成維持現行（材料卡面攻擊 ÷10 取整、至少 +1），畫面另外換算「約 +X%」
  *   2B 加成總和上限＝目標卡面攻擊 50%
  *   3B 本體被四大神獸吃掉時，傳承它已累積加成的 50%（取整）
@@ -7,12 +8,13 @@
  * 22:22 追加「五顆星封頂」：每張卡依被餵張數累進五顆星，第五星佔封頂張數一半；各星份數 STAR_SHARES 與封頂張數 STAR_CAP_FEEDS 是程式碼常數。
  *
  * 規則版本寫進每張收據：v1＝37c5820f／ec138627 時的原規則（沒有上限、不傳承、沒有星級），
- * v2＝本檔參數。舊收據永遠照 v1 重播；已存在的加成不扣回（超過上限的卡保留現值，只是不能再加）。
+ * v2＝歷史參數；v3＝2026-11-18 升星技能檔。舊收據按原版本重播；已存在的加成不扣回；v3不受歷史攻擊上限限制。
  * 伺服端專用：客戶端只照印伺服端算好的數字。
  */
 import 'server-only';
+import { ELEMENT_GENERATES, type BeastElement } from './elements';
 
-export type FoodChainRule = 'v1' | 'v2';
+export type FoodChainRule = 'v1' | 'v2' | 'v3' | 'v4';
 export type FeedTargetForm = 'ADULT' | 'GUARDIAN';
 
 /**
@@ -48,15 +50,15 @@ export const FOOD_CHAIN_V2: FoodChainParams = Object.freeze({
   feedAtAttackCap: true,
 });
 
-/** 新操作一律用 v2（寫死，無開關）；v1 只用來重播沒有 rule 欄位的舊收據。 */
-export const ACTIVE_FOOD_CHAIN_RULE: FoodChainRule = 'v2';
+/** 新操作一律用 v4：五星比例成長（cultivation-balance）；v1/v2/v3 僅供歷史收據重播。 */
+export const ACTIVE_FOOD_CHAIN_RULE: FoodChainRule = 'v4';
 export function activeFoodChainRule(): FoodChainRule {
   return ACTIVE_FOOD_CHAIN_RULE;
 }
 
 /** 收據上的規則版本；沒有寫的舊收據一律是 v1。 */
 export function receiptRule(value: unknown): FoodChainRule {
-  return value === 'v2' ? 'v2' : 'v1';
+  return value === 'v4' ? 'v4' : value === 'v3' ? 'v3' : value === 'v2' ? 'v2' : 'v1';
 }
 
 /**
@@ -104,12 +106,19 @@ export function baseFeedGain(materialBaseAttack: number): bigint {
 export interface FeedGain { raw: bigint; inherited: bigint; added: bigint; cap: bigint | null; capped: boolean }
 
 /**
+ * v3：不限材料卡種；同屬性／材料生目標，基本增量1.5倍向上取整；成獸傳承50%；沒有攻擊上限。
  * v1：原公式，不傳承、不封頂。
  * v2：原公式 ＋（本體材料）累積加成 × 50% 傳承，再以「目標卡面 50% − 目前加成」封頂；已超過上限的卡保留現值、本次 +0。
  */
-export function feedGain(rule: FoodChainRule, input: { materialForm: string; materialBaseAttack: number; materialBonus: bigint; targetBaseAttack: number; targetBonus: bigint }, params: FoodChainParams = FOOD_CHAIN_V2): FeedGain {
+export function feedGain(rule: FoodChainRule, input: { materialForm: string; materialBaseAttack: number; materialBonus: bigint; targetBaseAttack: number; targetBonus: bigint; materialElement?: BeastElement; targetElement?: BeastElement }, params: FoodChainParams = FOOD_CHAIN_V2): FeedGain {
   const base = baseFeedGain(input.materialBaseAttack);
   if (rule === 'v1') return { raw: base, inherited: 0n, added: base, cap: null, capped: false };
+  if (rule === 'v3') {
+    const affinity = !!input.materialElement && !!input.targetElement && (input.materialElement === input.targetElement || ELEMENT_GENERATES[input.materialElement] === input.targetElement);
+    const inherited = input.materialForm === 'ADULT' ? input.materialBonus * BigInt(params.inherit.num) / BigInt(params.inherit.den) : 0n;
+    const raw = (affinity ? (base * 3n + 1n) / 2n : base) + inherited;
+    return { raw, inherited, added: raw, cap: null, capped: false };
+  }
   const inherited = input.materialForm === 'ADULT' ? input.materialBonus * BigInt(params.inherit.num) / BigInt(params.inherit.den) : 0n;
   const raw = base + inherited, cap = attackBonusCap(input.targetBaseAttack, params);
   const room = cap > input.targetBonus ? cap - input.targetBonus : 0n;

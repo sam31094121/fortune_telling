@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "scope": "replay-only",
+  "results": [
+    {
+      "case": "referee rejection restores board",
+      "width": 390,
+      "reduced": false
+    },
+    {
+      "case": "referee rejection restores board",
+      "width": 390,
+      "reduced": true
+    }
+  ],
+  "errors": []
+}

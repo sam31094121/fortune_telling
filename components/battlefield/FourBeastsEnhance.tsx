@@ -17,6 +17,8 @@ import s from './FourBeastsEnhance.module.css';
 export default function FourBeastsEnhance() {
   const [view, setView] = useState<FourBeastsView | null>(null);
   const [failed, setFailed] = useState(false);
+  const [selectedGuardian,setSelectedGuardian]=useState('');
+  const [selectionRequest,setSelectionRequest]=useState(0);
   const load = useCallback(async () => {
     try {
       const r = await fetch('/api/beast-game/four-beasts', { headers: sharedWalletHeaders(), cache: 'no-store', signal: AbortSignal.timeout(20000) });
@@ -30,7 +32,7 @@ export default function FourBeastsEnhance() {
   return <main className={s.page} data-four-beasts>
     <header className={s.top}>
       <Link href="/star-beasts" className={s.back} aria-label="回到星宿神獸卡片"><span aria-hidden="true">↩</span></Link>
-      <span className={s.thumbs} aria-hidden="true">{['qinglong', 'zhuque', 'baihu', 'xuanwu'].map(k => <img key={k} src={`/beast-game/thumb/guardian-${k}.v2.webp`} alt="" draggable={false} />)}</span>
+      <span className={s.thumbs}>{['qinglong', 'zhuque', 'baihu', 'xuanwu'].map(k => <button key={k} type="button" data-select-guardian={k} aria-label={`選擇${({qinglong:"青龍",zhuque:"朱雀",baihu:"白虎",xuanwu:"玄武"})[k as "qinglong"]}強化`} aria-pressed={selectedGuardian===`beast_g_${k}`} onClick={()=>{setSelectedGuardian(`beast_g_${k}`);setSelectionRequest(n=>n+1);}}><img src={`/beast-game/thumb/guardian-${k}.v2.webp`} alt="" draggable={false} /></button>)}</span>
       {failed
         ? <button type="button" className={s.count} onClick={() => void load()} aria-label="重新讀取可強化張數"><span aria-hidden="true">↻</span></button>
         : <p className={s.count} data-enhanceable-count={view?.enhanceableCount ?? ''} aria-label={view ? `可強化 ${view.enhanceableCount} 張；神獸戰鬥贏得 ${view.sources.duel} 張；寶石捷連線贏得 ${view.sources.orb} 張` : '讀取中'}>
@@ -39,6 +41,6 @@ export default function FourBeastsEnhance() {
           {view && view.sources.orb > 0 && <span className={s.src} data-source="orb" aria-hidden="true">●{view.sources.orb}</span>}
         </p>}
     </header>
-    <div className={s.body}><SharedCultivationPanel iconOnly focus="GUARDIAN" /></div>
+    <div className={s.body}><SharedCultivationPanel iconOnly focus="GUARDIAN" preferredTargetCardId={selectedGuardian} selectionRequest={selectionRequest} /></div>
   </main>;
 }

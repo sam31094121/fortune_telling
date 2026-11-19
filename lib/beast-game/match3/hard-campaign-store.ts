@@ -40,7 +40,7 @@ function selectCampaignHeroUnlocked(owner: CampaignOwner, heroId: string): Campa
 }
 function saveCampaignTeamUnlocked(owner: CampaignOwner, ids: readonly string[]): CampaignResult {
   const result = readCampaign(owner); if (!result.ok || !result.profile) return result;
-  if (!validateCampaignTeam(result.profile, ids)) return failed(new Error('請選擇主角及四張已解鎖夥伴'));
+  if (!validateCampaignTeam(result.profile, ids)) return failed(new Error('請選擇主角，可另選最多四張已解鎖夥伴'));
   return write(owner, { ...result.profile, teamIds: [...ids] });
 }
 function settleWinUnlocked(owner: CampaignOwner, matchId: string, winsAtStart: number): CampaignSettlement {
@@ -66,7 +66,7 @@ async function transaction<T extends CampaignResult>(owner: CampaignOwner, actio
 }
 export const selectCampaignHero = (owner: CampaignOwner, heroId: string): Promise<CampaignResult> => transaction(owner, () => selectCampaignHeroUnlocked(owner, heroId), failed);
 export const saveCampaignTeam = (owner: CampaignOwner, ids: readonly string[],ownedEntries?:Record<string,string>): Promise<CampaignResult> => transaction(owner, async () => {
-  if(owner==='self'&&sharedWalletHeaders()['x-beast-wallet']){const current=readCampaign(owner);if(!current.profile)return current;const reply=await sharedRequest({type:'ORB_PROFILE',profile:{...current.profile,teamIds:[...ids],ownedEntries:ownedEntries??current.profile.ownedEntries??{}}});if(!validateCampaignTeam(reply.profile,ids))throw new Error('請親選主角及四位可出戰夥伴。');return writeFromServer(owner,reply.profile);}
+  if(owner==='self'&&sharedWalletHeaders()['x-beast-wallet']){const current=readCampaign(owner);if(!current.profile)return current;const reply=await sharedRequest({type:'ORB_PROFILE',profile:{...current.profile,teamIds:[...ids],ownedEntries:ownedEntries??current.profile.ownedEntries??{}}});if(!validateCampaignTeam(reply.profile,ids))throw new Error('請親選主角，可另選最多四位可出戰夥伴。');return writeFromServer(owner,reply.profile);}
   return saveCampaignTeamUnlocked(owner,ids);
 }, failed);
 export const resetGuestCampaign = (): Promise<CampaignResult> => transaction('guest', resetGuestCampaignUnlocked, failed);

@@ -1,0 +1,78 @@
+{
+  "passed": true,
+  "scope": "replay-only",
+  "results": [
+    {
+      "case": "server pinball",
+      "width": 320,
+      "reduced": false,
+      "shields": 9,
+      "drops": [
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3852.8,
+          "impacts": 2
+        }
+      ],
+      "caught": 1
+    },
+    {
+      "case": "server pinball",
+      "width": 390,
+      "reduced": false,
+      "shields": 10,
+      "drops": [
+        {
+          "owner": null,
+          "duration": 2440,
+          "impacts": 1
+        },
+        {
+          "owner": "beast_y08",
+          "duration": 3680,
+          "impacts": 3
+        }
+      ],
+      "caught": 1
+    },
+    {
+      "case": "server pinball",
+      "width": 1440,
+      "reduced": false,
+      "shields": 11,
+      "drops": [
+        {
+          "owner": null,
+          "duration": 1760,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 1760,
+          "impacts": 0
+        },
+        {
+          "owner": null,
+          "duration": 3800,
+          "impacts": 3
+        }
+      ],
+      "caught": 0
+    },
+    {
+      "case": "server pinball",
+      "width": 390,
+      "reduced": true,
+      "shields": 9,
+      "drops": [
+        {
+          "owner": "beast_g_baihu",
+          "duration": 3852.8,
+          "impacts": 2
+        }
+      ],
+      "caught": 1
+    }
+  ],
+  "errors": []
+}

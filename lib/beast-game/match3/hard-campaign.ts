@@ -5,6 +5,7 @@ import { CARD_FACE_STATS } from '../card-face-stats';
 export interface CampaignReward { matchId: string; cardId: string; win: number }
 export interface EnhancementReceipt { operationId: string; youngId: string; targetId: string; attackBonus: number }
 export interface HardCampaign {
+  comebackRecord?: import('./comeback').ComebackRecord;
   guestProof?: string;
   ownedEntries?: Record<string,string>;
   shared?: { availableIds:string[]; cards:{id:string;cardId:string;name:string;bonus:string;orbAttack:string}[]; stats:Record<string,{baseAttack:number;bonus:number;attack:number;attackExact?:string}>; selectedEntries:{id:string;cardId:string}[] };
@@ -102,14 +103,14 @@ export function enhanceCampaignProfile(p: HardCampaign, operationId: string, you
 }
 export function validateCampaignTeam(p: HardCampaign, ids: readonly string[]): boolean {
   const available = new Set(campaignAvailableIds(p));
-  return !!p.heroId && ids.length === 5 && ids[0] === p.heroId && new Set(ids).size === 5 && ids.every(id => available.has(id));
+  return !!p.heroId && ids.length >= 1 && ids.length <= 5 && ids[0] === p.heroId && new Set(ids).size === ids.length && ids.every(id => available.has(id));
 }
 export function chooseCampaignHero(p: HardCampaign, id: string): HardCampaign {
   const choice = campaignHeroChoice(p);
   if (!campaignGuardianIds().includes(id) || choice === 'locked') throw new Error('主角目前不可更換');
   // Existing players already beyond stage eight confirm their guardian once,
   // rather than receiving an immediate second prompt after initial adoption.
-  const next = { ...p, heroId: id, heroChoiceUsed: p.wins >= 8, teamIds: p.teamIds.length === 5 ? [id, ...p.teamIds.slice(1)] : [] };
+  const next = { ...p, heroId: id, heroChoiceUsed: p.wins >= 8, teamIds: p.teamIds.length >= 1 ? [id, ...p.teamIds.slice(1)] : [] };
   if (next.teamIds.length && !validateCampaignTeam(next, next.teamIds)) next.teamIds = [];
   return next;
 }

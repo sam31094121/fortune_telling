@@ -1,0 +1,95 @@
+{
+  "passed": false,
+  "results": [
+    {
+      "kind": "party-layout",
+      "chrome": [
+        {
+          "tag": "HEADER",
+          "test": null,
+          "h": 32,
+          "mt": "0px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "match3-enemies",
+          "h": 85.609375,
+          "mt": "27.88px",
+          "mb": "0px"
+        },
+        {
+          "tag": "DIV",
+          "test": "match3-board",
+          "h": 426.875,
+          "mt": "11.89px",
+          "mb": "8px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 191.53125,
+          "mt": "44.2344px",
+          "mb": "8px"
+        },
+        {
+          "tag": "DIV",
+          "test": null,
+          "h": 844,
+          "mt": "0px",
+          "mb": "0px"
+        }
+      ],
+      "board": {
+        "w": 374,
+        "h": 426.875
+      },
+      "count": 1,
+      "cards": [
+        {
+          "x": 76,
+          "y": 642.46875,
+          "w": 238,
+          "h": 191.53125
+        }
+      ],
+      "weapons": [
+        {
+          "x": 8,
+          "w": 56
+        }
+      ],
+      "pageHeight": 844,
+      "height": 844,
+      "bottom": 834,
+      "width": 390,
+      "overflow": false,
+      "ready": {
+        "board": {
+          "x": 8,
+          "y": 163.359375,
+          "w": 374,
+          "h": 426.875
+        },
+        "orbs": [
+          {
+            "x": 326,
+            "y": 642.46875,
+            "w": 56,
+            "h": 56
+          }
+        ],
+        "weapons": [
+          {
+            "x": 8,
+            "y": 642.46875,
+            "w": 56,
+            "h": 64
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(ready.orbs[i].y>=layout.cards[i].y+layout.cards[i].h-1)\n"
+}

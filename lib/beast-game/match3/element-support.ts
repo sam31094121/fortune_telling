@@ -4,7 +4,7 @@ import type { Board, Cell } from './board';
 import type { MagicGrid } from './drag';
 
 export interface SupportFighter { id: string; element: BeastElement; hp: number; maxHp: number }
-export interface HealFact { id: string; source: BeastElement | null; hpBefore: number; hpAfter: number; actual: number; reason: 'generating' | 'shield'; chain: number }
+export interface HealFact { id: string; source: BeastElement | null; hpBefore: number; hpAfter: number; actual: number; reason: 'generating' | 'shield' | 'formation'; chain: number }
 export function healSupport<T extends SupportFighter>(team: readonly T[], source: BeastElement | null, percent: number, spent: Map<string, number>, chain = 1, reason: HealFact['reason'] = 'generating') {
   const facts: HealFact[] = [];
   const next = team.map(f => {

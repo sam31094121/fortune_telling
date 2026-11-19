@@ -1,0 +1,107 @@
+[
+  {
+    "path": "/internal/health/ready",
+    "run": 1,
+    "status": 200,
+    "ms": 87,
+    "ok": true
+  },
+  {
+    "path": "/beast-game",
+    "run": 1,
+    "status": 200,
+    "ms": 338,
+    "ok": true
+  },
+  {
+    "path": "/star-beasts",
+    "run": 1,
+    "status": 200,
+    "ms": 406,
+    "ok": true
+  },
+  {
+    "path": "/beast-game/four-beasts",
+    "run": 1,
+    "status": 200,
+    "ms": 6006,
+    "ok": true
+  },
+  {
+    "path": "/api/beast-game/guide-book",
+    "run": 1,
+    "status": 200,
+    "ms": 51,
+    "ok": true
+  },
+  {
+    "path": "/internal/health/ready",
+    "run": 2,
+    "status": 200,
+    "ms": 37,
+    "ok": true
+  },
+  {
+    "path": "/beast-game",
+    "run": 2,
+    "status": 200,
+    "ms": 189,
+    "ok": true
+  },
+  {
+    "path": "/star-beasts",
+    "run": 2,
+    "status": 200,
+    "ms": 388,
+    "ok": true
+  },
+  {
+    "path": "/beast-game/four-beasts",
+    "run": 2,
+    "status": 200,
+    "ms": 258,
+    "ok": true
+  },
+  {
+    "path": "/api/beast-game/guide-book",
+    "run": 2,
+    "status": 200,
+    "ms": 25,
+    "ok": true
+  },
+  {
+    "path": "/internal/health/ready",
+    "run": 3,
+    "status": 200,
+    "ms": 53,
+    "ok": true
+  },
+  {
+    "path": "/beast-game",
+    "run": 3,
+    "status": 200,
+    "ms": 258,
+    "ok": true
+  },
+  {
+    "path": "/star-beasts",
+    "run": 3,
+    "status": 200,
+    "ms": 129,
+    "ok": true
+  },
+  {
+    "path": "/beast-game/four-beasts",
+    "run": 3,
+    "status": 200,
+    "ms": 87,
+    "ok": true
+  },
+  {
+    "path": "/api/beast-game/guide-book",
+    "run": 3,
+    "status": 200,
+    "ms": 28,
+    "ok": true
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "passed": false,
+  "results": [
+    {
+      "case": "drop render work",
+      "width": 390,
+      "reduced": false,
+      "drops": 4,
+      "statusWrites": 5756,
+      "maxStatusWrites": 12
+    }
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: drop visibility writes must follow state changes, not every animation frame: 5756"
+}

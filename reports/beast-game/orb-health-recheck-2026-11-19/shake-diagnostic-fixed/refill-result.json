@@ -1,0 +1,65 @@
+{
+  "passed": true,
+  "scope": "replay-only",
+  "results": [
+    {
+      "kind": "layout-stability",
+      "height": 650,
+      "spread": 0,
+      "gutter": {
+        "a": 44.5,
+        "b": 44.5,
+        "drift": 0,
+        "gutter": "stable",
+        "ancestors": [
+          {
+            "tag": "DIV",
+            "cls": "Match3Board_board__Vqx8b ",
+            "x": 44.5,
+            "w": 331,
+            "position": "relative",
+            "width": "331px",
+            "overflow": "visible"
+          },
+          {
+            "tag": "SECTION",
+            "cls": "Match3Board_wrap__JkiG4",
+            "x": 0,
+            "w": 420,
+            "position": "relative",
+            "width": "420px",
+            "overflow": "clip visible"
+          },
+          {
+            "tag": "DIV",
+            "cls": "min-h-dvh bg-slate-950 font-sans text-slate-100",
+            "x": 0,
+            "w": 420,
+            "position": "static",
+            "width": "420px",
+            "overflow": "visible"
+          },
+          {
+            "tag": "BODY",
+            "cls": "font-sans antialiased app-mobile-device app-low-power-device app-lite-effects app-stress-mode",
+            "x": 0,
+            "w": 420,
+            "position": "static",
+            "width": "420px",
+            "overflow": "clip visible"
+          },
+          {
+            "tag": "HTML",
+            "cls": "",
+            "x": 0,
+            "w": 420,
+            "position": "static",
+            "width": "420px",
+            "overflow": "hidden"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": []
+}

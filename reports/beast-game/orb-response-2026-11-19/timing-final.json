@@ -1,0 +1,7 @@
+{
+  "samples": 300,
+  "scope": "deterministic presentation duration only; not network or device FPS",
+  "beforeAverageMs": 2300.28,
+  "afterAverageMs": 2174.713333333333,
+  "reductionPercent": 5.458755745677338
+}

@@ -4,7 +4,7 @@ import { cultivationRepository } from '@/lib/beast-game/cultivation-repository';
 import { prepareCultivationMigration } from '@/lib/beast-game/cultivation-migration';
 import { transactCultivation, fuseSnapshot, type CultivationCommand } from '@/lib/beast-game/cultivation-transaction';
 import { cultivationView, cultivationChangeView, describeCultivationChange } from '@/lib/beast-game/cultivation-view';
-import { cultivationTarget } from '@/lib/beast-game/cultivation';
+import { canCultivatePair } from '@/lib/beast-game/cultivation';
 import { batchLimits, summarizeCultivationChanges } from '@/lib/beast-game/cultivation-batch';
 import { updateCultivationAccount, importExistingGrants, releaseCultivationBattle, creditSharedShards, exchangeSharedShards, legacyGrowthCollection } from '@/lib/beast-game/cultivation-games';
 import { migrateCollection } from '@/lib/beast-collection-ledger';
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
       if (!target) throw new Error('材料或目標已不存在，未扣材料。');
       // piles:true（2026-11-16 批次吃卡）：材料按卡種疊堆＋各堆上限＋還能吃幾張到封頂；候選預覽只算每堆第一張（不回上千筆）。
       const batch = body.piles === true ? batchLimits(snapshot, target.id) : null;
-      const candidates = batch ? batch.piles.filter(p => p.ids.length).map(p => snapshot.state.cards.find(c => c.id === p.ids[0])!) : snapshot.state.cards.filter(c => c.id !== target.id && !snapshot.state.protectedIds.includes(c.id) && cultivationTarget(c.cardId) === target.cardId).slice(0, 200);
+      const candidates = batch ? batch.piles.filter(p => p.ids.length).map(p => snapshot.state.cards.find(c => c.id === p.ids[0])!) : snapshot.state.cards.filter(c => c.id !== target.id && !snapshot.state.protectedIds.includes(c.id) && canCultivatePair(c.cardId,target.cardId)).slice(0, 200);
       const options = candidates.map(c => { try { return { materialId: c.id, feedback: describeCultivationChange(fuseSnapshot(snapshot, [{ targetId: target.id, materialId: c.id }]).changes[0]) }; } catch (error) { return { materialId: c.id, error: error instanceof Error && /[\u3400-\u9fff]/.test(error.message) ? error.message : '暫時無法預覽。' }; } });
       return NextResponse.json({ ok: true, targetId: target.id, options, ...(batch ? { batch } : {}) }, { headers });
     }

@@ -6,6 +6,9 @@ import { fighterEffectiveAttack, fighterExactAttack } from './damage';
 import { exactDamage } from '../exact-combat';
 import { damageFoe, foeAvailable, initializeAvailableFoes } from './enemies';
 import { isShieldFusionPath, isValidPath, type DragResult } from './drag';
+import { comebackMultiplier, finishComeback } from './comeback';
+import * as comebackPolicy from '../../../docs/技能戰鬥檔案/寶珠阿修羅/敗部復活.json';
+import { dropCatches, simulateOrbDrops, shieldOrbCount, type OrbDrop, type DropCatch } from './orb-drop';
 export interface TreasureBook { version: 1; counts: Record<BeastElement, number>; receipts: string[]; variants?: Record<string, number> }
 export const emptyTreasureBook = (): TreasureBook => ({ version: 1, counts: { SPACE: 0, AIR: 0, WATER: 0, FIRE: 0, EARTH: 0 }, receipts: [] });
 export function validateTreasureBook(value: unknown): TreasureBook {
@@ -21,13 +24,13 @@ const definition = (element: BeastElement, variant: number) => {
   return policy.variants[element][variant];
 };
 export const treasureCount = (book: TreasureBook, element: BeastElement, variant: number) => variant === 0 ? book.counts[element] : book.variants?.[element+':'+variant] ?? 0;
-export function treasureCatalog(book: TreasureBook, team?: readonly TreasureMember[]) {
+export function treasureCatalog(book: TreasureBook, team?: readonly TreasureMember[], enhanced = false) {
   const members = team ?? ELEMENTS.map(element=>({id:element,element,hp:1}));
   const seen = new Map<BeastElement, number>();
   return members.map((member,slot) => {
     const variant = seen.get(member.element) ?? 0; seen.set(member.element,variant+1);
     const d = definition(member.element,variant);
-    return {element:member.element,variant,role:d.role as TreasureRole,tier:variant+1,slot,ownerId:member.id,available:member.hp>0,name:d.name,description:d.description,count:treasureCount(book,member.element,variant)};
+    return {element:member.element,variant,role:d.role as TreasureRole,tier:variant+1,slot,ownerId:member.id,available:member.hp>0,name:d.name,description:d.description + (enhanced ? `；寶石捷連線傷害×${comebackPolicy.treasureAttackMultiplier}${variant === 4 ? '；實扣至少敵方生命上限50%，我方存活者補生命上限50%' : ''}` : ''),count:treasureCount(book,member.element,variant)};
   });
 }
 function operation(book: TreasureBook, id: string, element: BeastElement, delta: number, variant = 0) {
@@ -41,13 +44,34 @@ function operation(book: TreasureBook, id: string, element: BeastElement, delta:
 }
 export function grantTreasure(input: TurnInput, res: DragResult) {
   const book = validateTreasureBook(input.treasures ?? emptyTreasureBook());
-  if (!input.actionId || input.mode === 'medium' || !res.valid || !isValidPath(input.board, input.path, true, input.magic, true) || !isShieldFusionPath(input.path, input.magic) || new Set(input.path.map(p => input.board[p.r][p.c])).size !== 1 || input.path.length < 4 || input.path.length > 8) return { book, earned: null, catalog: treasureCatalog(book,input.team) };
+  const none = { book, earned: null, drops: [] as OrbDrop[], catches: [] as DropCatch[], catalog: treasureCatalog(book,input.team,input.mode === 'hard45' && !!input.comeback) };
+  if (!input.actionId || input.mode === 'medium' || !res.valid || !isValidPath(input.board, input.path, true, input.magic, true) || !isShieldFusionPath(input.path, input.magic) || new Set(input.path.map(p => input.board[p.r][p.c])).size !== 1 || input.path.length < 4) return none;
   const end = input.path[input.path.length - 1], element = input.board[end.r][end.c];
   const id = `grant:${input.actionId}`;
-  if (book.receipts.includes(id)) return { book, earned: null, catalog: treasureCatalog(book,input.team) };
+  if (book.receipts.includes(id)) return none;
+  if (input.path.length >= 9) {
+    if (input.mode !== 'hard45') return none;
+    const catches = dropCatches(input.team, input.singleCatchWidth);
+    const columns=res.board[0].length, middle=Math.floor(columns/2);
+    const order=Array.from({length:columns},(_,i)=>middle+(i%2 ? Math.ceil(i/2) : -i/2));
+    const count = shieldOrbCount(input.path.length);
+    const sources=Array.from({length:count},(_,i)=>{const c=order[i%columns];return {r:0,c,element:res.board[0][c],x:(c+.5)/columns*1000};});
+    const drops = simulateOrbDrops({ count, element, seed: input.seed, launchX: (end.c + .5) / input.board[0].length * 1000, catches, sources });
+    let next = book;
+    for (const drop of [...drops].sort((a,b)=>(a.delayMs+a.durationMs)-(b.delayMs+b.durationMs)||a.index-b.index)) {
+      const owner = none.catalog.find(c => c.ownerId === drop.ownerId && c.available);
+      if (owner) {
+        next = operation(next, `drop:${input.actionId}:${drop.index}`, owner.element, 1, owner.variant);
+        drop.reward = {element:owner.element,variant:owner.variant,count:treasureCount(next,owner.element,owner.variant)};
+      }
+    }
+    // Include misses in the batch receipt: retrying cannot reroll or regrant them.
+    next = validateTreasureBook(next); next.receipts.push(id);
+    return { book: next, earned: null, drops, catches, catalog: treasureCatalog(next,input.team,input.mode === 'hard45' && !!input.comeback) };
+  }
   const variant = input.path.length - 4;
   const next = operation(book, id, element, policy.grant.amount, variant);
-  return { book: next, earned: { element, variant, name: definition(element,variant).name, count: policy.grant.amount }, catalog: treasureCatalog(next,input.team) };
+  return { book: next, earned: { element, variant, name: definition(element,variant).name, count: policy.grant.amount }, drops: [] as OrbDrop[], catches: [] as DropCatch[], catalog: treasureCatalog(next,input.team,input.mode === 'hard45' && !!input.comeback) };
 }
 export function resolveTreasureUse(input: TurnInput, element: BeastElement, variant = 0) {
   const d = definition(element,variant);
@@ -63,21 +87,42 @@ export function resolveTreasureUse(input: TurnInput, element: BeastElement, vari
   const broken = d.role === 'pierce' ? Math.ceil(shieldBefore * policy.SPACE.shieldBreak) : 0;
   if (broken && before.skillRuntime) foes[target] = { ...before, skillRuntime: { ...before.skillRuntime, shield: shieldBefore - broken } };
   const hits: { hpBefore: number; hpAfter: number; damage: number; shieldAbsorbed: number }[] = [];
-  const multipliers = d.role === 'volley' ? [d.damageTotal/3,d.damageTotal/3,d.damageTotal/3] : [d.damageTotal];
+  const enhanced = input.mode === 'hard45' && !!input.comeback;
+  const rare = enhanced && variant === 4;
+  const factor = comebackMultiplier(input.comeback) * (enhanced ? comebackPolicy.treasureAttackMultiplier : 1);
+  const multipliers = (d.role === 'volley' ? [d.damageTotal/3,d.damageTotal/3,d.damageTotal/3] : [d.damageTotal]).map(m => m * factor);
   for (const multiplier of multipliers) {
     if (foes[target].hp <= 0) break;
     const prior = foes[target], shield = prior.skillRuntime?.shield ?? 0;
     foes = damageFoe(foes, target, exactBase?exactDamage(exactBase,[multiplier,elementMultiplier(element,prior.element)],0,0,prior.hp+shield).damage:Math.round(base * multiplier * elementMultiplier(element, prior.element)));
     hits.push({ hpBefore: prior.hp, hpAfter: foes[target].hp, damage: prior.hp - foes[target].hp, shieldAbsorbed: shield - (foes[target].skillRuntime?.shield ?? 0) });
   }
+  // Eight shields earn the last tier: guarantee actual HP damage, recording shield absorption separately.
+  if (rare) {
+    const minimum = Math.min(before.hp, Math.ceil(before.maxHp * comebackPolicy.rareTreasureDamagePercent / 100));
+    const dealt = before.hp - foes[target].hp;
+    if (dealt < minimum) {
+      const prior = foes[target], shield = prior.skillRuntime?.shield ?? 0;
+      foes = damageFoe(foes, target, minimum - dealt + shield);
+      hits.push({ hpBefore: prior.hp, hpAfter: foes[target].hp, damage: prior.hp - foes[target].hp, shieldAbsorbed: shield - (foes[target].skillRuntime?.shield ?? 0) });
+    }
+  }
+  const healing: { id: string; before: number; after: number; actual: number }[] = [];
+  const healedTeam = rare ? input.team.map(unit => {
+    if (unit.hp <= 0) return unit;
+    const hp = Math.min(unit.maxHp, unit.hp + Math.floor(unit.maxHp * comebackPolicy.rareTreasureHealPercent / 100));
+    healing.push({ id: unit.id, before: unit.hp, after: hp, actual: hp - unit.hp });
+    return { ...unit, hp };
+  }) : input.team;
   const energyBefore = foes[target].attackEnergy ?? 0;
   const energyAfter = d.role === 'drain' && foes[target].hp > 0 ? Math.max(0, energyBefore - policy.WATER.energyDrain) : energyBefore;
   foes[target] = { ...foes[target], attackEnergy: energyAfter };
   const guardScale = d.role === 'guard' ? policy.EARTH.guardScale : input.treasureGuard ?? 1;
   const damage = hits.reduce((sum, hit) => sum + hit.damage, 0);
-  return { outcome: orbOutcome(input.team, foes), book, catalog: treasureCatalog(book,input.team), team: input.team, foes: initializeAvailableFoes(foes, input.wins + 1), guardScale,
-    effect: { id: input.actionId, element, variant, role: d.role as TreasureRole, tier:variant+1, ownerId:slot.ownerId, name: d.name, targetId: before.id, damage, shieldBroken: broken, hits, energyBefore, energyAfter,
-      description: `${d.name}：實際傷害 ${damage}${broken ? `，削除護盾 ${broken}` : ''}${energyBefore !== energyAfter ? `，蓄力 ${energyBefore} → ${energyAfter}` : ''}${d.role === 'guard' ? '，下次敵方反擊減傷50%' : ''}` } };
+  const recovery=finishComeback(healedTeam,foes,input.comeback,true);
+  return { ...(recovery.state ? {comeback:recovery.state} : {}),comebackFacts:recovery.facts,comebackText:recovery.message,outcome: orbOutcome(recovery.team, foes), book, catalog: treasureCatalog(book,recovery.team,enhanced), team: recovery.team, foes: initializeAvailableFoes(foes, input.wins + 1), guardScale,
+    effect: { id: input.actionId, element, variant, role: d.role as TreasureRole, tier:variant+1, ownerId:slot.ownerId, name: d.name, targetId: before.id, damage, shieldBroken: broken, hits, healing, energyBefore, energyAfter,
+      description: `${d.name}：實際傷害 ${damage}${rare ? `，我方實補 ${healing.reduce((sum, h) => sum + h.actual, 0)}` : ''}${broken ? `，削除護盾 ${broken}` : ''}${energyBefore !== energyAfter ? `，蓄力 ${energyBefore} → ${energyAfter}` : ''}${d.role === 'guard' ? '，下次敵方反擊減傷50%' : ''}` } };
 }
 export type TreasureUse = ReturnType<typeof resolveTreasureUse>;
 import { orbOutcome } from './battle-outcome';

@@ -9,6 +9,8 @@ const fs = require('node:fs');
 const ts = require('typescript');
 require.extensions['.ts'] = (m, f) => m._compile(ts.transpileModule(fs.readFileSync(f, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText, f);
 const { createHash } = require('node:crypto');
+// Archived v2 mapping/source fixture; production v3 is covered separately.
+require('../lib/beast-game/cultivation-rules.ts').activeFoodChainRule=()=> 'v2';
 const V = require('../lib/beast-game/four-beasts-view.ts');
 const T = require('../lib/beast-game/cultivation-transaction.ts');
 const copy = (id, cardId, bonus = '0') => ({ id, cardId, bonus });
@@ -47,3 +49,11 @@ assert.equal(V.fourBeastsView(snap({ pendingBattle: 'orb:z' })).enhanceableCount
 const locked = snap(); locked.state.protectedIds = ['main:0', 'main:1', 'main:2', 'main:3', 'duel:b1:0'];
 assert.equal(V.fourBeastsView(locked).materials.find(m => m.copyId === 'duel:b1:0').status, 'LOCKED');
 console.log('beast-four-beasts-view: PASS', JSON.stringify({ count: v.enhanceableCount, sources: v.sources, materials: v.materials.map(m => [m.copyId.slice(0, 12), m.status]) }));
+
+// Pending battle navigation is read-only and keeps the original fusion lock.
+const {cultivationView}=require('../lib/beast-game/cultivation-view.ts');
+for(const [pendingBattle,mode,expected] of [[null,null,null],['card:qa',null,'/beast-game/battlefield'],['orb:qa','hard45','/beast-game/match3-hard'],['orb:qa','hard45b','/beast-game/match3-hard2'],['unknown:qa',null,null]]){
+ const source=snap({pendingBattle,...(mode?{orbRun:{input:{mode}}}:{})}),before=JSON.stringify(source),result=cultivationView(source);
+ assert.equal(result.pendingBattleHref,expected);assert.equal(result.pendingBattle,pendingBattle);assert.equal(JSON.stringify(source),before);if(pendingBattle)assert(result.reason);
+}
+console.log('PASS pending battle links: card and both orb modes, no battle, unknown type, immutable snapshot and fusion lock retained');

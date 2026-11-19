@@ -4,7 +4,7 @@ import { buildOrbReplay } from './replay';
 import { buildEvents } from './events';
 import { resolveDrag, type MagicGrid } from './drag';
 import { seededRng, type Board, type Cell } from './board';
-import { match3Mode, type Match3ModeId } from './config';
+import { ENERGY_MAX, match3Mode, type Match3ModeId } from './config';
 import { progressionStage } from './progression';
 import { computeHits, endPlayerSkillTurn, fighterCanAct } from './damage';
 import { attackingTeam, shareEnergy, type LeadChoice, type SameElementRule } from './team';
@@ -16,15 +16,18 @@ import type { OrbSkillEvent } from './skill-runtime';
 import { healSupport, shieldPlan, SUPPORT_POLICY, type HealFact } from './element-support';
 import { playableCards } from '../registry';
 import { orbOutcome } from './battle-outcome';
+import { comebackMultiplier, finishComeback, rescueStrike, COMEBACK_POLICY, type ComebackState } from './comeback';
+import { comebackBoard } from './comeback-board';
 export interface TurnUnit extends Match3Fighter { maxHp: number; energy: number; name: string; thumbnail: string }
 export interface TurnFoe extends Match3Foe { name: string; thumbnail: string }
-export interface TurnInput { treasures?: TreasureBook; actionId?: string; treasureGuard?: number; action?: 'treasure' | 'energy' | 'link'; treasureVariant?: number; treasureElement?: import('../elements').BeastElement; /** 能量技／連結攻擊（card-attack.ts）：施放者、連線卡、沿用前端原 eventId。 */ attackerId?: string; linkIds?: string[]; eventId?: string; board: Board; magic: MagicGrid; path: Cell[]; team: TurnUnit[]; foes: TurnFoe[]; mode: Match3ModeId; wins: number; target: number; seed: number; move: number; chosen: LeadChoice; rule: SameElementRule; attackBoost: number }
+export interface TurnInput { singleCatchWidth?: number; comebackText?: string; comeback?: ComebackState; treasures?: TreasureBook; actionId?: string; treasureGuard?: number; action?: 'treasure' | 'energy' | 'link'; treasureVariant?: number; treasureElement?: import('../elements').BeastElement; /** 能量技／連結攻擊（card-attack.ts）：施放者、連線卡、沿用前端原 eventId。 */ attackerId?: string; linkIds?: string[]; eventId?: string; board: Board; magic: MagicGrid; path: Cell[]; team: TurnUnit[]; foes: TurnFoe[]; mode: Match3ModeId; wins: number; target: number; seed: number; move: number; chosen: LeadChoice; rule: SameElementRule; attackBoost: number }
 export function resolveOrbTurn(input: TurnInput) {
   const cfg = match3Mode(input.mode), hard = cfg.id !== 'medium', stage = progressionStage(input.wins), eventId = `${input.seed}:${input.move}`;
   // Validate the action before running any skills. An invalid drag cannot create healing.
   const res = resolveDrag(input.board, input.path, seededRng(input.seed), input.magic, 50, cfg.diagonal, hard, hard ? stage.minChain : 3);
   const shield = res.valid && hard ? shieldPlan(input.board, input.magic, input.path) : null;
-  let team = input.team, foes = input.foes, startDamage = 0;
+  const opening = res.valid ? finishComeback(input.team, input.foes, input.comeback, false) : {team: input.team, state: input.comeback, facts: [], message: ''};
+  let team = opening.team, foes = input.foes, startDamage = 0;
   const skills: OrbSkillEvent[] = [], heals: HealFact[] = [], enemyHeals: HealFact[] = [];
   if (hard && input.path.length && !res.boardShieldUpgrade) {
     const started = runPlayerTurnSkills(team, foes, 'ON_TURN_START', input.wins + 1, eventId + ':start', input.target);
@@ -36,7 +39,7 @@ export function resolveOrbTurn(input: TurnInput) {
   const actualHits: { attackerId: string; amount: number }[] = [];
   const chainFacts: { chain: number; heals: HealFact[]; damage: number }[] = [];
   let damage = 0, usedBoost = false;
-  const boost = Math.max(input.attackBoost === 1.5 ? 1.5 : 1, shield?.kind === 'same' ? SUPPORT_POLICY.shields.same.attackMultiplier : 1);
+  const boost = Math.max(input.attackBoost === 1.5 ? 1.5 : 1, shield?.kind === 'same' ? SUPPORT_POLICY.shields.same.attackMultiplier : 1) * comebackMultiplier(opening.state);
   if (res.valid) for (const step of res.steps) {
     if (step.groups.length === 0) continue;
     const stepHeals: HealFact[] = [];
@@ -67,6 +70,18 @@ export function resolveOrbTurn(input: TurnInput) {
   if (shield && 'healPercent' in shield && shield.healPercent > 0) {
     const healed = healSupport(team, null, shield.healPercent, new Map(), 1, 'shield'); team = healed.team; heals.push(...healed.facts);
   }
+  // Only newly earned shields count; conversions and five-colour board upgrades do not.
+  if (input.comeback && res.valid && !res.shieldFusion && !res.shieldConversion) {
+    const elements = new Set(res.steps.flatMap(step => (step.rewards ?? []).filter(r => r.power >= 7).map(r => r.element)));
+    if (res.magicSpawn && res.magicSpawn.power >= 7) elements.add(res.magicSpawn.element);
+    team = team.map(c => {
+      if (!elements.has(c.element) || c.hp <= 0) return c;
+      const amount = Math.min(c.maxHp - c.hp, Math.floor(c.maxHp * COMEBACK_POLICY.shieldHealPercent / 100));
+      if (amount <= 0) return c;
+      heals.push({ id: c.id, source: c.element, hpBefore: c.hp, hpAfter: c.hp + amount, actual: amount, reason: 'formation', chain: 1 });
+      return { ...c, hp: c.hp + amount };
+    });
+  }
   if (res.valid && !res.boardShieldUpgrade) team = shareEnergy(team, energyGains(res), input.rule, input.chosen);
   let endDamage = 0;
   if (hard && input.path.length > 0 && !res.boardShieldUpgrade) {
@@ -74,17 +89,36 @@ export function resolveOrbTurn(input: TurnInput) {
     team = endPlayerSkillTurn(ended.team); foes = ended.foes; skills.push(...ended.skillEvents); endDamage = ended.actualDamage;
   }
   if (hard && res.valid) foes = chargeEnemyAttack(foes, input.wins + 1, eventId);
+  const treasure = grantTreasure({ ...input, team }, res);
+  const caughtIds = new Set(treasure.drops.flatMap(d => d.ownerId ? [d.ownerId] : []));
+  team = team.map(unit => {
+    if (unit.hp <= 0 || !caughtIds.has(unit.id)) return unit;
+    const actual = Math.max(0, unit.maxHp - unit.hp);
+    if (actual) heals.push({ id: unit.id, source: unit.element, hpBefore: unit.hp, hpAfter: unit.maxHp, actual, reason: 'formation', chain: 1 });
+    return { ...unit, hp: unit.maxHp, energy: ENERGY_MAX, orbDropCharges: (unit.orbDropCharges ?? 0) + treasure.drops.filter(d=>d.ownerId===unit.id).length };
+  });
+  const helper=team.find(c=>c.hp>0);
+  const assisted=res.valid && opening.state?.rescue && opening.state.strikesLeft>0 && helper && foes.some(c=>c.hp>0)
+    ? comebackBoard(res.board,res.magic,helper.element,stage.minChain) : null;
+  if(assisted){res.board=assisted.board;res.reshuffled=true;
+    for(const drop of treasure.drops)if(drop.source)drop.element=res.board[drop.source.r][drop.source.c];
+  }
+  const rescue = rescueStrike(foes, opening.state, input.wins, target, !!assisted);
+  foes = rescue.foes; endDamage += rescue.damage;
   const beforeCounter = { team, foes };
   const guardScale = Math.min(input.treasureGuard ?? 1, shield && 'damageScale' in shield ? shield.damageScale : 1);
   const counter = input.path.length === 0 || !res.valid ? { team, foes, hits: [], skillEvents: [] } : counterPhase(team, foes, cfg.counterEvery, hard && !stage.simultaneous ? input.move : undefined, guardScale, hard ? input.wins + 1 : undefined, hard ? { turnId: eventId, energyGate: true } : undefined);
   const enemyBudget = new Map<string, number>();
   for (const h of counter.hits) {
+    if(h.blocked)continue;
     const source = counter.foes.find(f => f.id === h.enemyId);
     if (!source || source.hp <= 0) continue;
     const eligible = counter.foes.filter((_, i) => foeAvailable(counter.foes, i, hard ? input.wins + 1 : 0));
     const healed = healSupport(eligible, source.element, SUPPORT_POLICY.healing.enemyCounterPercent, enemyBudget);
     const updated = new Map(healed.team.map(f => [f.id, f])); counter.foes = counter.foes.map(f => updated.get(f.id) ?? f); enemyHeals.push(...healed.facts);
   }
+  const recovery = res.valid ? finishComeback(counter.team, counter.foes, rescue.state, true) : {team: counter.team, state: rescue.state, facts: [], message: ''};
+  counter.team = recovery.team;
   const nextBoost = usedBoost ? 1 : input.attackBoost;
   const source = shield?.kind === 'same' ? input.team.find(f => f.element === shield.colors[0] && actualHits.some(h => h.attackerId === f.id && h.amount > 0)) : undefined;
   const guardian = source ? playableCards().find(c => c.form === 'GUARDIAN' && c.element === source.element) : undefined;
@@ -94,8 +128,7 @@ export function resolveOrbTurn(input: TurnInput) {
   const shieldGoals = (['SPACE','AIR','WATER','FIRE','EARTH'] as const).map(element=>({element,count:res.board.reduce((sum,row,r)=>sum+row.filter((e,c)=>e===element && res.magic[r][c]>=7).length,0)}));
   const replay = hard && res.valid ? buildOrbReplay(input.board, input.magic, input.path, res, cfg.diagonal) : [];
   const events = buildEvents(res.steps, hits, { magicSpawn: res.magicSpawn, magicTriggered: res.magicTriggered, skill5Element: res.skill5 ? res.element : null, energy: energyGains(res) });
-  const treasure = grantTreasure(input, res);
-  treasure.catalog = treasureCatalog(treasure.book,counter.team);
+  treasure.catalog = treasureCatalog(treasure.book,counter.team,input.mode === 'hard45' && !!input.comeback);
   const nextTreasureGuard = counter.hits.length ? 1 : input.treasureGuard ?? 1;
-  return { outcome: orbOutcome(counter.team, counter.foes), treasure, nextTreasureGuard, replay, events, res, target, hits, actualHits, damage, startDamage, endDamage, skills, heals, enemyHeals, healingSummary, enemyHealingSummary, shieldGoals, summon, chainFacts, shield, guardScale, beforeCounter, counter, nextBoost };
+  return { ...(recovery.state ? {comeback:recovery.state} : {}), comebackFacts: [...opening.facts, ...rescue.facts, ...recovery.facts], comebackText: [opening.facts.length ? opening.message : '',rescue.facts.length ? `破陣援擊：實際傷害 ${rescue.damage}。` : '',recovery.message].filter(Boolean).join(' '), outcome: orbOutcome(counter.team, counter.foes), treasure, nextTreasureGuard, replay, events, res, target, hits, actualHits, damage, startDamage, endDamage, skills, heals, enemyHeals, healingSummary, enemyHealingSummary, shieldGoals, summon, chainFacts, shield, guardScale, beforeCounter, counter, nextBoost };
 }

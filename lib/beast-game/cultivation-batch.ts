@@ -5,7 +5,7 @@ import 'server-only';
  * 還能吃幾張到五星封頂；預覽與結算只回一份批次總結，不回逐張陣列（1000 張從約 1.6 MB 降到幾 KB）。
  * 規則本身（星級常數、50% 上限、50% 傳承、五星封頂整批拒絕、五種卡型保護）都不在這裡改，仍由 fuseCultivation 判定。
  */
-import { cultivationTarget, exactBonus, type CultivationChange } from './cultivation';
+import { canCultivatePair, exactBonus, type CultivationChange } from './cultivation';
 import type { CultivationSnapshot } from './cultivation-transaction';
 import { fedCounter } from './cultivation-transaction';
 import { describeCultivationChange, percentOf } from './cultivation-view';
@@ -27,10 +27,10 @@ export function batchLimits(snapshot: CultivationSnapshot, targetId: string): Ba
   if (!target) throw new Error('材料或目標已不存在，未扣材料。');
   const targetCard = getCard(target.cardId);
   const fed = fedCounter(snapshot)(target.id);
-  const room = activeFoodChainRule() === 'v2' && targetCard && (targetCard.form === 'ADULT' || targetCard.form === 'GUARDIAN') ? Math.max(0, starProgress(targetCard.form, fed).capFeeds - fed) : null;
+  const room = activeFoodChainRule() !== 'v1' && targetCard && (targetCard.form === 'ADULT' || targetCard.form === 'GUARDIAN') ? Math.max(0, starProgress(targetCard.form, fed).capFeeds - fed) : null;
   const groups = new Map<string, { id: string; bonus: bigint; order: number }[]>();
   state.cards.forEach((c, order) => {
-    if (c.id === target.id || state.protectedIds.includes(c.id) || cultivationTarget(c.cardId) !== target.cardId) return;
+    if (c.id === target.id || state.protectedIds.includes(c.id) || !canCultivatePair(c.cardId,target.cardId)) return;
     const list = groups.get(c.cardId) ?? []; list.push({ id: c.id, bonus: exactBonus(c.bonus), order }); groups.set(c.cardId, list);
   });
   const types = new Set(state.cards.filter(c => getCard(c.cardId)).map(c => c.cardId)).size;
@@ -64,10 +64,11 @@ export function summarizeCultivationChanges(changes: readonly CultivationChange[
     ...last,
     materialId: changes[0].materialId, materialCardId: lead.cardId, materialName: lead.name,
     beforeBonus: first.beforeBonus, addedBonus: added.toString(), afterBonus: last.afterBonus,
-    ...(first.rule === 'v2' ? { inheritedBonus: inherited.toString(), rawBonus: raw.toString(), fedBefore: first.fedBefore } : {}),
+    ...(first.rule !== undefined ? { inheritedBonus: inherited.toString(), rawBonus: raw.toString(), fedBefore: first.fedBefore } : {}),
     capped: changes.some(c => c.capped === true),
     addedPercent: percentOf(added, target.stats.attack), totalPercentBefore: first.totalPercentBefore,
     beforeOrbAttack: first.beforeOrbAttack, beforeBattleAttack: first.beforeBattleAttack,
+    addedBattleBonus:(BigInt(last.afterBattleAttack)-BigInt(first.beforeBattleAttack)).toString(),
     starsBefore: first.starsBefore,
     count: changes.length, zeroCount, materials,
     atBonusCap: capBonus !== undefined && exactBonus(last.afterBonus) >= exactBonus(capBonus),

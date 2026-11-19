@@ -1,0 +1,288 @@
+{
+  "evidence": "Compact replay audit; full game state omitted",
+  "samples": [
+    {
+      "epoch": "1",
+      "t": 4187.299999998882,
+      "chain": 1,
+      "busy": "true",
+      "pointer": "none",
+      "cellCount": 56,
+      "groupCount": 1
+    },
+    {
+      "epoch": "6",
+      "t": 5175.299999998882,
+      "chain": 2,
+      "busy": "true",
+      "pointer": "none",
+      "cellCount": 56,
+      "groupCount": 1
+    }
+  ],
+  "pointers": [
+    {
+      "type": "pointermove",
+      "x": 654,
+      "y": 411.609375,
+      "hit": [
+        "7",
+        "0"
+      ],
+      "coalesced": [
+        {
+          "x": 654,
+          "y": 411.609375
+        }
+      ],
+      "rect": {
+        "x": 645,
+        "y": 402.609375,
+        "w": 18,
+        "h": 18
+      }
+    },
+    {
+      "type": "pointerdown",
+      "x": 654,
+      "y": 411.609375,
+      "hit": [
+        "7",
+        "0"
+      ],
+      "coalesced": [],
+      "rect": {
+        "x": 645,
+        "y": 402.609375,
+        "w": 18,
+        "h": 18
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 676,
+      "y": 411.609375,
+      "hit": [
+        "7",
+        "1"
+      ],
+      "coalesced": [
+        {
+          "x": 676,
+          "y": 411.609375
+        }
+      ],
+      "rect": {
+        "x": 667,
+        "y": 402.609375,
+        "w": 18,
+        "h": 18
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 698,
+      "y": 411.609375,
+      "hit": [
+        "7",
+        "2"
+      ],
+      "coalesced": [
+        {
+          "x": 698,
+          "y": 411.609375
+        }
+      ],
+      "rect": {
+        "x": 689,
+        "y": 402.609375,
+        "w": 18,
+        "h": 18
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 720,
+      "y": 411.609375,
+      "hit": [
+        "7",
+        "3"
+      ],
+      "coalesced": [
+        {
+          "x": 720,
+          "y": 411.609375
+        }
+      ],
+      "rect": {
+        "x": 711,
+        "y": 402.609375,
+        "w": 18,
+        "h": 18
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 742,
+      "y": 411.609375,
+      "hit": [
+        "7",
+        "4"
+      ],
+      "coalesced": [
+        {
+          "x": 742,
+          "y": 411.609375
+        }
+      ],
+      "rect": {
+        "x": 733,
+        "y": 402.609375,
+        "w": 18,
+        "h": 18
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 764,
+      "y": 411.609375,
+      "hit": [
+        "7",
+        "5"
+      ],
+      "coalesced": [
+        {
+          "x": 764,
+          "y": 411.609375
+        }
+      ],
+      "rect": {
+        "x": 755,
+        "y": 402.609375,
+        "w": 18,
+        "h": 18
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 786,
+      "y": 411.609375,
+      "hit": [
+        "7",
+        "6"
+      ],
+      "coalesced": [
+        {
+          "x": 786,
+          "y": 411.609375
+        }
+      ],
+      "rect": {
+        "x": 777,
+        "y": 402.609375,
+        "w": 18,
+        "h": 18
+      }
+    },
+    {
+      "type": "pointerup",
+      "x": 786,
+      "y": 411.609375,
+      "hit": [
+        "7",
+        "6"
+      ],
+      "coalesced": [],
+      "rect": {
+        "x": 777,
+        "y": 402.609375,
+        "w": 18,
+        "h": 18
+      }
+    }
+  ],
+  "events": [
+    {
+      "element": "FIRE",
+      "count": 7,
+      "cascadeStep": 1,
+      "eligible": false,
+      "power": 7,
+      "target": "beast_a15"
+    },
+    {
+      "element": "SPACE",
+      "count": 3,
+      "cascadeStep": 2,
+      "eligible": true,
+      "power": 3,
+      "target": "beast_a15"
+    },
+    {
+      "type": "magicOrbSpawn",
+      "r": 7,
+      "c": 6,
+      "element": "FIRE",
+      "power": 7
+    },
+    {
+      "type": "energy",
+      "element": "FIRE",
+      "gain": 70,
+      "fill": false
+    },
+    {
+      "type": "energy",
+      "element": "SPACE",
+      "gain": 30,
+      "fill": false
+    }
+  ],
+  "turn": {
+    "damage": 0,
+    "startDamage": 0,
+    "endDamage": 0,
+    "outcome": null,
+    "referee": {
+      "verdict": "PASS",
+      "action": "KEEP_ANIMATION",
+      "reason": "前端演的跟後端算的逐格一致，維持畫面。",
+      "serverDigest": "2199aabe4bd6",
+      "claimDigest": "2199aabe4bd6"
+    },
+    "replayFrameCount": 11
+  },
+  "input": {
+    "mode": "hard45",
+    "path": [
+      {
+        "r": 7,
+        "c": 0
+      },
+      {
+        "r": 7,
+        "c": 1
+      },
+      {
+        "r": 7,
+        "c": 2
+      },
+      {
+        "r": 7,
+        "c": 3
+      },
+      {
+        "r": 7,
+        "c": 4
+      },
+      {
+        "r": 7,
+        "c": 5
+      },
+      {
+        "r": 7,
+        "c": 6
+      }
+    ]
+  }
+}
