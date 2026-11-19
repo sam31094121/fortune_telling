@@ -1207,8 +1207,8 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 
 /* Preview: reserve the attack target above each card; keep weapons directly below. */
 .wrap[data-mode="hard45"] .team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"]){padding-top:44px;padding-bottom:0;}
-.wrap[data-mode="hard45"] .team[data-team-count]:not([data-last-ally="true"]) .manualEnergyOrb{top:-44px;bottom:auto;right:auto;left:50%;transform:translateX(-50%);width:44px;height:44px;border:0;background:none;box-shadow:none;padding:0;}
-.wrap[data-mode="hard45"] .team[data-team-count]:not([data-last-ally="true"]) .manualEnergyOrb > [data-element-treasure-orb]{inset:39px auto auto 15px;width:14px;height:14px;}
+.wrap[data-mode="hard45"] .team[data-team-count]:not([data-last-ally="true"]) .manualEnergyOrb{top:-24px;bottom:auto;right:auto;left:50%;transform:translateX(-50%);width:28px;height:28px;min-height:28px;border:0;background:none;box-shadow:none;padding:0;}
+.wrap[data-mode="hard45"] .team[data-team-count]:not([data-last-ally="true"]) .manualEnergyOrb > [data-element-treasure-orb]{inset:13px auto auto 7px;width:14px;height:14px;}
 
 /* Keep each card/orb/weapon group together; distribute spare room above it. */
 .wrap[data-mode="hard45"] .team:not([data-last-ally="true"]) ~ [data-testid="orb-treasures"]:not([data-side-dock="true"]){margin-top:0;}
@@ -1241,7 +1241,7 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode="hard45"] > .manualEnergyOrb[data-solo-energy="true"] > [data-element-treasure-orb] { inset: 7px auto auto 7px; }
 
 /* Position preview: reserve the board's downward travel without moving ally controls. */
-.wrap[data-mode="hard45"] > .board { margin-bottom:48px; }
+.wrap[data-mode="hard45"] > .board { margin-bottom:36px; }
 .wrap[data-mode="hard45"] .sel::after { border:0; box-shadow:none; }
 .wrap[data-mode="hard45"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] {
  height:calc(100% + var(--board-preview-drop, 0px));

@@ -683,9 +683,12 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           const bounds = boardElement.getBoundingClientRect();
           const controls = Array.from(element.querySelectorAll<HTMLElement>('.' + styles.manualEnergyOrb))
             .filter(control => control.getClientRects().length > 0);
-          const nextTop = Math.min(teamEl.getBoundingClientRect().top, ...controls.map(control => control.getBoundingClientRect().top));
-          const cardExtra = Math.max(0, Math.min(48, nextTop - bounds.bottom - 8));
-          const drop = Math.max(0, Math.min(56, nextTop - bounds.bottom - 2));
+          const cards = Array.from(teamEl.querySelectorAll<HTMLElement>('[data-testid="match3-ally"]'));
+          // Keep the same reserved hit lane even while energy orbs are hidden.
+          const reservedTop = lastAllyOn ? teamEl.getBoundingClientRect().top : Math.min(...cards.map(card => card.getBoundingClientRect().top)) - 24;
+          const nextTop = Math.min(reservedTop, ...controls.map(control => control.getBoundingClientRect().top));
+          const cardExtra = Math.max(0, Math.min(48, teamEl.getBoundingClientRect().top - bounds.bottom + 48 - number(style.marginBottom) - 8));
+          const drop = Math.max(0, Math.min(60, nextTop - bounds.bottom - 2));
           boardElement.style.transform = `translateY(${Math.floor(drop)}px)`;
           element.style.setProperty('--board-preview-drop', `${Math.floor(cardExtra)}px`);
         }
