@@ -15,7 +15,7 @@ function fixture(n,seed=1004){
 }
 for(const n of [9,10,11,14]){
  const input=fixture(n),before=JSON.stringify(input),r=resolveOrbTurn(input);
- assert.equal(JSON.stringify(input),before,'pure input');assert.equal(r.treasure.drops.length,n-8);
+ assert.equal(JSON.stringify(input),before,'pure input');assert.equal(r.treasure.drops.length,Math.min(256,2**(n-9)));
  assert.deepEqual(r.treasure.drops,resolveOrbTurn(input).treasure.drops,'same authoritative seed replays exactly');
  const caught=r.treasure.drops.filter(d=>d.ownerId);
  assert.equal(r.treasure.catalog.reduce((s,c)=>s+c.count,0),caught.length,'only caught balls enter inventory');
@@ -38,7 +38,9 @@ for(let seed=0;seed<200;seed++){
 assert(hits>0&&misses>0&&collisionCount>0,'both real catches and misses occur');
 const dead=team.map(u=>({...u,hp:0}));assert.deepEqual(D.dropCatches(dead),[]);
 assert(D.simulateOrbDrops({count:48,element:'FIRE',seed:5,launchX:500,catches:[]}).every(d=>d.ownerId===null));
-const one=D.dropCatches(dead.map((u,i)=>i===3?{...u,hp:1}:u));assert.equal(one.length,1);assert.equal(one[0].slot,3);assert.equal(one[0].left,450);
+const one=D.dropCatches(dead.map((u,i)=>i===3?{...u,hp:1}:u));assert.equal(one.length,1);assert.equal(one[0].slot,3);assert.equal(one[0].left,140);
+assert.deepEqual(D.dropCatches(dead.map((u,i)=>i===3?{...u,hp:1}:u),400)[0],{ownerId:dead[3].id,slot:3,left:300,right:700});
+assert.throws(()=>D.dropCatches(dead,900));
 const {resolveCardAttackTurn}=require('../lib/beast-game/match3/card-attack.ts');
 const {counterPhase}=require('../lib/beast-game/match3/enemies.ts');
 const charged=fixture(9);charged.team=charged.team.map((u,i)=>i?u:{...u,energy:100,orbDropCharges:1});
@@ -47,6 +49,10 @@ const shot=resolveCardAttackTurn({...charged,action:'energy',attackerId:charged.
 assert(900-shot.foes[0].hp>=500,'at least half maximum HP after shield absorption');
 assert.equal(shot.actualDamage,900-shot.foes[0].hp);assert.equal(shot.team[0].orbDropCharges,0);assert.equal(shot.team[0].energy,0);
 assert.equal(shot.foes[0].orbDropCounterBlocked,true);
+const stacked = resolveCardAttackTurn({...charged,team:charged.team.map((u,i)=>i?u:{...u,orbDropCharges:3}),action:'energy',attackerId:charged.team[0].id,eventId:'stacked',actionId:'stacked'});
+assert.equal(stacked.team[0].orbDropCharges,2,'one manual click spends exactly one caught orb');
+assert.equal(stacked.team[0].energy,100,'remaining caught orbs stay ready for the next manual click');
+assert.equal(charged.team[0].orbDropCharges,1,'manual attack does not mutate its input');
 const blocked=counterPhase(shot.team,shot.foes,4,undefined,false,1,{turnId:'blocked',energyGate:true});
 assert(blocked.hits.length===1&&blocked.hits[0].actualDamage===0);assert.equal(blocked.foes[0].orbDropCounterBlocked,false);assert.equal(blocked.foes[0].attack,30);assert.equal(blocked.foes[0].attackEnergy,0);
 const resumed=counterPhase(blocked.team,blocked.foes.map(f=>({...f,attackEnergy:100})),4,undefined,false,1,{turnId:'resumed',energyGate:true});
@@ -95,7 +101,7 @@ for(const count of [2,3,12,48])for(let seed=1;seed<=5;seed++){
 }
 assert(pairContacts>0,'real pair collision impulses are recorded');
 const ceremony=resolveOrbTurn(fixture(14));
-assert.deepEqual(ceremony.treasure.drops.map(d=>d.source.c),[3,4,2,5,1,6]);
+assert.deepEqual(ceremony.treasure.drops.map(d=>d.source.c),Array.from({length:32},(_,i)=>[3,4,2,5,1,6,0][i%7]));
 for(const d of ceremony.treasure.drops)assert.equal(d.element,ceremony.res.board[d.source.r][d.source.c]);
 console.log('PASS shared-clock collisions for 2/3/12/48 balls, centre-out birth order and true source colours');
 

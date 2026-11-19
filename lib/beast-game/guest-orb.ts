@@ -56,8 +56,8 @@ export function openGuestOrb(token:unknown):GuestOrbTicket {
 }
 /** The request contributes intentions only. Stats, HP, seed, progress and rewards are signed. */
 export function guestOrbInput(ticket:GuestOrbTicket,request:TurnInput):TurnInput {
-  const {path,target,rule,chosen,action,attackerId,linkIds,treasureElement,treasureVariant}=request;
-  return {...ticket.input,path,target,rule,chosen,action,attackerId,linkIds,treasureElement,treasureVariant,actionId:`guest:${ticket.id}:${ticket.version}`,eventId:`guest:${ticket.id}:${ticket.version}`,seed:action?ticket.seed:(ticket.seed+ticket.input.move*2654435761)>>>0};
+  const {path,target,rule,chosen,action,attackerId,linkIds,treasureElement,treasureVariant,singleCatchWidth}=request;
+  return {...ticket.input,path,target,rule,chosen,action,attackerId,linkIds,treasureElement,treasureVariant,singleCatchWidth,actionId:`guest:${ticket.id}:${ticket.version}`,eventId:`guest:${ticket.id}:${ticket.version}`,seed:action?ticket.seed:(ticket.seed+ticket.input.move*2654435761)>>>0};
 }
 export function resolveGuestOrb(ticket:GuestOrbTicket,input:TurnInput) {
   if(orbOutcome(ticket.input.team,ticket.input.foes)!==null)throw new Error('本局已結束。');

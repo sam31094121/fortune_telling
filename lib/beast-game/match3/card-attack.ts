@@ -40,7 +40,8 @@ export function resolveEnergyAttack<T extends Player, F extends Match3Foe>(args:
       applied.actualDamage += extra; applied.actualHits.push({attackerId:u.id,amount:extra});
     }
     applied.foes = applied.foes.map((f,i)=>i===targetIndex && f.hp>0 ? {...f,orbDropCounterBlocked:true} : f);
-    applied.team = applied.team.map(x=>x.id===u.id ? {...x,orbDropCharges:Math.max(0,(u.orbDropCharges ?? 0)-1)} : x);
+    const remaining = Math.max(0,(u.orbDropCharges ?? 0)-1);
+    applied.team = applied.team.map(x=>x.id===u.id ? {...x,orbDropCharges:remaining,energy:remaining > 0 ? ENERGY_MAX : 0} : x);
   }
   return { ...applied, baseDamage: amt };
 }

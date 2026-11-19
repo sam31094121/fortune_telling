@@ -96,7 +96,7 @@ try {
     releasedAt=Date.now();
     await send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...points.at(-1), button: 'left', buttons: 0, clickCount: 1 });
     }
-    await wait(`document.querySelector('[data-testid="match3-round"]')?.textContent !== ${JSON.stringify(oldRound)} && document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy') === 'false'`);
+    await wait(`document.querySelector('[data-testid="match3-round"]')?.textContent !== ${JSON.stringify(oldRound)} && document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy') === 'false'`,Number(process.env.MATCH3_DROP_WAIT_MS)||90000);
     const releaseToReadyMs=Date.now()-releasedAt;
     await sleep(150);
     return releaseToReadyMs;
@@ -136,7 +136,7 @@ try {
     if(${JSON.stringify(fixture)} && typeof ${JSON.stringify(fixture)} === 'object'){const f=${JSON.stringify(fixture)};b.queue.dispatch(f.board);m.queue.dispatch(f.magic);if(f.lastAlly)t.queue.dispatch(t.memoizedState.map((u,i)=>({...u,hp:i?0:u.hp})));}
     else if(${JSON.stringify(fixture)}){const els=['FIRE','WATER','AIR','SPACE','EARTH'];const board=Array.from({length:8},(_,r)=>Array.from({length:7},(_,c)=>els[(r*2+c)%5]));const magic=Array.from({length:8},()=>Array(7).fill(0));for(let c=0;c<3;c++)magic[3][c]=7;board[6][0]=board[6][1]=board[6][2]='EARTH';b.queue.dispatch(board);m.queue.dispatch(magic);}
     if(${process.env.MATCH3_FEEDBACK_AUDIT === '1'})t.queue.dispatch(t.memoizedState.map(u=>({...u,hp:Math.max(1,Math.floor(u.maxHp/2))})));
-    if(${process.env.MATCH3_DROP_AUDIT === '1'}){t.queue.dispatch(t.memoizedState.map(u=>({...u,hp:Math.max(1,Math.floor(u.maxHp/3)),attack:1,energy:0})));e.queue.dispatch(e.memoizedState.map(u=>({...u,hp:10000,maxHp:10000,attack:1,attackEnergy:0})));}
+    if(${process.env.MATCH3_DROP_AUDIT === '1'}){t.queue.dispatch(t.memoizedState.map((u,i)=>({...u,hp:${process.env.MATCH3_SOLO_DROP === '1'}&&i?0:Math.max(1,Math.floor(u.maxHp/3)),attack:1,energy:0})));e.queue.dispatch(e.memoizedState.map(u=>({...u,hp:10000,maxHp:10000,attack:1,attackEnergy:0})));}
     return {team:t.memoizedState,foes:e.memoizedState};
   })()`);
   await send('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{
@@ -160,21 +160,29 @@ try {
     console.log('Checking replay',width,length,reduced);
     const board=M.generateBoard(M.seededRng(1),8,7,true);board[7].fill('FIRE',0,length);
     if(process.env.MATCH3_DROP_AUDIT==='1'){
-      const n=width===1440?11:width===390&&!reduced?10:9;
-      const route=[...[0,1,2,3,4,5,6].map(c=>({r:6,c})),...[6,5,4,3,2,1,0].map(c=>({r:7,c}))].slice(0,n);
+      const n=Number(process.env.MATCH3_DROP_SHIELDS)||(width===1440?11:width===390&&!reduced?10:9);
+      const route=(process.env.MATCH3_DROP_SHIELDS?Array.from({length:8},(_,r)=>Array.from({length:7},(_,i)=>({r,c:r%2?6-i:i}))).flat():[...[0,1,2,3,4,5,6].map(c=>({r:6,c})),...[6,5,4,3,2,1,0].map(c=>({r:7,c}))]).slice(0,n);
       const magic=M.emptyMagic(board);route.forEach(p=>{board[p.r][p.c]='SPACE';magic[p.r][p.c]=7;});
       await state({board,magic});await sleep(150);
       await js(`window.__dropReply=null;const oldFetch=window.fetch;window.fetch=async(...args)=>{const r=await oldFetch(...args);if(String(args[0]).includes('/orb-turn'))window.__dropReply=await r.clone().json();return r;}`);
       const playing=drag(route);void playing.catch(()=>{});
-      if(!reduced){await wait('document.querySelector("[data-testid=orb-drop-stage]")');assert.equal(await js('document.querySelectorAll("[data-drop-index]").length'),n-8);
-        await wait('document.querySelector("[data-testid=orb-card-divider]")?.getBoundingClientRect().width > 0');
+      if(!reduced){await wait('document.querySelector("[data-testid=orb-drop-stage]")');assert.equal(await js('document.querySelectorAll("[data-drop-index]").length'),Math.min(256,2**(n-9)));
+        if(process.env.MATCH3_SOLO_DROP!=='1')await wait('document.querySelector("[data-testid=orb-card-divider]")?.getBoundingClientRect().width > 0');
         const geometry=await js('(()=>{const b=document.querySelector("[data-testid=match3-board]").getBoundingClientRect(),s=document.querySelector("[data-testid=orb-drop-stage]").getBoundingClientRect();return {boardBottom:b.bottom,stageWidth:s.width,dividers:[...document.querySelectorAll("[data-testid=orb-card-divider]")].map(e=>({top:e.getBoundingClientRect().top,width:e.getBoundingClientRect().width})),orbWidth:document.querySelector("[data-drop-index]").getBoundingClientRect().width};})()');
         assert(geometry.dividers.every(d=>d.top>=geometry.boardBottom),'divider overlaps playable board');
         assert(Math.abs(geometry.orbWidth-geometry.stageWidth*.072)<1,'visible body differs from physical diameter');
         await save('drop-'+width+'-'+n);}
       await playing;
-      const reply=await js('window.__dropReply');assert.equal(reply.treasure.drops.length,n-8);
+      const reply=await js('window.__dropReply');assert.equal(reply.treasure.drops.length,Math.min(256,2**(n-9)));
       const caught=reply.treasure.drops.filter(d=>d.ownerId);
+      if(process.env.MATCH3_SOLO_DROP==='1'){
+        const mouth=reply.treasure.catches[0];
+        const geometry=await js(`(()=>{const c=[...document.querySelectorAll('[data-testid="match3-ally"]')].find(e=>Number(e.dataset.hp)>0),r=c.getBoundingClientRect(),t=c.parentElement.getBoundingClientRect();return {width:r.width/t.width*1000,id:c.dataset.id};})()`);
+        assert.equal(reply.treasure.catches.length,1);
+        assert(Math.abs(mouth.right-mouth.left-geometry.width)<1,'last ally catch follows actual enlarged card');
+        assert(caught.length>0,'last ally fixture actually catches a ball');
+        assert(caught.every(d=>d.ownerId===geometry.id),'dead slots receive no reward');
+      }
       assert.equal(reply.treasure.catalog.reduce((sum,c)=>sum+c.count,0),caught.length);
       if(caught.length){
         const owner=caught[0].ownerId,u=reply.beforeCounter.team.find(u=>u.id===owner);assert.equal(u.hp,u.maxHp);assert.equal(u.energy,100);

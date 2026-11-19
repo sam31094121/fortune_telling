@@ -19,6 +19,13 @@ export const DROP_FIELD = {
   ],
 } as const;
 
+export const MAX_ORB_DROPS = 256;
+export const ORB_WAVE_SIZE = 7;
+export function shieldOrbCount(shields: number): number {
+  if (!Number.isInteger(shields) || shields < 0 || shields > 56) throw new Error('盾牌數量無效');
+  return shields < 9 ? 0 : 2 ** Math.min(shields - 9, 8);
+}
+
 /** Existing neighbouring card edges act as physical dividers, not reward reassignment. */
 export function dropDividers(catches: readonly DropCatch[]): {x:number;y:number}[] {
   const sorted=[...catches].sort((a,b)=>a.left-b.left);
@@ -30,9 +37,13 @@ export function dropDividers(catches: readonly DropCatch[]): {x:number;y:number}
 }
 
 /** Catch mouths are narrower than cards; empty/dead slots are never reassigned. */
-export function dropCatches(team: readonly { id: string; hp: number }[]): DropCatch[] {
+export function dropCatches(team: readonly { id: string; hp: number }[], singleWidth?: number): DropCatch[] {
   const live = team.map((u, slot) => ({ ...u, slot })).filter(u => u.hp > 0);
-  if (live.length === 1) return [{ ownerId: live[0].id, slot: live[0].slot, left: 450, right: 550 }];
+  if (singleWidth !== undefined && (!Number.isFinite(singleWidth) || singleWidth < 72 || singleWidth > 720)) throw new Error('神獸接取版面無效');
+  if (live.length === 1) {
+    const width = singleWidth ?? 720;
+    return [{ ownerId: live[0].id, slot: live[0].slot, left: (1000-width)/2, right: (1000+width)/2 }];
+  }
   return live.map(u => ({ ownerId: u.id, slot: u.slot, left: u.slot * 200 + 30, right: u.slot * 200 + 170 }));
 }
 
@@ -40,7 +51,7 @@ export function dropCatches(team: readonly { id: string; hp: number }[]): DropCa
 export function simulateOrbDrops(input: {
   count: number; element: BeastElement; seed: number; launchX: number; catches: readonly DropCatch[]; sources?: readonly {r:number;c:number;element:BeastElement;x:number}[];
 }): OrbDrop[] {
-  if (!Number.isInteger(input.count) || input.count < 1 || input.count > 48 || !Number.isFinite(input.launchX)) throw new Error('法珠掉落數量或起點無效');
+  if (!Number.isInteger(input.count) || input.count < 1 || input.count > MAX_ORB_DROPS || !Number.isFinite(input.launchX)) throw new Error('法珠掉落數量或起點無效');
   const dividers=dropDividers(input.catches), rng=seededRng(input.seed), dt=1/120, radius=DROP_FIELD.radius, scale=1.6;
   type Ball={index:number;x:number;y:number;vx:number;vy:number;born:number;finished:boolean;points:DropPoint[];impacts:number[];pairImpacts:number[]};
   const balls:Ball[]=[], output:OrbDrop[]=[];
@@ -75,7 +86,8 @@ export function simulateOrbDrops(input: {
     const source=input.sources?.[balls.length];
     const entrance=source?.x ?? launchX;
     // Release at the physical entrance only when the previous sphere has cleared it.
-    if(balls.length<input.count&&(balls.length===0||step-balls[balls.length-1].born>=36)&&active.every(b=>Math.hypot(b.x-entrance,b.y-radius)>=2*radius+2)){
+    const waveReady = balls.length % ORB_WAVE_SIZE !== 0 || balls.slice(-ORB_WAVE_SIZE).every(b=>b.finished || b.y-radius>=275);
+    if(balls.length<input.count&&waveReady&&(balls.length===0||step-balls[balls.length-1].born>=36)&&active.every(b=>Math.hypot(b.x-entrance,b.y-radius)>=2*radius+2)){
       const b:Ball={index:balls.length,x:entrance,y:radius,vx:(rng()-.5)*240,vy:0,born:step,finished:false,points:[{t:0,x:entrance,y:radius}],impacts:[],pairImpacts:[]};
       balls.push(b);active.push(b);
     }
@@ -102,7 +114,7 @@ export function simulateOrbDrops(input: {
       b.points.push({t:elapsed,x:b.x,y:b.y});
       if(reached||timedOut){
         b.finished=true;const caught=reached?input.catches.find(c=>b.x>=c.left+radius&&b.x<=c.right-radius):undefined;
-        output.push({index:b.index,element:input.sources?.[b.index]?.element ?? input.element,...(input.sources?.[b.index]?{source:{r:input.sources[b.index].r,c:input.sources[b.index].c}}:{}),delayMs:b.born*dt*1000*scale,points:b.points.map(p=>({...p,t:p.t*scale})),impacts:b.impacts.map(t=>t*scale),pairImpacts:b.pairImpacts.map(t=>t*scale),durationMs:elapsed*scale,ownerId:caught?.ownerId??null,slot:caught?.slot??null});
+        output.push({index:b.index,element:input.sources?.[b.index]?.element ?? input.element,...(input.sources?.[b.index]?{source:{r:input.sources[b.index].r,c:input.sources[b.index].c}}:{}),delayMs:b.born*dt*1000*scale,points:b.points.map(p=>({x:Math.round(p.x*1000)/1000,y:Math.round(p.y*1000)/1000,t:Math.round(p.t*scale*100)/100})),impacts:b.impacts.map(t=>t*scale),pairImpacts:b.pairImpacts.map(t=>t*scale),durationMs:elapsed*scale,ownerId:caught?.ownerId??null,slot:caught?.slot??null});
       }
     }
   }

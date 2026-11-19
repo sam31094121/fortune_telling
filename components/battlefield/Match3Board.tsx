@@ -845,7 +845,11 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     try {
       battleId.current ||= crypto.randomUUID();
       const request = async (book?: TreasureBook) => {
-        const response = await postOrbTurn(JSON.stringify({ guestBattleToken:guestState.current.token, sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, board, magic, path, team, foes, mode:cfg.id, wins, target:ti, seed:(init.seed + moves * 2654435761) >>> 0, move:moves, chosen, rule, attackBoost, treasureGuard, treasures:book, actionId:battleId.current + ':turn:' + moves }), {'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, controller.signal);
+        const live = team.filter(u => u.hp > 0);
+        const card = live.length === 1 ? Array.from(root.current?.querySelectorAll<HTMLElement>('[data-testid="match3-ally"]') ?? []).find(c => c.dataset.id === live[0].id) : undefined;
+        const field = card?.parentElement?.getBoundingClientRect();
+        const singleCatchWidth = card && field?.width ? Math.min(720, Math.max(72, card.getBoundingClientRect().width / field.width * 1000)) : undefined;
+        const response = await postOrbTurn(JSON.stringify({ guestBattleToken:guestState.current.token, sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, singleCatchWidth, board, magic, path, team, foes, mode:cfg.id, wins, target:ti, seed:(init.seed + moves * 2654435761) >>> 0, move:moves, chosen, rule, attackBoost, treasureGuard, treasures:book, actionId:battleId.current + ':turn:' + moves }), {'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, controller.signal);
         if (!response.ok) throw new Error('turn unavailable');
         const result: ReturnType<typeof resolveOrbTurn> = await response.json();
         requireOutcome(result);
@@ -1275,7 +1279,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
                 <div className={styles.allyMeta}>{down ? '已倒下' : `${MATCH3_ORB_LABEL[u.element]}${dup ? (lead ? '・主攻' : '・輔助') : ''} ${u.energy}`}</div>
                 {rigEnabled && <span className={styles.compactEnergy} aria-hidden="true">氣 {u.energy}</span>}
               </button>
-              {rigEnabled && full && !down && <button type="button" className={styles.manualEnergyOrb} data-testid="match3-ready-energy-orb" data-source-id={u.id} disabled={!energyReady} aria-label={`${u.name}能量寶珠，${busy ? '演出中' : over ? '本局已結束' : !fighterCanAct(u) ? '暫時受控' : '能量已滿，點擊攻擊'}`} onPointerDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); void unleash(u); }}><ElementTreasureOrb element={getProductOrbFromBrand(u.element.toLowerCase() as 'space' | 'air' | 'water' | 'fire' | 'earth')} released preview animated={false} visualScale={0.8} /><span>{busy ? '稍候' : '攻擊'}</span></button>}
+              {rigEnabled && full && !down && <button type="button" className={styles.manualEnergyOrb} data-testid="match3-ready-energy-orb" data-source-id={u.id} disabled={!energyReady} aria-label={`${u.name}能量寶珠，${busy ? '演出中' : over ? '本局已結束' : !fighterCanAct(u) ? '暫時受控' : '能量已滿，點擊攻擊'}`} onPointerDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); void unleash(u); }}><ElementTreasureOrb element={getProductOrbFromBrand(u.element.toLowerCase() as 'space' | 'air' | 'water' | 'fire' | 'earth')} released preview animated={false} visualScale={0.8} /><span>{busy ? '稍候' : u.orbDropCharges ? `攻擊 ×${u.orbDropCharges}` : '攻擊'}</span></button>}
               {!rigEnabled && full && !linkMode && <button type="button" className={`${styles.skill} ${rigEnabled && u.skillRuntime?.shield ? styles.skillWithShield : ''}`} data-testid="match3-skill" disabled={rigEnabled && !fighterCanAct(u)} onPointerDown={(e) => e.stopPropagation()} onClick={() => unleash(u)}>{rigEnabled ? (fighterCanAct(u) ? '能量攻擊' : '暫時受控') : '技能'}{rigEnabled && !!u.skillRuntime?.shield && <span className={styles.skillShieldLine} data-testid="match3-ally-shield">盾 {u.skillRuntime.shield}</span>}</button>}
             </div>
           );

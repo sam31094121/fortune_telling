@@ -23,8 +23,10 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound }: {
     if (!parent || !board || !team) return;
     const measure = () => {
       const p = parent.getBoundingClientRect(), b = board.getBoundingClientRect(), t = team.getBoundingClientRect();
+      const single = team.getAttribute('data-last-ally') === 'true' ? Array.from(team.querySelectorAll<HTMLElement>('[data-testid="match3-ally"]')).find(c => Number(c.dataset.hp) > 0)?.getBoundingClientRect() : undefined;
+      const bottom = single ? single.top + Math.min(single.height * .2, 28) : t.bottom + 12;
       setBirthSites(drops.map(d=>{const cell=d.source?board.querySelector('[data-r="'+d.source.r+'"][data-c="'+d.source.c+'"]'):null;const c=cell?.getBoundingClientRect();return {x:c?c.left+c.width/2-t.left:t.width/2,y:c?c.top+c.height/2-b.top:16};}));
-      setBounds({left:t.left-p.left,top:b.top-p.top,width:t.width,height:Math.max(1,t.bottom-b.top+12),dividerY:Math.max(b.bottom-b.top+10,t.bottom-b.top+12-(DROP_FIELD.height-555)*t.width/DROP_FIELD.width)});
+      setBounds({left:t.left-p.left,top:b.top-p.top,width:t.width,height:Math.max(1,bottom-b.top),dividerY:Math.max(b.bottom-b.top+10,bottom-b.top-(DROP_FIELD.height-555)*t.width/DROP_FIELD.width)});
     };
     measure(); const observer = new ResizeObserver(measure); observer.observe(parent); observer.observe(team);
     return () => observer.disconnect();
@@ -52,6 +54,8 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound }: {
       if (ended) return;
       animations.forEach((a,i) => {
         const drop=drops[i], time=(Number(a.currentTime ?? 0)-(reduced?0:400))/playbackScale-drop.delayMs;
+        // Future waves and completed balls have no per-frame DOM work.
+        if(landed.has(i) || (!reduced && time < -260)) return;
         const birth=root.current?.querySelector<HTMLElement>('[data-birth-index="'+drop.index+'"]');
         if(birth)birth.dataset.active=time>=-260&&time<0?'true':'false';
         if(time>=0 || reduced){const orb=root.current?.querySelector<HTMLElement>('[data-drop-index="'+drop.index+'"]');if(orb)orb.dataset.born='true';}
@@ -74,11 +78,12 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound }: {
               {boxShadow:'0 0 18px 5px #ffda68',offset:.35},
               {boxShadow:'0 0 0 0 transparent'}
             ],{duration:reduced?1:550,easing:'ease-out'}));
-            const weapon=Array.from(root.current?.parentElement?.querySelectorAll<HTMLElement>('[data-treasure][data-owner]') ?? []).find(w=>w.dataset.owner===drop.ownerId);
-            if(weapon && root.current && el) {
-              const w=weapon.getBoundingClientRect(), r=root.current.getBoundingClientRect(), e=el.getBoundingClientRect();
+            const weapon=Array.from(root.current?.parentElement?.querySelectorAll<HTMLElement>('[data-treasure][data-owner]') ?? []).find(w=>w.dataset.owner===drop.ownerId && w.getBoundingClientRect().width>0 && w.getBoundingClientRect().height>0);
+            const destination = weapon ?? card;
+            if(destination && root.current && el) {
+              const w=destination.getBoundingClientRect(), r=root.current.getBoundingClientRect(), e=el.getBoundingClientRect();
               const x=e.left+e.width/2-r.left, y=e.top+e.height/2-r.top;
-              const tx=w.left+w.width/2-r.left, ty=w.top+w.height/2-r.top;
+              const tx=w.left+w.width/2-r.left, ty=(weapon ? w.top+w.height/2 : w.bottom-10)-r.top;
               sinking++;
               const sink=el.animate([
                 {left:x+'px',top:y+'px',transform:'translate(-50%,-50%) scale(1)'},
@@ -90,7 +95,7 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound }: {
                 if(ended)return;
                 sinking--; el.dataset.landed='true';
                 setRewards(items=>[...items,{index:drop.index,x:tx,y:w.top-r.top}]);
-                cardGlows.push(weapon.animate([{filter:'brightness(1)'},{filter:'brightness(1.8)',offset:.3},{filter:'brightness(1)'}],{duration:reduced?1:550}));
+                cardGlows.push(destination.animate([{filter:'brightness(1)'},{filter:'brightness(1.8)',offset:.3},{filter:'brightness(1)'}],{duration:reduced?1:550}));
                 if(!document.hidden)sound.current('merge');
               };
             } else if(el) el.dataset.landed='true';

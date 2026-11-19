@@ -90,7 +90,7 @@ export async function verifySharedOrb(owner:string,token:unknown) {
 /** Persist the authoritative turn, inventory and victory receipt in one CAS write. */
 export async function resolveSharedOrbTurn(t:OrbTicket,request:TurnInput,version:number) {
   if(!Number.isSafeInteger(version)||version<0)throw new Error('戰局版本無效。');
-  const controls={path:request.path,target:request.target,rule:request.rule,chosen:request.chosen,action:request.action,attackerId:request.attackerId,linkIds:request.linkIds,treasureElement:request.treasureElement,treasureVariant:request.treasureVariant};
+  const controls={singleCatchWidth:request.singleCatchWidth,path:request.path,target:request.target,rule:request.rule,chosen:request.chosen,action:request.action,attackerId:request.attackerId,linkIds:request.linkIds,treasureElement:request.treasureElement,treasureVariant:request.treasureVariant};
   const command=JSON.stringify(controls);
   const saved=await updateCultivationAccount(t.owner,current=>{
     const run=current.orbRun;
