@@ -14,24 +14,25 @@ import { balancedSnapshot } from './cultivation-balance';
 import { createHash } from 'node:crypto';
 import { activeFoodChainRule, starProgress } from './cultivation-rules';
 import { fedCounter } from './cultivation-transaction';
-import { GUARDIANS } from '../beast-guardians';
 import { cultivationTarget, canCultivatePair, exactBonus } from './cultivation';
 import { fuseSnapshot, type CultivationSnapshot } from './cultivation-transaction';
-import { getCard, playableCards } from './registry';
+import { getCard } from './registry';
+import { cultivationView } from './cultivation-view';
+import { fourBeastsTree, cardThumb, type EnhanceNode, type EnhanceGuardian } from './four-beasts-static';
+export type { EnhanceNode, EnhanceGuardian, EnhanceMansion, EnhanceStars } from './four-beasts-static';
 
 export type EnhanceSource = 'DUEL' | 'ORB' | 'OTHER';
 /** READY 可直接強化；LOCKED 是鎖定主力；NO_TARGET 還沒有大卡；PENDING 戰鬥未結算；BLOCKED 試算不通過（例如五星封頂、或已滿五種的收藏吃完會不足五種）。 */
 export type EnhanceStatus = 'READY' | 'LOCKED' | 'NO_TARGET' | 'PENDING' | 'BLOCKED';
 
 export interface EnhanceMaterial { copyId: string; cardId: string; thumb: string; source: EnhanceSource; tier: 'YOUNG_TO_ADULT' | 'ADULT_TO_GUARDIAN' | 'CULTIVATION'; targetCardId: string; targetCopyId: string | null; status: EnhanceStatus; addedBonus: string | null }
-export interface EnhanceNode { cardId: string; thumb: string; owned: number; bonus: string; ready: number; waiting: number }
 export interface FourBeastsView {
   revision: string;
   enhanceableCount: number;
   materialCount: number;
   sources: { duel: number; orb: number; other: number };
   pendingBattle: boolean;
-  guardians: (EnhanceNode & { key: string; element: string; mansions: (EnhanceNode & { mansionId: number; young: EnhanceNode })[] })[];
+  guardians: EnhanceGuardian[];
   materials: EnhanceMaterial[];
 }
 
@@ -43,7 +44,7 @@ export function copySource(snapshot: CultivationSnapshot, copy: { id: string; or
   return 'OTHER';
 }
 
-const thumbOf = (cardId: string) => getCard(cardId)?.art.thumbnail ?? '';
+const thumbOf = cardThumb;
 
 export function fourBeastsView(snapshot: CultivationSnapshot): FourBeastsView {
   if(activeFoodChainRule()==='v4')snapshot=balancedSnapshot(snapshot);
@@ -76,17 +77,16 @@ export function fourBeastsView(snapshot: CultivationSnapshot): FourBeastsView {
     }
     materials.push({ copyId: copy.id, cardId: copy.cardId, thumb: thumbOf(copy.cardId), source, tier: (rule === 'v3'||rule==='v4') ? 'CULTIVATION' : card.form === 'YOUNG' ? 'YOUNG_TO_ADULT' : 'ADULT_TO_GUARDIAN', targetCardId, targetCopyId: target?.id ?? null, status, addedBonus });
   }
+  // 卡面顯示欄位（星級、加成 %、加成上限）沿用共同卡庫檢視算好的值，不另算一套。
+  const display = new Map(cultivationView(snapshot).cards.map(c => [c.id, c]));
   const node = (cardId: string): EnhanceNode => {
-    const best = bestCopy(cardId), into = materials.filter(m => m.targetCardId === cardId);
+    const best = bestCopy(cardId), into = materials.filter(m => m.targetCardId === cardId), shown = best ? display.get(best.id) : undefined;
     return { cardId, thumb: thumbOf(cardId), owned: state.cards.filter(c => c.cardId === cardId).length, bonus: best ? exactBonus(best.bonus).toString() : '0',
-      ready: into.filter(m => m.status === 'READY').length, waiting: into.filter(m => m.status !== 'READY').length };
+      ready: into.filter(m => m.status === 'READY').length, waiting: into.filter(m => m.status !== 'READY').length,
+      copyId: best?.id ?? null, stars: shown?.stars ? { stars: shown.stars.stars, toNext: shown.stars.toNext, fed: shown.stars.fed } : null,
+      bonusPercent: shown?.bonusPercent ?? '0', atBonusCap: shown?.atBonusCap === true };
   };
-  const cards = playableCards();
-  const guardians = GUARDIANS.map(g => ({ ...node(g.cardId), key: g.key, element: g.element,
-    mansions: g.mansions.map(mansionId => {
-      const adult = cards.find(c => c.form === 'ADULT' && c.mansionId === mansionId), young = cards.find(c => c.form === 'YOUNG' && c.mansionId === mansionId);
-      return adult && young ? { ...node(adult.id), mansionId, young: node(young.id) } : null;
-    }).filter((m): m is NonNullable<typeof m> => m !== null) }));
+  const guardians = fourBeastsTree(node);
   return { revision: snapshot.revision, enhanceableCount: materials.filter(m => m.status === 'READY').length, materialCount: materials.length,
     sources: { duel: materials.filter(m => m.source === 'DUEL').length, orb: materials.filter(m => m.source === 'ORB').length, other: materials.filter(m => m.source === 'OTHER').length },
     pendingBattle, guardians, materials };

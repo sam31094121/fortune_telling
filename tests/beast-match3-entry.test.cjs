@@ -152,10 +152,11 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
       if (id === '@/lib/beast-game/match3/guardian-fusion') return require('../.beast-game-build/lib/beast-game/match3/guardian-fusion');
       if (id === './Match3Board') return { default: Board };
       if (id === './CampaignEnhancement') return { default: () => null };
-      if (id === './SharedCultivationPanel') return { default: () => null };
-      // 食物鏈：已獲成獸的五顆星條與勝利後「拿去強化」捷徑（只讀 sessionStorage，訪客不會有捷徑）。
+      // 2026-11-16：遊戲準備畫面改放共用入口卡（連到統一強化頁），面板已移除。
+      if (id === '@/components/beast-enhance/FourBeastsEntryCard') return { default: () => null };
+      // 食物鏈：已獲成獸的五顆星條；「拿去強化」捷徑改連結到強化頁（只看伺服端卡庫，訪客沒有）。
       if (id === './CardStarBar') return { default: () => null };
-      if (id === '@/lib/beast-food-chain-client') return { feedTargetCardId: () => null, peekFeedShortcut: () => false };
+      if (id === '@/lib/beast-food-chain-client') return { feedTargetCardId: () => null, feedShortcutFor: () => null, enhanceHref: () => '/beast-game/four-beasts' };
       if (id === '@/lib/beast-cultivation-client') return {
         syncSharedCultivation: () => { throw new Error('Guest must not access owned inventory'); },
         sharedRequest: () => { throw new Error('Guest must not mutate owned inventory'); },

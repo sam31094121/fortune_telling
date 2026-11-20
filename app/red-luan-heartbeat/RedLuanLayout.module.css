@@ -1,0 +1,13 @@
+/*
+ * 2026-11-17 P1 版面位移：這幾條原本寫在頁面的 <style jsx> 裡。App Router 沒有 styled-jsx 的
+ * SSR registry，所以第一次畫面沒有這些規則——三顆寶珠先撐滿整個視窗、表單裡要藏的段落也先露出來，
+ * 等 JS 跑完才縮回去，1280 開頁 CLS 0.648。搬到 CSS module，跟著頁面 CSS 一起在第一幀就生效。
+ * 數值完全照舊，只改載入時機。
+ */
+.orbStage { position: relative; display: block; width: min(100%, 116px); aspect-ratio: 1; margin: 18px auto 22px; }
+
+.unifiedFlow :global(.mega-friendly-form > p),
+.unifiedFlow :global(.mega-friendly-form > button[type='submit']),
+.unifiedFlow :global(.mega-friendly-form > section:last-child) {
+  display: none;
+}

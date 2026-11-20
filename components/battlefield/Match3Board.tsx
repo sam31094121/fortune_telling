@@ -74,7 +74,7 @@ import EnhanceAura, { type EnhanceInfo } from './EnhanceAura';
 import { createMatch3Sound, type Match3SoundCue } from './match3Sound';
 import { runRefillPlayback } from '@/lib/beast-game/match3/refill-runner';
 import GuardianFusionTrace from './GuardianFusionTrace';
-import { feedShortcutFor, requestFeedShortcut } from '@/lib/beast-food-chain-client';
+import { feedShortcutFor, enhanceHref } from '@/lib/beast-food-chain-client';
 import { stepGuardianFusion, fusionStrikers, guardianFusionLabel, GUARDIAN_FUSION_MS, GUARDIAN_FUSION_START, type GuardianFusion, type GuardianFusionState } from '@/lib/beast-game/match3/guardian-fusion';
 import { REFILL_TIMING, refillPresentation, refillLandingTimes, fusionShieldLayout, fusionDischarge, FUSION_CLEAR_AT_MS, FUSION_DISPLAY_MS, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
 
@@ -1531,8 +1531,8 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           {progressSaveFailed && <p role="alert">此瀏覽器無法儲存進度，關閉頁面後可能遺失。</p>}
           {/* 下一步：主按鈕金色＋次要「查看我的卡片」並排在底部固定列，任何寬度都看得到、不會被擠出或裁切。 */}
           <div className={styles.resultFooter} data-testid="match3-result-actions">
-            {/* 食物鏈：贏到的卡可以順著線拿去強化——只打開共同卡庫面板並預選，仍要按確認（9A）。A9：併入底部按鈕列，不再單獨一列把摘要擠到按鈕列後面。 */}
-            {campaignEnabled && over === 'win' && wonCard && onRepick && init.owner === 'self' && (() => { const feed = feedShortcutFor(wonCard.id); return feed ? <button type="button" className={`${styles.again} ${styles.resultSecondary} ${styles.resultFeed}`} data-testid="match3-feed-shortcut" data-feed-target={feed.targetCardId} disabled={busy} onClick={() => { requestFeedShortcut(wonCard.id); onRepick(); }}><span>拿去強化</span>〈{feed.targetName}〉</button> : null; })()}
+            {/* 食物鏈：贏到的卡可以順著線拿去強化——直接開四大神獸強化頁（網址帶來源與這張卡，只提示那一堆、不自動放入），仍要按強化才送出（9A；2026-11-20 統一強化流程）。A9：併入底部按鈕列，不再單獨一列把摘要擠到按鈕列後面。 */}
+            {campaignEnabled && over === 'win' && wonCard && onRepick && init.owner === 'self' && (() => { const feed = feedShortcutFor(wonCard.id); return feed ? <a className={`${styles.again} ${styles.resultSecondary} ${styles.resultFeed}`} data-testid="match3-feed-shortcut" data-feed-target={feed.targetCardId} href={enhanceHref('orb', wonCard.id)} aria-disabled={busy || undefined} onClick={e => { if (busy) e.preventDefault(); }} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}><span>拿去強化</span>〈{feed.targetName}〉</a> : null; })()}
             {campaignEnabled && over === 'win' && wonCard && onRepick && <button type="button" className={`${styles.again} ${styles.resultSecondary}`} data-testid="match3-view-cards" disabled={busy} onClick={onRepick}>查看我的卡片</button>}
             <button type="button" className={`${styles.again} ${styles.nextPrimary}`} data-testid="match3-next" disabled={busy || campaignAwaiting} onClick={restart}>{rigEnabled ? (over === 'win' ? (campaignAwaiting ? (savingReward ? '正在保存獎勵…' : '獎勵保存後才能前進') : '挑戰下一關 →') : '原難度重試') : '再來一局'}</button>
           </div>

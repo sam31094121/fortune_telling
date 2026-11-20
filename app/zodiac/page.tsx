@@ -685,7 +685,7 @@ function ResultPanel({ result, onReset }: { result: ZodiacResult; onReset: () =>
   ].filter((item): item is { label: string; sign: ZodiacSignSummary } => Boolean(item));
 
   return (
-    <section className="space-y-5">
+    <section className={`space-y-5 ${guideStyles.resultPanel}`}>
       {result.deepAnalysis && <section className="fortune-card border-cyan-300/20 bg-cyan-300/[0.06] p-5 sm:p-6" aria-label="阿修羅重點解讀">
         <h2 className="text-xl font-black text-cyan-50">阿修羅先說重點</h2>
         <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{result.deepAnalysis.coreNarrative}</p>

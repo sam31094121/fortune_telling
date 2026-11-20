@@ -13,9 +13,9 @@ import { campaignHeroChoice, campaignAvailableIds, campaignCollection, campaignC
 import { BeastCardFace } from './BeastCardTile';
 import Match3Board from './Match3Board';
 import CampaignEnhancement from './CampaignEnhancement';
-import SharedCultivationPanel from './SharedCultivationPanel';
+import FourBeastsEntryCard from '@/components/beast-enhance/FourBeastsEntryCard';
 import CardStarBar, { type CardStarInfo } from './CardStarBar';
-import { feedTargetCardId, peekFeedShortcut } from '@/lib/beast-food-chain-client';
+import { feedTargetCardId } from '@/lib/beast-food-chain-client';
 import { syncSharedCultivation, sharedRequest, startFreshWallet, WALLET_LOST_MESSAGE } from '@/lib/beast-cultivation-client';
 import { refreshSharedCampaign, inspectCampaignSave, repairUnreadableCampaign, UNREADABLE_BACKUP_SUFFIX, adoptServerCampaign, rawCampaignSave, type CampaignMismatch } from '@/lib/beast-game/match3/hard-campaign-store';
 import OwnedCopyPicker from './OwnedCopyPicker';
@@ -44,7 +44,6 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const [selected, setSelected] = useState<string[]>([]);
   const [showRecovery, setShowRecovery] = useState(false);
   const [ownedEntries,setOwnedEntries]=useState<Record<string,string>>({});
-  const [cultivationOpen,setCultivationOpen]=useState(false);
   const [previousOrb,setPreviousOrb]=useState<string|null>(null);
   const [resumeBattleId,setResumeBattleId]=useState<string|undefined>();
   const [tab, setTab] = useState<BeastElement | 'ALL'>('ALL');
@@ -62,13 +61,6 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const startButton = useRef<HTMLButtonElement>(null);
   const confirmHeroButton = useRef<HTMLButtonElement>(null);
   const teamHeading = useRef<HTMLHeadingElement>(null);
-  const cultivationAnchor = useRef<HTMLDivElement>(null);
-  // 食物鏈：勝利畫面按「拿去強化」回到這裡時，自動打開共同卡庫面板（只預選，仍要按確認）。
-  useEffect(() => {
-    if (phase !== 'team' || owner !== 'self' || !peekFeedShortcut()) return;
-    setCultivationOpen(true);
-    requestAnimationFrame(() => cultivationAnchor.current?.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }));
-  }, [phase, owner]);
   useEffect(() => {
     if (phase === 'hero' && candidate) {
       confirmHeroButton.current?.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
@@ -260,7 +252,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
       {owner === 'self' && (() => { const copies = (profile.shared?.cards ?? []).filter(x => x.cardId === c.id) as (NonNullable<Profile['shared']>['cards'][number] & { fed?: number; stars?: CardStarInfo; bonusPercent?: string; atBonusCap?: boolean })[]; const shown = copies.find(x => x.id === ownedEntries[c.id]) ?? [...copies].sort((x, y) => (y.fed ?? 0) - (x.fed ?? 0))[0]; return shown?.stars ? <CardStarBar stars={shown.stars} percent={shown.bonusPercent} atCap={shown.atBonusCap} /> : null; })()}
       {owner === 'self' && feedTargetCardId(c.id) && <span className={picker.choiceState} data-feed-to={feedTargetCardId(c.id)!}><span>可餵給</span> {pool.find(p => p.id === feedTargetCardId(c.id))?.name}</span>}
     </button>)}</div>
-    {owner==='self'?<><div ref={cultivationAnchor} /><button type="button" className={styles.again} data-open-shared-cultivation onClick={()=>setCultivationOpen(v=>!v)}>共同神獸卡庫・合體培養</button>{cultivationOpen&&<SharedCultivationPanel iconOnly onSaved={()=>{void refreshSharedCampaign().then(result=>{if(result.profile){setProfile(result.profile);setOwnedEntries(result.profile.ownedEntries??{});}});}} onDone={()=>setCultivationOpen(false)}/>}</>:<p className={styles.hint}>親友試用牌不會消耗，也不影響自己的收藏。</p>}
+    {owner==='self'?<FourBeastsEntryCard from="orb" compact />:<p className={styles.hint}>親友試用牌不會消耗，也不影響自己的收藏。</p>}
     {owner==='self'&&profile.shared&&<OwnedCopyPicker onPick={(cardId,copyId)=>setOwnedEntries(old=>({...old,[cardId]:copyId}))} rows={selected.map(id=>{
       const card=pool.find(c=>c.id===id),copies=profile.shared!.cards.filter(c=>c.cardId===id).map(c=>({id:c.id,bonus:c.bonus}));
       const trial=id===profile.heroId||(card?.form==='YOUNG'&&!profile.consumedYoungIds?.includes(id));

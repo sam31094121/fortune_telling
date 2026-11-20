@@ -70,30 +70,47 @@ const post = async (key, body) => { const res = await api.POST(new Request('http
   // E. 沒有識別碼 → 400（不建卡庫）
   eq((await get(null)).status, 400);
 
-  // F. 前端：四大神獸頁直接用同一個純圖示面板，零文字；舊的自製 FUSE 流程已移除。
-  const page = fs.readFileSync(path.join(root, 'components/battlefield/FourBeastsEnhance.tsx'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
-  ok(/<SharedCultivationPanel iconOnly focus="GUARDIAN"/.test(page), 'four-beasts page reuses the icon panel');
-  ok(!/type: 'FUSE'|先鎖定五隻主力|重新讀取<|>強化<|<h1/.test(page), 'no duplicate FUSE flow or visible copy');
-  const jsxText = page.replace(/\{\/\*[\s\S]*?\*\/\}/g, '').match(/>([^<>{}]*[\p{L}][^<>{}]*)</gu) || [];
-  eq(jsxText.length, 0, 'four-beasts page has no visible text nodes: ' + jsxText.join('|'));
+  // F. 前端（2026-11-16 統一）：只有一個強化畫面 components/beast-enhance/EnhancePage；舊面板全部移除；
+  //    全站只有它送 FUSE；入口卡共用一張，只有「四大神獸」「點擊直接強化」兩段短字。
+  const strip = s => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
+  for (const gone of ['SharedCultivationPanel.tsx', 'OwnedCardCultivation.tsx', 'FourBeastsEnhance.tsx', 'FoodChainFeedback.tsx', 'FoodChainIcons.module.css']) ok(!fs.existsSync(path.join(root, 'components/battlefield', gone)), 'removed ' + gone);
+  const route = fs.readFileSync(path.join(root, 'app/beast-game/four-beasts/page.tsx'), 'utf8');
+  ok(/import EnhancePage from '@\/components\/beast-enhance\/EnhancePage'/.test(route) && /<EnhancePage \/>/.test(route), 'route renders the unified page');
+  const walk = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : /\.tsx?$/.test(e.name) ? [path.join(d, e.name)] : []);
+  const fusers = [...walk(path.join(root, 'components')), ...walk(path.join(root, 'app')).filter(f => !f.includes(`${path.sep}api${path.sep}`))].filter(f => /type: ?'FUSE'/.test(fs.readFileSync(f, 'utf8')));
+  eq(fusers.map(f => path.relative(root, f)).join(','), path.join('components', 'beast-enhance', 'EnhancePage.tsx'), 'only one client FUSE flow');
+  const page = strip(fs.readFileSync(path.join(root, 'components/beast-enhance/EnhancePage.tsx'), 'utf8'));
+  const texts = (page.match(/>([^<>{}]*[\u3400-\u9fff][^<>{}]*)</gu) || []).map(x => x.slice(1, -1).trim());
+  // 2026-11-20 疊到 v4 主線：加上業主 11-18 確認的簡短文字（兩款攻擊與下一星張數、預覽尚未消耗、保存成功、未收藏原因、加入可用材料／清空選擇、返回原戰局）。
+  const allowed = new Set(['四大神獸', '重新讀取', '戰鬥還沒結束：可以先看，結算後才能強化', '返回原戰局', '結束未完成戰局', '回到戰鬥', '神獸戰鬥', '寶石捷連線', '確認主力', '強化', '再強化', '看全部',
+    '尚未收藏這隻神獸，可先選下方已持有的卡片。', '連線攻擊', '· 神獸戰鬥', '下一星還差', '張', '加入可用材料', '清空選擇', '比例成長還沒滿一點攻擊，進度已累積']);
+  for (const x of texts) ok(allowed.has(x), 'only short action labels on the enhance page: ' + x);
+  ok(!/先鎖定五隻主力|規則|說明/.test(page), 'no rule-explaining copy');
+  // 2026-11-17 P1-8：可強化 0 張且伺服端逐張回 NO_TARGET → 底部提示（缺的大卡剪影＋⬆＋⚔ 去神獸戰鬥），只照伺服端狀態畫。
+  ok(/function NoTargetCue/.test(page) && /status === 'NO_TARGET'/.test(page) && /enhanceableCount === 0/.test(page), 'no-target cue is driven by server per-card status');
+  ok(/data-no-target-cue/.test(page) && /data-get-guardian/.test(page) && /href=\{GAME_PATH\.battle\}/.test(page), 'cue has silhouette chain and a go-get-guardian button');
+  ok(/<NoTargetCue view=\{view\} \/>/.test(page), 'cue rendered on the overview');
   const entry = fs.readFileSync(path.join(root, 'app/star-beasts/page.tsx'), 'utf8');
-  const entryBlock = entry.slice(entry.indexOf('data-four-beasts-entry'), entry.indexOf('</Link>', entry.indexOf('data-four-beasts-entry')));
-  ok(!/>[^<>{}]*\p{L}[^<>{}]*</u.test(entryBlock), 'entry card shows icons only');
-  ok(/aria-label="四大神獸・點擊直接強化"/.test(entryBlock));
+  ok(/<FourBeastsEntryCard \/>/.test(entry) && !entry.includes('FOUR_BEAST_ENTRY_ART'), 'star-beasts uses the shared entry card');
+  const card = strip(fs.readFileSync(path.join(root, 'components/beast-enhance/FourBeastsEntryCard.tsx'), 'utf8'));
+  eq((card.match(/>([^<>{}]*[\p{L}][^<>{}]*)</gu) || []).map(x => x.slice(1, -1).trim()).join('|'), '四大神獸|點擊直接強化', 'entry card copy (owner 23:21)');
+  // 2026-11-17 P1-7：入口卡看得到「四大神獸」「點擊直接強化」＋點擊提示圖示。
+  ok(/<strong className=\{s\.title\}>四大神獸<\/strong>/.test(card) && /點擊直接強化<EnhanceIcon name="tap"/.test(card), 'entry card shows visible title, CTA and tap affordance');
+  ok(/aria-label=\{`四大神獸，點擊直接強化/.test(card), 'entry card accessible name');
+  ok(/data-entry-count=\{count\}/.test(card) && /\/api\/beast-game\/four-beasts/.test(card) && !/method: ?'POST'/.test(card), 'entry count comes from the read-only server GET');
+  for (const f of ['app/beast-game/battlefield/page.tsx', 'components/battlefield/HardCampaignEntry.tsx']) ok(/<FourBeastsEntryCard from="(battle|orb)" compact \/>/.test(fs.readFileSync(path.join(root, f), 'utf8')), 'game prep screen links to the same page: ' + f);
 
-  // G. 神獸戰鬥面板：順序、隱藏鎖主力、✕ 還原
-  const panel = fs.readFileSync(path.join(root, 'components/battlefield/SharedCultivationPanel.tsx'), 'utf8');
-  const icon = panel.slice(panel.indexOf('function IconPanel('));
-  const at = s => { const i = icon.indexOf(s); assert.ok(i > 0, s); return i; };
-  ok(at('data-target-stage') < at('data-shared-material=') && at('data-shared-material=') < at('data-confirm-shared-fusion') && at('data-confirm-shared-fusion') < at('data-cancel-shared-fusion') && at('data-cancel-shared-fusion') < at('data-main-copy='), 'order: target → material → ✓ ✕ → lock');
-  ok(/\{lockChanged&&<button[^>]*data-save-main/.test(icon), '🔒✓ only when five are picked and changed');
-  ok(/const lockChanged=!!view&&main\.length===5&&/.test(icon));
-  ok(/\{view\.canProtectFive&&!targetCard&&<>/.test(icon), 'lock grid hidden when five types are impossible');
-  ok(/data-cancel-shared-fusion aria-label="[^"]+" disabled=\{busy\} onClick=\{p\.reset\}/.test(icon), '✕ has aria-label and resets');
-  const reset = panel.match(/reset:\(\)=>\{([^}]*)\}/)[1];
-  for (const s of ["setTarget('')", "setMaterial('')", 'setPreview(null)', 'setFeedback(null)', 'operation.current=null']) ok(reset.includes(s), 'reset ' + s);
-  ok(!/save\(/.test(reset), '✕ never saves');
-  ok(/data-sticky-confirm/.test(icon) && /className=\{foods\.length>0\?`\$\{icon\.dock\} \$\{icon\.stickyConfirm\}`:icon\.dock\}/.test(icon), '✓／✕ dock is sticky when ✓ exists; empty state dock is not sticky (does not cover 🃏＋)');
+  // G. 強化頁：順序（大卡 → 材料 → ✓✕）、主力鎖只在可鎖五種時出現且改動後才有確認、✕ 只清掉選擇不存檔。
+  const at = s => { const i = page.indexOf(s); assert.ok(i > 0, s); return i; };
+  ok(at('className={s.stageCard}') < at('data-pile={p.cardId}') && at('data-pile={p.cardId}') < at('data-cancel aria-label') && at('data-cancel aria-label') < at('data-confirm-fuse') && at('data-confirm-fuse') < at('data-result-step'), 'order: target → material → ✕ ✓ → result');
+  ok(/\{lockChanged && <button[^>]*data-save-main/.test(page), '🔒✓ only when five are picked and changed');
+  ok(/const lockChanged = !!shared && main\.length === 5 &&/.test(page));
+  ok(/\{shared\?\.canProtectFive && <button/.test(page), 'lock entry hidden when five types are impossible');
+  const cancel = page.split('\n').find(l => l.includes('data-cancel aria-label'));
+  ok(/aria-label="[^"]+"/.test(cancel) && cancel.includes('picksRef.current = {}; setPicks({}); setPreview(null);') && !/FUSE|sharedRequest/.test(cancel), '✕ resets picks and never saves');
+  // 前端不判斷誰能吃誰：可吃的堆與上限來自 PREVIEW_TARGET piles；加成來自 PREVIEW／FUSE summary。
+  ok(/type: 'PREVIEW_TARGET'[^\n]*piles: true/.test(page) && /type: 'PREVIEW', summaryOnly: true/.test(page) && /type: 'FUSE', summaryOnly: true/.test(page));
+  ok(!/cultivationTarget|fuseSnapshot|getCard\(/.test(page), 'no client-side food-chain rule');
 
   // H. 準備畫面全寬度全高；開戰 80/20 不變
   const css = fs.readFileSync(path.join(root, 'components/battlefield/BattleScreen.module.css'), 'utf8');
@@ -102,5 +119,5 @@ const post = async (key, body) => { const res = await api.POST(new Request('http
   ok(/^\.split\[data-preparing='true'\] > \[data-battle-visual\] \{ display: none; \}$/m.test(css));
   ok(/grid-template-rows: minmax\(0, 80fr\) minmax\(0, 20fr\);/.test(css), 'battle split 80/20 kept');
   void top;
-  console.log(`PASS food chain unify: ${checks} checks — four-beasts API merged without the five-lock rule (v2 trial == PREVIEW, locked/maxed/pending blocked), icon panel order target→material→✓✕→lock, hidden 🔒✓, ✕ restore, preparation full height.`);
+  console.log(`PASS food chain unify: ${checks} checks — four-beasts API merged without the five-lock rule (v2 trial == PREVIEW, locked/maxed/pending blocked), one enhance page (only client FUSE), entry card copy, order target→material→✕✓→result, hidden 🔒✓, ✕ restore, preparation full height.`);
 })().catch(e => { console.error(e); process.exitCode = 1; });

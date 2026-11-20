@@ -571,8 +571,11 @@ assert.ok(routeSource.indexOf("result.ziwei.status !== 'READY'") < routeSource.i
 assert.ok(pageSource.includes("import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm'"));
 assert.ok(pageSource.includes('<UnifiedBirthForm'));
 assert.equal(pageSource.includes('aria-label="出生年份"'), false);
-assert.ok(pageSource.includes(".mega-friendly-form > button[type='submit']"));
-assert.ok(pageSource.includes('.mega-friendly-form > section:last-child'));
+// 2026-11-17 P1：表單隱藏規則從頁面 <style jsx> 搬到 RedLuanLayout.module.css（首幀即生效，避免開頁 CLS）。
+const layoutSource = readFileSync(join(process.cwd(), 'app/red-luan-heartbeat/RedLuanLayout.module.css'), 'utf8');
+assert.ok(pageSource.includes('layoutStyles.unifiedFlow'));
+assert.ok(layoutSource.includes(".mega-friendly-form > button[type='submit']"));
+assert.ok(layoutSource.includes('.mega-friendly-form > section:last-child'));
 assert.equal(pageSource.includes('continueToContext'), false);
 
 // The analysis target ("我自己" / "親朋好友") is picked before any birth data,

@@ -19,3 +19,15 @@
 .raw summary { cursor: pointer; min-height: 32px; }
 .raw summary:focus-visible { outline: 2px solid #a5f3fc; outline-offset: 4px; }
 @media (max-width: 350px) { .grid { grid-template-columns: 1fr; } }
+
+/*
+ * 2026-11-17 P1 版面位移（360）：手機版全域 .fortune-card 等卡片是 content-visibility:auto，
+ * 未進畫面前先用 560px 佔位。結果出來後頁面平滑捲回頂端，捲過的卡片才換成真實高度
+ * （例如第一張 612→207），畫面中的內容整段被拉動，CLS 0.52～1.0。結果區改成直接排版真實高度。
+ */
+.resultPanel :global(.fortune-card),
+.resultPanel :global(.vip-gold-card),
+.resultPanel :global(.result-container) {
+  content-visibility: visible;
+  contain-intrinsic-size: none;
+}

@@ -424,9 +424,19 @@ export function UnifiedBirthForm({
       )}
 
       {/* 完成引導：全部填好 → 金色光芒 + 明確指引（資料未完成則低調提示） */}
-      {completed.every((item) => item.done) && !isSubmitting ? (
-        <p className="mega-submit-guide" aria-live="polite" aria-hidden={hideSubmitChrome || undefined}>
-          <span aria-hidden="true">✨</span><HomeTranslatedText text={"資料全部完成！點下方金色按鈕開始"} /><span className="mega-submit-guide__arrow" aria-hidden="true">⬇</span>
+      {/*
+        2026-11-17 P1 版面位移：按下開始後「完成引導」換成低調提示、按鈕字換成運算中字樣，
+        兩段高度不同；運算結束換回來時下方整段儀式卡被推動（八字 360 CLS 0.57）。
+        改成兩種字樣疊在同一格（grid 同區），只切換可見度，高度從頭到尾固定。字樣與流程不變。
+      */}
+      {completed.every((item) => item.done) ? (
+        <p className="mega-submit-guide grid" aria-live="polite" aria-hidden={hideSubmitChrome || undefined}>
+          <span className={`[grid-area:1/1] ${isSubmitting ? 'invisible' : ''}`}>
+            <span aria-hidden="true">✨</span><HomeTranslatedText text={"資料全部完成！點下方金色按鈕開始"} /><span className="mega-submit-guide__arrow" aria-hidden="true">⬇</span>
+          </span>
+          <span className={`[grid-area:1/1] self-center text-center text-xs font-semibold tracking-normal text-white/40 [text-shadow:none] ${isSubmitting ? '' : 'invisible'}`}>
+            <HomeTranslatedText text={"完成上方欄位後，開始鍵會亮起金色光芒"} />
+          </span>
         </p>
       ) : (
         <p className="text-center text-xs font-semibold text-white/40" aria-hidden={hideSubmitChrome || undefined}><HomeTranslatedText text={"完成上方欄位後，開始鍵會亮起金色光芒"} /></p>
@@ -442,8 +452,13 @@ export function UnifiedBirthForm({
             : 'inline-flex w-full items-center justify-center rounded-full border border-amber-300/35 bg-amber-300/14 px-6 py-4 text-sm font-black text-amber-50 transition hover:border-amber-200/60 hover:bg-amber-300/20 disabled:opacity-60'
         }
       >
-        {completed.every((item) => item.done) && !isSubmitting && <span aria-hidden="true">✨</span>}
-        <HomeTranslatedText text={isSubmitting ? loadingLabel : submitLabel} />
+        <span className="grid place-items-center text-center">
+          <span className={`inline-flex items-center justify-center gap-2 [grid-area:1/1] ${isSubmitting ? 'invisible' : ''}`}>
+            {completed.every((item) => item.done) && <span aria-hidden="true">✨</span>}
+            <HomeTranslatedText text={submitLabel} />
+          </span>
+          <span className={`[grid-area:1/1] ${isSubmitting ? '' : 'invisible'}`}><HomeTranslatedText text={loadingLabel} /></span>
+        </span>
       </button>
 
       {/* 資料填寫進度總覽：移至送出鈕下方（2026-08-11）——按下開始時直接看到哪裡沒填 */}

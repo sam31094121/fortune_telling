@@ -119,19 +119,19 @@ const timings = {};
   const [p1, p2] = await Promise.all([post(P.key, { type: 'FUSE', revision: '0', operationId: 'pA', summaryOnly: true, choices: pch }), post(P.key, { type: 'FUSE', revision: '0', operationId: 'pB', summaryOnly: true, choices: pch })]);
   eq([p1.status, p2.status].sort().join(), '200,400'); eq((await memory.read(P.owner)).receipts.length, 1);
 
-  // E. 前端：零文字、✕ 一次全清、長按加速＋節流、只送伺服端給的材料 id、⚠ 在 ✓ 旁、等待時 ✓ 顯示 ⏳。
-  const panel = fs.readFileSync(path.join(root, 'components/battlefield/SharedCultivationPanel.tsx'), 'utf8');
-  const iconPart = panel.slice(panel.indexOf('function IconPanel('));
-  const reset = panel.match(/reset:\(\)=>\{([^}]*)\}/)[1];
-  ok(reset.includes('setPicks(NO_PICKS)') && reset.includes("setTarget('')") && !/save\(/.test(reset), '✕ clears every pick at once and never saves');
-  ok(/piles:true/.test(panel) && /summaryOnly:true/.test(panel), 'requests pile limits and summaries');
-  ok(/HOLD_STEPS/.test(panel) && /pointercancel|onPointerCancel/.test(panel), 'hold-to-add with pointer cancel');
-  ok(/PREVIEW_DEBOUNCE_MS/.test(panel), 'preview requests throttled');
-  ok(/data-batch-hint/.test(iconPart) && /🃏/.test(iconPart) && /⚔/.test(iconPart), 'hint 🃏×N ⚔+N');
-  ok(/data-dock-alert/.test(iconPart), '⚠ beside ✓');
-  ok(/waiting\?'⏳'/.test(iconPart) || /\?'⏳':'✓'/.test(iconPart), '✓ shows ⏳ while waiting');
-  const jsxText = iconPart.replace(/\{\/\*[\s\S]*?\*\/\}/g, '').replace(/aria-label=\{[^}]*\}/g, '').replace(/<Sr>[^<]*<\/Sr>/g, '').match(/>([^<>{}=;()]*[\p{Script=Han}][^<>{}=;()]*)</gu) || [];
-  assert.deepEqual(jsxText, ['>① 選要強化的神獸<','>② 選要吃掉的材料<','>加入可用材料<','>清空選擇<'], 'approved concise two-step controls');
-  console.log(`PASS archived v2 food chain batch: ${checks} checks — 1000 cards in one request (summary ${timings.fuse1000Bytes} B vs legacy ${timings.legacyPreviewBytes} B, preview ${timings.preview1000Ms} ms, fuse ${timings.fuse1000Ms} ms), server room/pile limits, over-cap batch rejected, 50% cap 🔒, five-type keep-one, concurrent/resend single deduction, ✕ clears all, approved concise controls.`);
+  // E. 前端（統一強化頁 components/beast-enhance/EnhancePage）：✕ 一次全清、長按加速＋節流、只送伺服端給的材料 id、⚠ 在 ✓ 旁、等待時 ✓ 轉圈。
+  const page = fs.readFileSync(path.join(root, 'components/beast-enhance/EnhancePage.tsx'), 'utf8');
+  const cancel = page.split('\n').find(l => l.includes('data-cancel aria-label'));
+  ok(cancel.includes('picksRef.current = {}; setPicks({}); setPreview(null);') && !/sharedRequest|FUSE/.test(cancel), '✕ clears every pick at once and never saves');
+  ok(/piles: true/.test(page) && /summaryOnly: true/.test(page), 'requests pile limits and summaries');
+  ok(/HOLD_STEPS/.test(page) && /onPointerCancel/.test(page), 'hold-to-add with pointer cancel');
+  ok(/PREVIEW_DEBOUNCE_MS/.test(page) && /PREVIEW_MAX_WAIT_MS/.test(page), 'preview requests throttled');
+  ok(/limits\.piles\.flatMap\(p => p\.ids\.slice\(0, Math\.min\(picks\[p\.cardId\] \?\? 0, p\.max\)\)/.test(page), 'only server-given material ids, capped by server pile max');
+  ok(/data-hint-count/.test(page) && /data-hint-attack/.test(page), 'hint 🃏×N ⚔+N');
+  ok(page.indexOf('data-dock-alert') < page.indexOf('data-confirm-fuse') && page.indexOf('data-dock-alert') > page.indexOf('data-dock'), '⚠ beside ✓');
+  ok(/\{busy \|\| \(total > 0 && !ready\) \? <EnhanceIcon name="wait"/.test(page), '✓ shows a spinner while waiting');
+  ok(/data-pick-all-materials/.test(page) && /data-clear-materials/.test(page) && /加入可用材料/.test(page) && /清空選擇/.test(page), 'add-all and clear controls (owner 11-18)');
+  ok(!/autoPick/.test(page) && /picksRef\.current = \{\}; setPicks\(\{\}\); setFeedError\(''\);/.test(page), 'no material is auto-selected before confirmation (owner 11-18)');
+  console.log(`PASS archived v2 food chain batch: ${checks} checks — 1000 cards in one request (summary ${timings.fuse1000Bytes} B vs legacy ${timings.legacyPreviewBytes} B, preview ${timings.preview1000Ms} ms, fuse ${timings.fuse1000Ms} ms), server room/pile limits, over-cap batch rejected, 50% cap 🔒, five-type keep-one, concurrent/resend single deduction, ✕ clears all, unified enhance page.`);
   if (process.env.BATCH_TIMINGS) fs.writeFileSync(process.env.BATCH_TIMINGS, JSON.stringify(timings, null, 2));
 })().catch(e => { console.error(e); process.exitCode = 1; });

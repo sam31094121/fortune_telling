@@ -96,17 +96,16 @@ const seed = async (cards, protectedIds = [], extra = {}) => { const w = wallet(
   const st = { cards: [c('a', 'beast_a01'), c('y', 'beast_y01')], protectedIds: [] }, snap = JSON.stringify(st);
   eq(C.fuseCultivation(st, [{ targetId: 'a', materialId: 'y' }], { rule: 'v2' }).state.cards.length, 1); eq(JSON.stringify(st), snap);
 
-  // 7. 前端：確認鈕黏底（sticky）、停用條件不看主力是否鎖滿。
-  const panel = fs.readFileSync(path.join(__dirname, '../components/battlefield/SharedCultivationPanel.tsx'), 'utf8');
-  const css = fs.readFileSync(path.join(__dirname, '../components/battlefield/FoodChainIcons.module.css'), 'utf8');
-  ok(panel.includes('data-sticky-confirm') && /\.stickyConfirm \{position:sticky;bottom:/.test(css));
-  const confirm = panel.split('\n').find(l => l.includes('data-confirm-shared-fusion aria-label'));
+  // 7. 前端（2026-11-16 統一到 components/beast-enhance/EnhancePage）：確認鈕在黏底操作列、停用條件不看主力是否鎖滿。
+  const page = fs.readFileSync(path.join(__dirname, '../components/beast-enhance/EnhancePage.tsx'), 'utf8');
+  const css = fs.readFileSync(path.join(__dirname, '../components/beast-enhance/EnhancePage.module.css'), 'utf8');
+  ok(page.includes('data-dock') && /\.dock \{ position: fixed;[^}]*bottom: 0/.test(css), 'confirm lives in the fixed bottom dock');
+  const confirm = page.split('\n').find(l => l.includes('data-confirm-fuse'));
   ok(confirm && !/protectedIds|main\.length/.test(confirm), 'confirm button does not require a locked five');
-  // 23:52 強化畫面零文字：無材料不顯示確認鈕、改空材料槽＋🃏＋取卡入口；封頂目標不可點；卡面未載入只顯示 ⏳。
-  const iconPart = panel.slice(panel.indexOf('function IconPanel('));
-  ok(/\{foods\.length>0&&<button ref=\{confirmRef\}/.test(iconPart) && /\{targetCard&&<div className=\{foods\.length>0\?`\$\{icon\.dock\}/.test(iconPart), 'no confirm without material (2026-11-16: ✓ lives in the target dock beside ✕)');
-  ok(iconPart.includes('data-get-cards') && iconPart.includes('href="/growth-center#beast-collection"') && /\.emptySlot \{[^}]*animation:breathe/.test(css));
-  ok(iconPart.includes('data-maxed={card.stars?.toNext===null?') && iconPart.includes('disabled={busy} aria-pressed={target===card.id}'), 'maxed target inspectable; backend still blocks feeding');
-  ok(!/卡面載入中|卡面暫時無法取得/.test(iconPart), 'no loading words in icon panel');
+  // 沒有材料（或伺服端預覽還沒回來）不能按「強化」；戰鬥未結束不能按；沒有可吃的卡時說原因＋兩款遊戲的取卡入口；封頂大卡可查看、伺服端仍擋餵食（業主 11-18）；不出現載入中字樣。
+  ok(/disabled=\{busy \|\| !ready \|\| blocked\}/.test(confirm) && /const blocked = !!view\?\.pendingBattle;/.test(page) && /const ready = !!preview && preview\.key === key && choices\.length > 0;/.test(page), 'no confirm without material or during a pending battle');
+  ok(page.includes('data-get-cards') && page.includes('data-no-material') && page.includes('href={GAME_PATH.battle}') && page.includes('href={GAME_PATH.orb}'));
+  ok(!/disabled=\{maxed\}/.test(page) && page.includes('五星已滿，不能再吃卡。'), 'maxed target inspectable; backend still blocks feeding');
+  ok(!/卡面載入中|卡面暫時無法取得|載入中/.test(page), 'no loading words on the enhance page');
   console.log(`PASS food chain new player: ${checks} checks — eat without locking five, locked main never eaten, five-type campaign protection kept, MAIN_TEAM still five, revision/receipt/replay unchanged, sticky confirm.`);
 })().catch(e => { console.error(e); process.exitCode = 1; });
