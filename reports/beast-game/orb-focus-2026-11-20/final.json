@@ -1,0 +1,149 @@
+[
+  {
+    "count": 2,
+    "reduced": true,
+    "cpuSlowdown": 4,
+    "clickToNextFrameMs": 12.600000008940697,
+    "clickToResponseMs": 1742.7999999970198,
+    "clickToReadyMs": 2226.4000000059605,
+    "longTasks": [
+      {
+        "start": 9150,
+        "duration": 96
+      },
+      {
+        "start": 9376.89999999106,
+        "duration": 125
+      },
+      {
+        "start": 9502.70000000298,
+        "duration": 138
+      },
+      {
+        "start": 9644.29999999702,
+        "duration": 501
+      },
+      {
+        "start": 10158.09999999404,
+        "duration": 89
+      },
+      {
+        "start": 10546,
+        "duration": 131
+      },
+      {
+        "start": 10871.79999999702,
+        "duration": 125
+      },
+      {
+        "start": 11043.59999999404,
+        "duration": 61
+      },
+      {
+        "start": 11121.20000000298,
+        "duration": 122
+      },
+      {
+        "start": 11243.39999999106,
+        "duration": 97
+      }
+    ],
+    "calls": 1,
+    "actualDamage": 1000000,
+    "outcome": null,
+    "strikes": 2,
+    "focusGroups": [
+      {
+        "id": "beast_g_baihu",
+        "element": "SPACE",
+        "damage": 374
+      },
+      {
+        "id": "beast_y14",
+        "element": "WATER",
+        "damage": 0
+      }
+    ]
+  },
+  {
+    "count": 5,
+    "reduced": false,
+    "cpuSlowdown": 4,
+    "clickToNextFrameMs": 20.200000002980232,
+    "clickToResponseMs": 2967.4000000059605,
+    "clickToReadyMs": 4056.2000000029802,
+    "longTasks": [
+      {
+        "start": 3591,
+        "duration": 136
+      },
+      {
+        "start": 3944.3999999910593,
+        "duration": 143
+      },
+      {
+        "start": 5625.399999991059,
+        "duration": 238
+      },
+      {
+        "start": 5864.199999988079,
+        "duration": 274
+      },
+      {
+        "start": 6163.5,
+        "duration": 199
+      },
+      {
+        "start": 6363,
+        "duration": 150
+      },
+      {
+        "start": 6588.5999999940395,
+        "duration": 194
+      },
+      {
+        "start": 6787.0999999940395,
+        "duration": 140
+      },
+      {
+        "start": 6934.899999991059,
+        "duration": 188
+      },
+      {
+        "start": 7123.5999999940395,
+        "duration": 148
+      }
+    ],
+    "calls": 1,
+    "actualDamage": 1000000,
+    "outcome": null,
+    "strikes": 2,
+    "focusGroups": [
+      {
+        "id": "beast_g_baihu",
+        "element": "SPACE",
+        "damage": 1525
+      },
+      {
+        "id": "beast_y14",
+        "element": "WATER",
+        "damage": 0
+      },
+      {
+        "id": "beast_y19",
+        "element": "WATER",
+        "damage": 0
+      },
+      {
+        "id": "beast_y03",
+        "element": "EARTH",
+        "damage": 0
+      },
+      {
+        "id": "beast_y08",
+        "element": "AIR",
+        "damage": 0
+      }
+    ]
+  }
+]

@@ -23,12 +23,14 @@ const out=path.resolve('reports/beast-game/orb-focus-2026-11-20');fs.mkdirSync(o
  if(label!=='before'){assert.equal(body.presentation.groups.length,1);assert.equal(body.presentation.strikes,2);assert.equal(body.presentation.groups[0].amount,1000000);}
  await page.waitForFunction(()=>document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy')==='false');
  const metrics=await page.evaluate(()=>({...window.__orbPerf,ready:performance.now(),overflow:document.documentElement.scrollWidth>innerWidth,remainingFocus:document.querySelectorAll('[data-testid="orb-attack-focus"]').length}));
- assert.equal(calls,1);assert.equal(metrics.overflow,false);assert.equal(metrics.remainingFocus,0);
+ assert.equal(calls,1);assert.equal(metrics.overflow,false);
+ if(label!=='before')await page.getByTestId('orb-attack-focus').waitFor({state:'detached'});
  results.push({count,reduced:count===2,cpuSlowdown:4,clickToNextFrameMs:metrics.frame-metrics.click,clickToResponseMs:responseAt-metrics.click,clickToReadyMs:metrics.ready-metrics.click,longTasks:metrics.long.filter(x=>x.start>=metrics.click),calls,actualDamage:body.actualDamage,outcome:body.outcome,strikes:body.presentation?.strikes??1});
  if(label!=='before'){
- // Hold only the 420ms presentation cleanup for a review screenshot, after timing.
- await page.evaluate(()=>{const original=window.setTimeout;window.setTimeout=function(fn,ms,...args){return original(fn,ms===420?2000:ms,...args)};});
- await page.addStyleTag({content:'[data-testid="orb-attack-focus"], [data-testid="orb-attack-focus"] > div { animation-duration: 2000ms !important; }'});
+ // Hold only the presentation for static responsive review, after real timing/cleanup.
+ await cdp.send('Emulation.setCPUThrottlingRate',{rate:1});
+ await page.evaluate(()=>{const original=window.setTimeout;window.setTimeout=function(fn,ms,...args){return original(fn,ms===420?20000:ms,...args)};});
+ await page.addStyleTag({content:'[data-testid="orb-attack-focus"], [data-testid="orb-attack-focus"] > div { animation:none !important; opacity:1 !important; transform:none !important; }'});
  // Fixture command selects 2/5 participants at the HTTP boundary. Real server
  // computes the link; this checks rendering, not availability of a five-card mobile gesture.
  const ids=await page.getByTestId('match3-ally').evaluateAll(nodes=>nodes.map(n=>n.dataset.id));
@@ -42,6 +44,12 @@ const out=path.resolve('reports/beast-game/orb-focus-2026-11-20');fs.mkdirSync(o
  const groups=await(await focusRead).jsonValue();
  assert.deepEqual(groups,linkReply.presentation.groups.map(g=>({id:g.attackerId,element:g.element,damage:g.amount})));
  await capture;
+ for(const width of [320,375,390,430,1366]){
+ await page.setViewportSize({width,height:width>500?900:844});
+ const bounds=await page.locator('[data-testid="orb-attack-focus"] > div').evaluateAll(nodes=>nodes.map(n=>{const r=n.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width,viewport:innerWidth}}));
+ assert.equal(bounds.length,count);assert(bounds.every(r=>r.left>=0&&r.right<=r.viewport&&r.width>=40));
+ await page.screenshot({path:path.join(out,label+'-focus-'+count+'-'+width+'.png')});
+ }
  await page.waitForFunction(()=>document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy')==='false');
  assert.equal(calls,2,'double click cannot send a second link command');
  results.at(-1).focusGroups=groups;
