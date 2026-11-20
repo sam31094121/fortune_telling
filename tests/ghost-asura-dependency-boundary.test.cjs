@@ -17,7 +17,11 @@ const projectFiles = program.getSourceFiles().map(file => relative(file.fileName
   .filter(file => !file.startsWith('node_modules/') && !file.startsWith('../'));
 // The global language provider shares two literal translation dictionaries.
 // They contain no gameplay/card code. Keep them, but fail if code is added.
-const sharedCopy = new Set(['lib/korean-copy/pages/star-beasts.ts', 'lib/korean-copy/pages/beast-game.ts']);
+const sharedCopy = new Set([
+  'lib/korean-copy/pages/star-beasts.ts', 'lib/korean-copy/pages/beast-game.ts',
+  'lib/english-copy/pages/star-beasts.ts', 'lib/english-copy/pages/beast-game-1.ts', 'lib/english-copy/pages/beast-game-2.ts',
+  'lib/japanese-copy/pages/star-beasts.ts', 'lib/japanese-copy/pages/beast-game-1.ts', 'lib/japanese-copy/pages/beast-game-2.ts',
+]);
 for (const source of program.getSourceFiles().filter(file => sharedCopy.has(relative(file.fileName)))) {
   assert(source.statements.length > 0);
   for (const statement of source.statements) {
@@ -67,5 +71,5 @@ for (let mask = 0; mask < 16; mask += 1) {
 const integration = load('lib/three-in-one.ts', 'zh-Hant', pureCache);
 assert.equal(integration.verifyFourPillars, pure.verifyFourPillars);
 assert.equal(integration.PILLAR_LABELS, pure.PILLAR_LABELS);
-console.log(`PASS: ${projectFiles.length} transitive project files isolated from beast features; 2 shared literal language dictionaries retained; real backend, 16 pillar comparisons and compatible exports verified`);
+console.log(`PASS: ${projectFiles.length} transitive project files isolated from beast features; ${sharedCopy.size} shared literal language dictionaries retained; real backend, 16 pillar comparisons and compatible exports verified`);
 console.log('Scope: Asura dependency verification only; not a whole-site build or deployment approval.');

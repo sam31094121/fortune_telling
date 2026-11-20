@@ -70,7 +70,23 @@ const nextConfig = {
       { key: 'Cache-Control', value: 'no-cache, max-age=0, must-revalidate' },
     ];
 
+    // 2026-11-20 阿修羅卡片健檢：首頁卡圖（檔名已帶 -v1／-v2 版本號，改圖必換檔名）與阿修羅字型，
+    // 原本 Cache-Control 是 max-age=0 → 每次回訪、每張圖都要向伺服器確認一輪（xuanwu 一張就 1.9MB）。
+    // 改成一天內直接用快取、之後背景更新；不是 immutable，且只套在版本化檔名，不會讓手機留舊畫面。
+    const versionedAssetHeaders = [
+      ...securityHeaders,
+      { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
+    ];
+
     return [
+      {
+        source: '/home-entry/:file(.*-v[0-9]+\\.png)',
+        headers: versionedAssetHeaders,
+      },
+      {
+        source: '/fonts/asura-brand/:file(.*\\.woff2)',
+        headers: versionedAssetHeaders,
+      },
       {
         source: '/',
         headers: homePageHeaders,
