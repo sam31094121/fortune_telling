@@ -1,8 +1,11 @@
 // Real HTTP handlers + memory CAS; browser routes never write customer storage.
 const assert=require('node:assert/strict'),fs=require('node:fs'),crypto=require('node:crypto');
 require('./guest-orb-fixture.cjs');
-const {chromium}=require('../.tmp/shared-qa/node_modules/playwright');
-const out='reports/five-star-balance-2026-11-18/mobile';fs.mkdirSync(out,{recursive:true});
+// 2026-11-20：強化畫面統一到 components/beast-enhance/EnhancePage（總覽 → 點大卡 → 餵卡 → 結果）；選擇器改對新頁，驗收內容不變。
+// 可用環境變數改瀏覽器與網址（預設照舊：msedge＋localhost:8888）：PLAYWRIGHT_MODULE、E2E_BASE_URL、E2E_BROWSER=chromium＋CHROME_PATH。
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'../.tmp/shared-qa/node_modules/playwright');
+const BASE=process.env.E2E_BASE_URL||'http://localhost:8888';
+const out=process.env.E2E_OUT||'reports/five-star-balance-2026-11-18/mobile';fs.mkdirSync(out,{recursive:true});
 const key=crypto.randomBytes(32).toString('hex');
 const copy=(id,cardId,fed=0)=>({id,cardId,bonus:'0',fed});
 let saved={revision:'0',pendingBattle:null,receipts:[],state:{cards:[copy('target','beast_g_qinglong',998),copy('adult','beast_a01'),copy('food1','beast_y08'),copy('food2','beast_y08'),copy('food3','beast_y08')],protectedIds:[]}},writes=0;
@@ -11,7 +14,7 @@ require('../lib/beast-game/cultivation-repository.ts').cultivationRepository=()=
 const api=require('../app/api/beast-game/cultivation/route.ts'),four=require('../app/api/beast-game/four-beasts/route.ts');
 const report={isolatedMemory:true,errors:[],steps:[],requests:[]};
 (async()=>{let browser,page;try{
- browser=await chromium.launch({channel:'msedge',headless:true});
+ browser=await chromium.launch(process.env.E2E_BROWSER==='chromium'?{headless:true,...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{})}:{channel:'msedge',headless:true});
  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'reduce'});
  await context.addInitScript(({key,cards})=>{if(!localStorage.getItem('tdh_beast_wallet_v1')){localStorage.setItem('tdh_beast_wallet_v1',key);localStorage.setItem('tdh_beast_collection_v1',JSON.stringify({cards,history:[],sharedCultivation:true}));}},{key,cards:saved.state.cards});
  await context.route('**/api/beast-game/cultivation',async route=>{
@@ -24,18 +27,21 @@ const report={isolatedMemory:true,errors:[],steps:[],requests:[]};
  });
  await context.route('**/api/beast-game/four-beasts',async route=>{const r=route.request(),response=await four.GET(new Request(r.url(),{headers:r.headers()}));await route.fulfill({status:response.status,contentType:'application/json',body:await response.text()});});
  page=await context.newPage();page.setDefaultTimeout(25000);page.on('pageerror',e=>report.errors.push(e.message));
- await page.goto('http://localhost:8888/beast-game/four-beasts');
+ await page.goto(BASE+'/beast-game/four-beasts');
  await page.locator('[data-shared-target="target"]').waitFor();
  await page.locator('[data-select-guardian="qinglong"]').tap();
- await page.locator('[data-target-stage] [data-shared-target="target"]').waitFor();
+ await page.locator('[data-shared-target="target"]').tap();
+ await page.locator('[data-target-stage][data-shared-target="target"]').waitFor();
  assert.match(await page.locator('[data-growth-readout]').innerText(),/下一星還差 2 張/);
  await page.waitForFunction(()=>!document.querySelector('[data-pick-all-materials]')?.disabled);
  assert.equal(await page.locator('[data-hint-count]').count(),0);assert.equal(writes,0);
  report.steps.push('Header selects owned guardian; no auto-selected materials');
+ await page.locator('[data-cancel-shared-fusion]').tap();
  await page.locator('[data-select-guardian="baihu"]').tap();
  await page.getByText('尚未收藏這隻神獸，可先選下方已持有的卡片。').waitFor();
  assert.equal(await page.locator('[data-target-stage]').count(),0);
  await page.locator('[data-select-guardian="qinglong"]').tap();
+ await page.locator('[data-shared-target="target"]').tap();
  await page.waitForFunction(()=>!document.querySelector('[data-pick-all-materials]')?.disabled);
  await page.locator('[data-pick-all-materials]').tap();
  await page.waitForFunction(()=>!document.querySelector('[data-confirm-shared-fusion]')?.disabled);
@@ -55,10 +61,10 @@ const report={isolatedMemory:true,errors:[],steps:[],requests:[]};
  assert.equal(saved.state.cards.find(c=>c.id==='target').fed,1000);assert.equal(saved.state.cards.length,3);assert.equal(saved.receipts[0].rule,'v4');
  assert(!saved.state.cards.some(c=>c.id==='food1'||c.id==='food2'));report.steps.push('Double-click saves exactly one two-card transaction; fifth star reached');
  await page.reload();await page.locator('[data-shared-target="target"]').waitFor();
- await page.locator('[data-select-guardian="qinglong"]').tap();await page.locator('[data-target-stars="5"]').waitFor();
+ await page.locator('[data-select-guardian="qinglong"]').tap();await page.locator('[data-shared-target="target"]').tap();await page.locator('[data-target-stars="5"]').waitFor();
  await page.waitForFunction(()=>document.querySelector('[data-pick-all-materials]')?.disabled===true);
  assert.equal(writes,1);report.steps.push('Refresh preserves five stars; maxed target inspectable but cannot feed');
- await page.locator('[data-cancel-shared-fusion]').tap();await page.locator('[data-select-guardian="qinglong"]').tap();await page.locator('[data-target-stage]').waitFor();
+ await page.locator('[data-cancel-shared-fusion]').tap();await page.locator('[data-select-guardian="qinglong"]').tap();await page.locator('[data-shared-target="target"]').tap();await page.locator('[data-target-stage]').waitFor();
  report.steps.push('Same header can reselect after cancel');
  saved={...saved,revision:'2',pendingBattle:'orb:test',orbRun:{input:{mode:'hard45'}}};
  await page.reload();await page.locator('[data-return-pending-battle]').waitFor();
@@ -66,10 +72,11 @@ const report={isolatedMemory:true,errors:[],steps:[],requests:[]};
  const before=JSON.stringify(saved);await page.locator('[data-shared-target="adult"]').tap();
  await page.locator('[data-target-stage]').waitFor();assert(await page.locator('[data-pick-all-materials]').isDisabled());
  assert.equal(JSON.stringify(saved),before);assert.equal(writes,1);report.steps.push('Active battle permits inspection and return link, blocks material consumption');
+ await page.locator('[data-cancel-shared-fusion]').tap();await page.locator('[data-select-guardian]').first().waitFor();
  await page.setViewportSize({width:320,height:740});await page.screenshot({path:out+'/pending-320.png',fullPage:true});
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  const headers=await page.locator('[data-select-guardian]').evaluateAll(xs=>xs.map(x=>({w:x.getBoundingClientRect().width,h:x.getBoundingClientRect().height})));
- assert(headers.every(x=>x.w>=44&&x.h>=44));report.steps.push('320px viewport: no horizontal overflow, guardian buttons at least 44px');
+ assert.equal(headers.length,4);assert(headers.every(x=>x.w>=44&&x.h>=44));report.steps.push('320px viewport: no horizontal overflow, guardian buttons at least 44px');
  assert.deepEqual(report.errors,[]);report.passed=true;
  }catch(e){report.error=e.stack;process.exitCode=1;if(page){report.visible=(await page.locator('body').innerText()).slice(-2000);await page.screenshot({path:out+'/failure.png',fullPage:true}).catch(()=>{});}console.error(e);
  }finally{await browser?.close();fs.writeFileSync(out+'/result.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report));}
