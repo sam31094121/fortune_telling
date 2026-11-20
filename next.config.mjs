@@ -10,7 +10,16 @@ const nextConfig = {
   reactStrictMode: true,
   compress: true,
   // Old bookmarks and image fields resolve to the same current 60-card set.
-  async redirects() { return retiredBeastArt; },
+  // 2026-11-20 /orb-battle 下架（可還原）：舊寶珠原型（public/orb-battle 靜態檔，含舊卡圖與「待平衡／一鍵自檢」開發字樣）
+  // 沒有任何頁面連到它。正式環境一律暫時導向現行寶石捷連線（/beast-game/match3-hard，與舊 /beast-game/orb 同一去處）；
+  // 開發環境（next dev）照舊可開。原始檔不刪；要恢復只要拿掉 retiredOrbPrototype 這段。
+  async redirects() {
+    const retiredOrbPrototype = process.env.NODE_ENV === 'production' ? [
+      { source: '/orb-battle', destination: '/beast-game/match3-hard', permanent: false },
+      { source: '/orb-battle/:path*', destination: '/beast-game/match3-hard', permanent: false },
+    ] : [];
+    return [...retiredBeastArt, ...retiredOrbPrototype];
+  },
   productionBrowserSourceMaps: false,
   outputFileTracingRoot: process.cwd(),
   // tyme4ts 只在伺服器端農曆換算使用，交給 Node 載入、不重新打包。
