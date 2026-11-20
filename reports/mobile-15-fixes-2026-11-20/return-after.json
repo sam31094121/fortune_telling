@@ -1,0 +1,14 @@
+{
+  "hit": {
+    "rect": {
+      "x": 12,
+      "y": 16,
+      "w": 78.75,
+      "h": 44
+    },
+    "hit": "A",
+    "blocked": false
+  },
+  "returned": true,
+  "ms": 6881
+}

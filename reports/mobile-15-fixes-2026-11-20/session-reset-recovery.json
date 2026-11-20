@@ -1,0 +1,7 @@
+{
+  "mode": "simulated connectionreset once, then real invalid-password retry",
+  "firstError": "網路連線不穩，這次沒有送出成功；請確認連線後再按一次，你填的資料都還在。",
+  "buttonEnabled": true,
+  "passwordRetained": true,
+  "realRetryRejected": true
+}

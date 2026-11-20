@@ -1,0 +1,29 @@
+{
+  "note": "Reset path per turn; original second/third commands reused stale coordinates due probe variable bug, not product regression",
+  "samples": [
+    {
+      "turn": 1,
+      "responseMs": 334,
+      "readyMs": 8354,
+      "status": 200,
+      "valid": true,
+      "outcome": null
+    },
+    {
+      "turn": 2,
+      "responseMs": 438,
+      "readyMs": 2442,
+      "status": 200,
+      "valid": true,
+      "outcome": null
+    },
+    {
+      "turn": 3,
+      "responseMs": 376,
+      "readyMs": 4673,
+      "status": 200,
+      "valid": true,
+      "outcome": null
+    }
+  ]
+}

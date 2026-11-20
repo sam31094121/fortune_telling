@@ -8,6 +8,9 @@ const nextConfig = {
   // causes apparent freezes and "clientReferenceManifest" runtime failures.
   distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
+  // The development badge covers mobile navigation (e.g. Asura's home link).
+  // Disable only the dev indicator; keep product layout and error reporting intact.
+  devIndicators: false,
   compress: true,
   // Old bookmarks and image fields resolve to the same current 60-card set.
   // 2026-11-20 /orb-battle 下架（可還原）：舊寶珠原型（public/orb-battle 靜態檔，含舊卡圖與「待平衡／一鍵自檢」開發字樣）

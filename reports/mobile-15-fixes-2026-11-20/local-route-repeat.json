@@ -1,0 +1,38 @@
+[
+  {
+    "route": "/red-luan-heartbeat",
+    "sample": 1,
+    "urlMs": 886,
+    "idleMs": 886
+  },
+  {
+    "route": "/red-luan-heartbeat",
+    "sample": 2,
+    "urlMs": 374,
+    "idleMs": 374
+  },
+  {
+    "route": "/red-luan-heartbeat",
+    "sample": 3,
+    "urlMs": 423,
+    "idleMs": 424
+  },
+  {
+    "route": "/dual-chart",
+    "sample": 1,
+    "urlMs": 446,
+    "idleMs": 446
+  },
+  {
+    "route": "/dual-chart",
+    "sample": 2,
+    "urlMs": 360,
+    "idleMs": 360
+  },
+  {
+    "route": "/dual-chart",
+    "sample": 3,
+    "urlMs": 447,
+    "idleMs": 447
+  }
+]

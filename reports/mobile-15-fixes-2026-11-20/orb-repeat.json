@@ -1,0 +1,26 @@
+[
+  {
+    "turn": 1,
+    "responseMs": 832,
+    "readyMs": 2760,
+    "status": 200,
+    "valid": true,
+    "outcome": null
+  },
+  {
+    "turn": 2,
+    "responseMs": 448,
+    "readyMs": 504,
+    "status": 200,
+    "valid": false,
+    "outcome": null
+  },
+  {
+    "turn": 3,
+    "responseMs": 401,
+    "readyMs": 457,
+    "status": 200,
+    "valid": false,
+    "outcome": null
+  }
+]

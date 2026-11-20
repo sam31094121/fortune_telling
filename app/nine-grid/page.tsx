@@ -29,6 +29,7 @@ export default function NineGridPage() {
   const [resultRun, setResultRun] = useState(0);
   const [error, setError] = useState('');
   const [guideOff, setGuideOff] = useState(false);
+  const [guidanceSettled, setGuidanceSettled] = useState(false);
   const resultRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -36,7 +37,8 @@ export default function NineGridPage() {
     fetch('/api/nine-grid')
       .then((response) => response.json())
       .then((data: { guidance?: Guidance }) => { if (alive && data.guidance) setGuidance(data.guidance); })
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .finally(() => { if (alive) setGuidanceSettled(true); });
     return () => { alive = false; };
   }, []);
 
@@ -109,6 +111,14 @@ export default function NineGridPage() {
             <span className="text-sm text-amber-200/90">✦</span>
             <span className="h-px w-16 bg-gradient-to-l from-transparent to-amber-200/70" />
           </div>
+
+          {/* 版面跳動（CLS）：引導文字由後端稍後送達，先替它與三步驟預留同樣高度（不含任何文字），送達後原位換上，下方表單不會被推走。 */}
+          {!guidance && !guidanceSettled && (
+            <>
+              <div aria-hidden="true" className="mt-5 min-h-[80px] sm:min-h-[32px]" />
+              <div aria-hidden="true" className="mt-5 min-h-[360px] sm:min-h-[122px] lg:min-h-[98px]" />
+            </>
+          )}
 
           {guidance && (
             <p className="mx-auto mt-5 max-w-xl text-center text-base font-bold leading-8 text-violet-50">{guidance.title.text}</p>

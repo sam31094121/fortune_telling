@@ -1,0 +1,35 @@
+[
+  {
+    "sample": 1,
+    "domMs": 745,
+    "cardsMs": 762,
+    "networkIdleMs": 4088,
+    "nav": {
+      "ttfb": 19.900000005960464,
+      "download": 19.69999998807907,
+      "domContentLoaded": 739.2000000029802
+    }
+  },
+  {
+    "sample": 2,
+    "domMs": 79,
+    "cardsMs": 253,
+    "networkIdleMs": 959,
+    "nav": {
+      "ttfb": 28.700000002980232,
+      "download": 1.6000000089406967,
+      "domContentLoaded": 75.19999998807907
+    }
+  },
+  {
+    "sample": 3,
+    "domMs": 188,
+    "cardsMs": 332,
+    "networkIdleMs": 1016,
+    "nav": {
+      "ttfb": 27.400000005960464,
+      "download": 1.7999999970197678,
+      "domContentLoaded": 182.5
+    }
+  }
+]

@@ -1,0 +1,145 @@
+{
+  "number": 13,
+  "href": "/star-beasts",
+  "name": "",
+  "entryMs": 2715,
+  "checks": [
+    {
+      "action": "分類與幼子切換",
+      "text": "體神獸\n二十八張成年守護神獸\n神獸幼子\n查看同血統的幼子與守護延續\n\nCARD COLLECTION\n\n神獸幼子・東方蒼龍・春\n7 張神獸幼子\n幼子\n角木蛟\n體61\n木\n2\n嗷嗷待哺\n攻36\n幼子自癒，回合結束回復少量生命。\n剋土\n生我水\n◆\n速度\n東方蒼龍\n\n突破開創\n\n幼子\n亢金龍\n體51\n金\n1\n幼獠\n攻24\n尚未長成的獠牙，仍能咬下一口。\n剋木\n生我土\n◆\n守護\n東方蒼龍\n\n正直威權\n\n幼子\n氐土貉\n體72\n土\n2\n藏匿\n攻29\n受驚就躲，一回合內防禦提升。\n剋水\n生我火\n◆\n守護\n東方蒼龍\n\n承載基石\n\n幼子\n房日兔\n體47\n火\n1\n依偎\n攻31\n登場時依偎取暖，回復生命。\n剋金\n生我木\n◆\n輔助\n東方蒼龍\n\n明朗財祿\n\n幼子\n心月狐\n體73\n水\n2\n學步\n攻30\n一次比一次穩，兩回合內攻擊提升。\n剋火\n生我金\n◆\n控制\n東方蒼龍\n\n權謀多疑\n\n幼子\n尾火虎\n體43\n火\n1\n好奇\n攻28\n幼子好奇四顧，整場多抽一張牌。\n剋金\n生我木\n◆\n主攻\n東方蒼龍\n\n爭鬥好勝\n\n幼子\n箕水豹\n體71\n水\n2\n初鳴\n攻33\n幼子初啼，登場護體。\n剋火\n生我金\n◆\n速度\n東方蒼龍\n\n風浪漂泊"
+    },
+    {
+      "action": "本人入口",
+      "boundary": "只展開，不提交本人收藏；API合成回歸由health完成"
+    },
+    {
+      "action": "神獸戰鬥入口",
+      "route": "http://localhost:8888/beast-game/battlefield",
+      "boundary": "首次免押體驗提示會領幼子禮；未開始獎勵戰，避免收藏寫入"
+    },
+    {
+      "action": "布陣導覽",
+      "text": "回首頁\n神獸押卡闖關\n第 1 關\n選卡佈陣\n體驗確認\n玩法說明\n\n首次免押體驗：五張體驗卡已就緒。完成後可領取既有首次幼子禮，再以收藏正式闖關。\n\n你 5 隻・對手 5 隻・體驗戰\n\n⚔\n開始體驗戰"
+    },
+    {
+      "action": "/beast-game",
+      "redirect": "/beast-game/battlefield",
+      "note": "既有redirect；免押體驗入口，未開始有獎戰"
+    },
+    {
+      "action": "親友組五人開戰",
+      "ms": 2183
+    },
+    {
+      "action": "390px首手真實三連",
+      "status": 200,
+      "valid": true,
+      "outcome": null,
+      "responseMs": 3833,
+      "readyMs": 5109
+    }
+  ],
+  "sizes": [
+    {
+      "route": "/star-beasts",
+      "width": 320,
+      "scroll": 320,
+      "view": 320
+    },
+    {
+      "route": "/star-beasts",
+      "width": 390,
+      "scroll": 390,
+      "view": 390
+    },
+    {
+      "route": "/star-beasts",
+      "width": 768,
+      "scroll": 768,
+      "view": 768
+    },
+    {
+      "route": "/star-beasts",
+      "width": 1440,
+      "scroll": 1440,
+      "view": 1440
+    },
+    {
+      "route": "/beast-game/battlefield",
+      "width": 320,
+      "scroll": 320,
+      "view": 320
+    },
+    {
+      "route": "/beast-game/battlefield",
+      "width": 390,
+      "scroll": 390,
+      "view": 390
+    },
+    {
+      "route": "/beast-game/battlefield",
+      "width": 768,
+      "scroll": 768,
+      "view": 768
+    },
+    {
+      "route": "/beast-game/battlefield",
+      "width": 1440,
+      "scroll": 1440,
+      "view": 1440
+    },
+    {
+      "route": "/beast-game/match3-hard",
+      "width": 320,
+      "result": {
+        "status": 200,
+        "valid": true,
+        "outcome": null,
+        "responseMs": 349,
+        "readyMs": 2429
+      },
+      "scroll": 320,
+      "view": 320
+    },
+    {
+      "route": "/beast-game/match3-hard",
+      "width": 390,
+      "result": {
+        "status": 200,
+        "valid": true,
+        "outcome": null,
+        "responseMs": 409,
+        "readyMs": 2351
+      },
+      "scroll": 390,
+      "view": 390
+    },
+    {
+      "route": "/beast-game/match3-hard",
+      "width": 768,
+      "result": {
+        "status": 200,
+        "valid": true,
+        "outcome": null,
+        "responseMs": 326,
+        "readyMs": 3313
+      },
+      "scroll": 768,
+      "view": 768
+    },
+    {
+      "route": "/beast-game/match3-hard",
+      "width": 1440,
+      "result": {
+        "status": 200,
+        "valid": true,
+        "outcome": null,
+        "responseMs": 398,
+        "readyMs": 5876
+      },
+      "scroll": 1440,
+      "view": 1440
+    }
+  ],
+  "orbStart": 1795163860737
+}

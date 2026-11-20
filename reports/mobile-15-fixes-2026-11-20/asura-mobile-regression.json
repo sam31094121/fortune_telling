@@ -1,0 +1,32 @@
+{
+  "focus": [
+    {
+      "field": "民國年",
+      "kept": true
+    },
+    {
+      "field": "民國年",
+      "kept": true
+    },
+    {
+      "field": "月份",
+      "kept": true
+    },
+    {
+      "field": "日期",
+      "kept": true
+    },
+    {
+      "field": "日期",
+      "kept": true
+    }
+  ],
+  "errors": [],
+  "result": true,
+  "returned": true,
+  "reentered": true,
+  "overflow": {
+    "width": 390,
+    "scroll": 390
+  }
+}
