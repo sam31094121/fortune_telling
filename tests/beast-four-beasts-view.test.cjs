@@ -48,7 +48,39 @@ assert.equal(unlocked.materials.find(m => m.copyId === 'duel:b1:0').status, 'REA
 assert.equal(V.fourBeastsView(snap({ pendingBattle: 'orb:z' })).enhanceableCount, 0);
 const locked = snap(); locked.state.protectedIds = ['main:0', 'main:1', 'main:2', 'main:3', 'duel:b1:0'];
 assert.equal(V.fourBeastsView(locked).materials.find(m => m.copyId === 'duel:b1:0').status, 'LOCKED');
-console.log('beast-four-beasts-view: PASS', JSON.stringify({ count: v.enhanceableCount, sources: v.sources, materials: v.materials.map(m => [m.copyId.slice(0, 12), m.status]) }));
+// 2026-11-16 統一強化頁：每個節點帶伺服端選好的大卡 copyId（加成最高那張）與星級；固定層級（離線也畫）跟伺服端一致、零數字。
+const qNode = v.guardians.find(g => g.cardId === 'beast_g_qinglong');
+assert.equal(qNode.copyId, 'main:0', '大卡 copyId 由伺服端給');
+assert.ok(qNode.stars && typeof qNode.stars.stars === 'number' && 'toNext' in qNode.stars, '星級由伺服端給');
+assert.equal(typeof qNode.bonusPercent, 'string');
+const a01 = qNode.mansions.find(m => m.cardId === 'beast_a04');
+assert.equal(a01.copyId, null, '沒有這張卡就沒有 copyId'); assert.equal(a01.owned, 0);
+const best = V.fourBeastsView(snap({ state: { protectedIds: [], cards: [copy('lo', 'beast_a01', '1'), copy('hi', 'beast_a01', '9'), copy('y', 'beast_y01')] } }));
+assert.equal(best.guardians.find(g => g.cardId === 'beast_g_qinglong').mansions.find(m => m.cardId === 'beast_a01').copyId, 'hi', '預設大卡＝加成最高那張');
+const S = require('../lib/beast-game/four-beasts-static.ts');
+const src = fs.readFileSync(path.join(__dirname, '../lib/beast-game/four-beasts-static.ts'), 'utf8');
+assert.ok(!/server-only|cultivation-transaction|cultivation-repository/.test(src), '固定層級可在前端用（不含伺服端程式）');
+const offline = S.fourBeastsTree();
+assert.equal(offline.length, 4); assert.equal(offline.flatMap(g => g.mansions).length, 28);
+const flat = tree => tree.flatMap(g => [g, ...g.mansions.flatMap(m => [m, m.young])]);
+assert.deepEqual(flat(offline).map(n => [n.cardId, n.thumb]), flat(v.guardians).map(n => [n.cardId, n.thumb]), '離線層級與卡圖和伺服端一致');
+assert.ok(flat(offline).every(n => n.owned === 0 && n.ready === 0 && n.copyId === null), '離線不顯示任何假數字');
+assert.ok(flat(offline).every(n => /^\/beast-game\//.test(n.thumb)), '每個節點都有卡圖');
+// 讀取流程：同步失敗也要讀 GET；讀不到給照實短句；需要客戶動手的訊息原樣顯示。
+const L = require('../lib/beast-game/four-beasts-load.ts');
+(async () => {
+  let got = 0;
+  const r1 = await L.loadFourBeasts(async () => { throw new Error('共同卡庫服務尚未就緒，未扣材料。'); }, async () => { got++; return { ok: 1 }; });
+  assert.equal(got, 1, 'IMPORT 失敗仍讀 GET'); assert.deepEqual(r1, { synced: null, view: { ok: 1 }, error: null });
+  const r2 = await L.loadFourBeasts(async () => { throw new Error('共同卡庫服務尚未就緒，未扣材料。'); }, async () => { throw new Error('共同卡庫服務尚未就緒，未扣材料。'); });
+  assert.equal(r2.error, L.FOUR_BEASTS_READ_ERROR, '讀取畫面不說「未扣材料」'); assert.equal(r2.view, null);
+  const r3 = await L.loadFourBeasts(async () => ({ s: 1 }), async () => { throw new Error('找不到這支手機的卡庫識別碼，請用備份碼還原。'); });
+  assert.ok(r3.error.startsWith('找不到這支手機的卡庫識別碼'), '需要還原時原樣顯示'); assert.deepEqual(r3.synced, { s: 1 });
+  const r4 = await L.loadFourBeasts(async () => { throw new Error('另一分頁正在戰鬥或保存，請先完成。'); }, async () => { throw new Error('x'); });
+  assert.ok(r4.error.startsWith('另一分頁正在戰鬥或保存'));
+  assert.equal(L.fourBeastsReadMessage(new Error('Failed to fetch')), L.FOUR_BEASTS_READ_ERROR);
+  console.log('beast-four-beasts-view: PASS', JSON.stringify({ count: v.enhanceableCount, sources: v.sources, materials: v.materials.map(m => [m.copyId.slice(0, 12), m.status]) }));
+})().catch(e => { console.error(e); process.exitCode = 1; });
 
 // Pending battle navigation is read-only and keeps the original fusion lock.
 const {cultivationView}=require('../lib/beast-game/cultivation-view.ts');

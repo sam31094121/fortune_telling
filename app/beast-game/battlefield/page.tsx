@@ -46,8 +46,8 @@ import StarterPackAfterBattle from '@/components/StarterPackAfterBattle';
 import FreeBattleShards from '@/components/battlefield/FreeBattleShards';
 import type { BattleReward } from '@/lib/beast-game/battle-reward';
 import OwnedCampaignPreparation from '@/components/battlefield/OwnedCampaignPreparation';
-import OwnedCardCultivation from '@/components/battlefield/OwnedCardCultivation';
-import { feedShortcutFor, requestFeedShortcut } from '@/lib/beast-food-chain-client';
+import FourBeastsEntryCard from '@/components/beast-enhance/FourBeastsEntryCard';
+import { feedShortcutFor, enhanceHref } from '@/lib/beast-food-chain-client';
 import { sharedWalletHeaders, refreshSharedCultivation } from '@/lib/beast-cultivation-client';
 import { readOwnedCardCampaignProgress } from '@/lib/beast-collection';
 import { useCombatPlayback } from '@/components/battlefield/useCombatPlayback';
@@ -110,7 +110,6 @@ function BattlefieldScreen() {
   const [teamReady, setTeamReady] = useState(false);
   const [dealing, setDealing] = useState(false);
   const [campaignStage, setCampaignStage] = useState<number | null>(null);
-  const [cultivationOpen, setCultivationOpen] = useState(false);
   /** 正式戰押 1～20 張收藏紀錄；每個 id 都是可追溯的實際卡片副本。 */
   const [stakeCardIds, setStakeCardIds] = useState<string[]>([]);
   const [ownedStake, setOwnedStake] = useState<StakeCard[]>([]);
@@ -574,8 +573,8 @@ function BattlefieldScreen() {
                 {outcome && !playing && <BeastStakeResult outcome={namedStakeOutcome(outcome, id => cards.find(card => card.id === id)?.name ?? '神獸卡')}
                   card={cards.find(card => card.id === (outcome.gainedCardId ?? outcome.forfeitedCardId ?? outcome.stakes.player))}
                   cards={cards} settlement={settlement} isReplay={false} retrying={settling} onRetry={() => void retrySettlement()} />}
-                {/* 食物鏈：押注戰贏到的卡順著線拿去強化——回到選隊並打開「我的卡片・永久強化」預選，仍要按確認（9A）。 */}
-                {outcome?.verdict === 'WON' && outcome.gainedCardId && settlement?.saved === true && !playing && !isTrial && (() => { const feed = feedShortcutFor(outcome.gainedCardId); return feed ? <button type="button" className={styles.restart} data-battle-feed-shortcut data-feed-target={feed.targetCardId} aria-label={`拿去強化〈${feed.targetName}〉`} style={{ minWidth: 56, minHeight: 48, fontSize: 24, lineHeight: 1 }} disabled={settling} onClick={() => { requestFeedShortcut(outcome.gainedCardId!); redeal(); setCultivationOpen(true); setPrepareView('formation'); }}><span aria-hidden="true">🍴➜⬆</span></button> : null; })()}
+                {/* 食物鏈：押注戰贏到的卡順著線拿去強化——直接開四大神獸強化頁（網址帶來源與這張卡，只提示那一堆、不自動放入），仍要按強化才送出（9A）。 */}
+                {outcome?.verdict === 'WON' && outcome.gainedCardId && settlement?.saved === true && !playing && !isTrial && (() => { const feed = feedShortcutFor(outcome.gainedCardId); return feed ? <a className={styles.restart} data-battle-feed-shortcut data-feed-target={feed.targetCardId} href={enhanceHref('battle', outcome.gainedCardId)} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: 56, minHeight: 48, textDecoration: 'none' }}>拿去強化〈{feed.targetName}〉</a> : null; })()}
                 {match ? (
                   <>
                     {/* 首領預告放在操作區最上方：收在戰報裡客戶看不到，就不算預告。文字由後端 bossNotice 產生送來。 */}
@@ -614,10 +613,10 @@ function BattlefieldScreen() {
                   <>
                     <div hidden={prepareView !== 'formation'}>
                       {ownedStake.length ? <>
-                        <button type="button" className={styles.restart} aria-label={cultivationOpen ? '返回選隊' : undefined} onClick={() => setCultivationOpen(v => !v)}>{cultivationOpen ? <span aria-hidden="true">↩</span> : '我的卡片・永久強化'}</button>
-                        {cultivationOpen ? <OwnedCardCultivation onDone={() => setCultivationOpen(false)} onSaved={() => { confirmedTeam.current=null; tableToken.current=null; dealCampaignToken.current=null; setTeamReady(false); setTeamCopies([]); setStakeCardIds([]); }} /> : <OwnedCampaignPreparation owned={ownedStake} selected={teamCopies} busy={dealing || recovering || settling} onToggle={toggleTeamCopy} onReplace={(oldId,newId)=>setTeamCopies(ids=>ids.map(id=>id===oldId?newId:id))} onConfirm={confirmTeamStable} />}
-                        {/* 強化畫面零文字（23:52）：打開強化時不顯示這句，改由面板內 🃏＋ 圖示通往取卡入口。 */}
-                        {!cultivationOpen && new Set(ownedStake.map(c => c.cardId)).size < 5 && <p role="status" className={styles.shortage} data-collection-shortage>收藏不足五種，請先到<Link href="/growth-center#beast-collection">成長中心取得卡片</Link>；不會代填收藏。</p>}
+                        {/* 永久強化統一到「四大神獸」強化頁（同一套元件）；回來時本頁重新發牌，強化後的數字以伺服端為準。 */}
+                        <FourBeastsEntryCard from="battle" compact />
+                        <OwnedCampaignPreparation owned={ownedStake} selected={teamCopies} busy={dealing || recovering || settling} onToggle={toggleTeamCopy} onReplace={(oldId,newId)=>setTeamCopies(ids=>ids.map(id=>id===oldId?newId:id))} onConfirm={confirmTeamStable} />
+                        {new Set(ownedStake.map(c => c.cardId)).size < 5 && <p role="status" className={styles.shortage} data-collection-shortage>收藏不足五種，請先到<Link href="/growth-center#beast-collection">成長中心取得卡片</Link>；不會代填收藏。</p>}
                       </> : <p className={styles.notice}>首次免押體驗：五張體驗卡已就緒。完成後可領取既有首次幼子禮，再以收藏正式闖關。</p>}
                       {movement && <p role="status" className={styles.notice} data-card-move>{movement}</p>}
                     </div>
@@ -649,7 +648,7 @@ function BattlefieldScreen() {
               </div>
               {!match && !inspection ? (
                 <div className={styles.footer}>
-                  {!isTrial && cultivationOpen && prepareView === 'formation' ? <button type="button" className={styles.restart} aria-label="返回選隊" onClick={() => setCultivationOpen(false)}><span aria-hidden="true">↩</span></button> : !isTrial && !teamReady ? <>
+                  {!isTrial && !teamReady ? <>
                     <p role="status">已選 {teamCopies.length}／5 張出戰卡</p>
                     <button type="button" className={styles.restart} disabled={dealing || recovering || settling || (prepareView === 'formation' && teamCopies.length !== 5)} onClick={() => prepareView === 'formation' ? confirmTeam() : openPreparation('formation')}>
                       {dealing ? '正在準備陣容…' : prepareView !== 'formation' ? '返回選卡佈陣' : teamCopies.length === 5 ? '確認五張，前往押注' : '請先選齊五張卡'}

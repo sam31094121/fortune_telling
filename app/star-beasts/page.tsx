@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
-import EnhanceIcon from '@/components/beast-enhance/EnhanceIcon';
 import modeStyles from './GameModes.module.css';
 import CatalogBeastCard from '@/components/battlefield/CatalogBeastCard';
+import FourBeastsEntryCard from '@/components/beast-enhance/FourBeastsEntryCard';
 import starBeastsData from '@/data/star-beasts.json';
 import SelfStarBeastEntry from '@/components/SelfStarBeastEntry';
 import Match3ElementGlyph from '@/components/battlefield/Match3ElementGlyph';
@@ -100,9 +100,6 @@ const GAME_MODES = [
   { id: 'campaign', step: '卡片闖關', iconPath: 'm4 3 3 1 12 13-2 2L4 6 4 3Z M3 17l4 4 M5 19l-2 2 M17 3l3 1-1 3-5 5 M10 15l-3 4 M17 17l4 4 M17 21l4-4', title: '神獸戰鬥', desc: '合體培養、五對五押卡，勝利後逐關挑戰', href: '/beast-game/battlefield' },
   { id: 'bead-hard', step: '⑤ 寶珠困難', iconPath: 'M12 3a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M6 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M18 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8', title: '寶石捷連線', desc: '56 顆寶珠、數字累加、盾牌清場，逐關挑戰', href: '/beast-game/match3-hard' },
 ] as const;
-
-// 四大神獸入口卡：沿用既有四象縮圖（青龍、朱雀、白虎、玄武），純裝飾。
-const FOUR_BEAST_ENTRY_ART = ['qinglong', 'zhuque', 'baihu', 'xuanwu'].map((key) => `/beast-game/thumb/guardian-${key}.v2.webp`);
 
 // Decorative 7×8 board artwork; no game state, rewards or customer progress.
 const ORB_ENTRY_BOARD = [
@@ -243,16 +240,8 @@ export default function StarBeastsPage() {
                 </li>
               ))}
             </ul>
-            {/* 使用者 23:21 語音：入口卡要看得到「四大神獸」「點擊直接強化」，並有明確的點擊提示（取代 11-16 的零文字版）。 */}
-            <Link href="/beast-game/four-beasts" data-four-beasts-entry aria-label="四大神獸・點擊直接強化" className={`${modeStyles.card} ${modeStyles.fourBeastsCard}`}>
-              <span className={modeStyles.fourBeastsArt} aria-hidden="true">
-                {FOUR_BEAST_ENTRY_ART.map((src) => <img key={src} src={src} alt="" draggable={false} />)}
-              </span>
-              <span className={modeStyles.fourBeastsText} aria-hidden="true">
-                <strong className={modeStyles.fourBeastsTitle}>四大神獸</strong>
-                <span className={modeStyles.fourBeastsCta}>點擊直接強化<EnhanceIcon name="tap" className={modeStyles.fourBeastsTap} /></span>
-              </span>
-            </Link>
+            {/* 共用入口卡：看得到「四大神獸」「點擊直接強化」＋手指點擊提示（使用者 23:21 語音；P1-7），點進唯一強化頁。 */}
+            <FourBeastsEntryCard />
           </nav>
           <SelfStarBeastEntry onFound={(name, reason) => { setMyGuardian(name); setMyGuardianReason(reason); window.setTimeout(goMyGuardian, 2200); }} onGo={goMyGuardian} />
           <details className="mt-4 max-w-2xl text-xs text-slate-400">
