@@ -1122,6 +1122,9 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .resultSummary { font-size: 14px; opacity: .92; }
 /* 矮視窗（例 1280×800）：結算內容收緊一點，摘要句「共 N 步擊退…」一打開就在底部按鈕列上方，不被蓋住。 */
 @media (max-height: 820px) { .result { gap: 4px; } }
+/* A9（2026-11-20）：「拿去強化〈…〉」併入底部按鈕列。寬螢幕三顆一列；窄螢幕（手機）它自成一列在上、另兩顆在下，文字與卡面大小不變。 */
+.resultFooter { flex-wrap: wrap; row-gap: 8px; }
+@media (max-width: 559px) { .resultFooter > .resultFeed { flex: 1 1 100%; max-width: 300px; } }
 /* 頂列按鈕：畫面高度不變（不壓縮寶珠），觸控熱區上下各延伸 7px（次像素取整後仍 ≥44px）。 */
 .wrap[data-mode^="hard"] .head .homeLink, .wrap[data-mode^="hard"] .head .repickTop button, .wrap[data-mode^="hard"] .head .helpTop { position: relative; z-index: 6; }
 .wrap[data-mode^="hard"] .head .homeLink::after, .wrap[data-mode^="hard"] .head .repickTop button::after, .wrap[data-mode^="hard"] .head .helpTop::after { content: ''; position: absolute; left: 0; right: 0; top: -7px; bottom: -7px; }

@@ -1497,7 +1497,9 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       {over && !resultWaiting && (
         <div className={styles.result} role="dialog" aria-label="對戰結果" data-testid="match3-result" data-result={over}>
           <BattleResultBanner outcome={over === 'win' ? 'win' : 'lose'} subtitle={over === 'win' ? '你贏了！' : '敵方守住了，這一局沒有贏。'} />
-          {/* 戰利品緊接在勝負橫幅下面：贏了一眼就看到獲得什麼；保存成功才顯示已獲得（見 BattleRewardReveal） */}
+          {/* A9：摘要句放在勝負橫幅正下方、戰利品卡上方，矮視窗／手機首勝多一顆「拿去強化」時也不會被底部按鈕列蓋住。 */}
+          <p className={styles.resultSummary}>{over === 'win' ? `共 ${moves} 步擊退敵方 ${foes.length} 隻神獸，總傷害 ${totalDmg ?? '暫時無法取得'}。` : '再來一局，換個打法試試。'}</p>
+          {/* 戰利品緊接在勝負橫幅（與一行摘要）下面：贏了一眼就看到獲得什麼；保存成功才顯示已獲得（見 BattleRewardReveal） */}
           {campaignEnabled && over === 'win' && (
             <BattleRewardReveal
               presentation={rigEnabled ? 'orb-victory' : 'standard'}
@@ -1509,12 +1511,11 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
               viewDisabled={busy}
             />
           )}
-          {/* 食物鏈：贏到的卡可以順著線拿去強化——只打開共同卡庫面板並預選，仍要按確認（9A）。 */}
-          {campaignEnabled && over === 'win' && wonCard && onRepick && init.owner === 'self' && (() => { const feed = feedShortcutFor(wonCard.id); return feed ? <button type="button" className={`${styles.again} ${styles.resultSecondary}`} data-testid="match3-feed-shortcut" data-feed-target={feed.targetCardId} disabled={busy} onClick={() => { requestFeedShortcut(wonCard.id); onRepick(); }}><span>拿去強化</span>〈{feed.targetName}〉</button> : null; })()}
-          <p className={styles.resultSummary}>{over === 'win' ? `共 ${moves} 步擊退敵方 ${foes.length} 隻神獸，總傷害 ${totalDmg ?? '暫時無法取得'}。` : '再來一局，換個打法試試。'}</p>
           {progressSaveFailed && <p role="alert">此瀏覽器無法儲存進度，關閉頁面後可能遺失。</p>}
           {/* 下一步：主按鈕金色＋次要「查看我的卡片」並排在底部固定列，任何寬度都看得到、不會被擠出或裁切。 */}
           <div className={styles.resultFooter} data-testid="match3-result-actions">
+            {/* 食物鏈：贏到的卡可以順著線拿去強化——只打開共同卡庫面板並預選，仍要按確認（9A）。A9：併入底部按鈕列，不再單獨一列把摘要擠到按鈕列後面。 */}
+            {campaignEnabled && over === 'win' && wonCard && onRepick && init.owner === 'self' && (() => { const feed = feedShortcutFor(wonCard.id); return feed ? <button type="button" className={`${styles.again} ${styles.resultSecondary} ${styles.resultFeed}`} data-testid="match3-feed-shortcut" data-feed-target={feed.targetCardId} disabled={busy} onClick={() => { requestFeedShortcut(wonCard.id); onRepick(); }}><span>拿去強化</span>〈{feed.targetName}〉</button> : null; })()}
             {campaignEnabled && over === 'win' && wonCard && onRepick && <button type="button" className={`${styles.again} ${styles.resultSecondary}`} data-testid="match3-view-cards" disabled={busy} onClick={onRepick}>查看我的卡片</button>}
             <button type="button" className={`${styles.again} ${styles.nextPrimary}`} data-testid="match3-next" disabled={busy || campaignAwaiting} onClick={restart}>{rigEnabled ? (over === 'win' ? (campaignAwaiting ? (savingReward ? '正在保存獎勵…' : '獎勵保存後才能前進') : '挑戰下一關 →') : '原難度重試') : '再來一局'}</button>
           </div>
