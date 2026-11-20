@@ -36,7 +36,7 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound, onCr
   useEffect(() => {
     if (!bounds || !root.current) return;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const playbackScale = 1.2;
+    const playbackScale = 1;
     // These keyed nodes remain mounted for this drop sequence.
     const orbNodes = drops.map(drop => root.current!.querySelector<HTMLElement>(`[data-drop-index="${drop.index}"]`)!);
     const birthNodes = drops.map(drop => root.current!.querySelector<HTMLElement>(`[data-birth-index="${drop.index}"]`));

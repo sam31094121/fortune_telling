@@ -52,10 +52,10 @@ export function grantTreasure(input: TurnInput, res: DragResult) {
   if (input.path.length >= 9) {
     if (input.mode !== 'hard45') return none;
     const catches = dropCatches(input.team, input.singleCatchWidth);
-    const columns=res.board[0].length, middle=Math.floor(columns/2);
-    const order=Array.from({length:columns},(_,i)=>middle+(i%2 ? Math.ceil(i/2) : -i/2));
+    // 五張神獸卡正上方各一個出發點（中間先、再左右交替），不再從棋盤七欄或單一中間落下。
+    const columns=res.board[0].length, order=[2,1,3,0,4];
     const count = shieldOrbCount(input.path.length);
-    const sources=Array.from({length:count},(_,i)=>{const c=order[i%columns];return {r:0,c,element:res.board[0][c],x:(c+.5)/columns*1000};});
+    const sources=Array.from({length:count},(_,i)=>{const x=order[i%5]*200+100,c=Math.min(columns-1,Math.floor(x/1000*columns));return {r:0,c,element:res.board[0][c],x};});
     const drops = simulateOrbDrops({ count, element, seed: input.seed, launchX: (end.c + .5) / input.board[0].length * 1000, catches, sources });
     let next = book;
     for (const drop of [...drops].sort((a,b)=>(a.delayMs+a.durationMs)-(b.delayMs+b.durationMs)||a.index-b.index)) {
