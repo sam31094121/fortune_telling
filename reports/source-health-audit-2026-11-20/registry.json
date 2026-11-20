@@ -1,0 +1,345 @@
+{
+  "ok": false,
+  "total": 19,
+  "passed": 11,
+  "errors": 8,
+  "results": [
+    {
+      "claimId": "C-BAZI-CHART",
+      "declaredStatus": "VERIFIED",
+      "gateStatus": "VERIFIED",
+      "ok": true,
+      "reasons": [],
+      "linkedSources": [
+        "S-BAZI-JSON",
+        "S-TEST-BAZI-GOLDEN",
+        "S-HKO-1974",
+        "S-TEST-BAZI-CONTRACT",
+        "S-TEST-THREE-CORE",
+        "S-LUNAR-TYPESCRIPT",
+        "S-CWA-CALENDAR"
+      ],
+      "missingSources": [],
+      "classicalSources": []
+    },
+    {
+      "claimId": "C-BAZI-CLASSICS",
+      "declaredStatus": "CONFLICT",
+      "gateStatus": "CONFLICT",
+      "ok": false,
+      "reasons": [
+        "閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯",
+        "登記狀態 CONFLICT（非 VERIFIED）"
+      ],
+      "linkedSources": [
+        "S-SIKU-109",
+        "S-SIKU-111",
+        "S-YUANHAI",
+        "S-ZIPING-ZHENQUAN",
+        "S-DITIANSUI",
+        "S-SMITH-1991",
+        "S-LU-2008"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-SIKU-109"
+      ]
+    },
+    {
+      "claimId": "C-BAZI-VALIDITY",
+      "declaredStatus": "PENDING_POOL",
+      "gateStatus": "PENDING_POOL",
+      "ok": false,
+      "reasons": [
+        "閘門計算 PENDING_POOL：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 81，未達 90；有來源版本不可追溯",
+        "登記狀態 PENDING_POOL（非 VERIFIED）"
+      ],
+      "linkedSources": [
+        "S-PHILLIPS-1993",
+        "S-SMITH-1991",
+        "S-HO-2012",
+        "S-CHEN-LIN-2021"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-PHILLIPS-1993"
+      ]
+    },
+    {
+      "claimId": "C-BAZI-PILLAR-SHENSHA",
+      "declaredStatus": "VERIFIED",
+      "gateStatus": "VERIFIED",
+      "ok": true,
+      "reasons": [],
+      "linkedSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN"
+      ]
+    },
+    {
+      "claimId": "C-RED-LUAN-SHENSHA",
+      "declaredStatus": "PENDING_POOL",
+      "gateStatus": "PENDING_POOL",
+      "ok": false,
+      "reasons": [
+        "閘門計算 PENDING_POOL：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 86，未達 90",
+        "登記狀態 PENDING_POOL（非 VERIFIED）"
+      ],
+      "linkedSources": [
+        "S-XINGXUE-DACHENG",
+        "S-NDL-CINII-XINGXUE-CATALOG",
+        "S-SITE-BRANCH-PROFILE",
+        "S-TEST-RED-LUAN"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-XINGXUE-DACHENG"
+      ]
+    },
+    {
+      "claimId": "C-RED-LUAN-YEAR-BRANCH",
+      "declaredStatus": "PENDING_POOL",
+      "gateStatus": "PENDING_POOL",
+      "ok": false,
+      "reasons": [
+        "閘門計算 PENDING_POOL：交叉來源授權未全數通過（含待查核）",
+        "登記狀態 PENDING_POOL（非 VERIFIED）"
+      ],
+      "linkedSources": [
+        "S-XINGXUE-DACHENG",
+        "S-NDL-CINII-XINGXUE-CATALOG",
+        "S-ZWDS-QUANSHU-RULES",
+        "S-TEST-RED-LUAN"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-XINGXUE-DACHENG",
+        "S-ZWDS-QUANSHU-RULES"
+      ]
+    },
+    {
+      "claimId": "C-BAZI-FIVE-GODS",
+      "declaredStatus": "CONFLICT",
+      "gateStatus": "CONFLICT",
+      "ok": false,
+      "reasons": [
+        "閘門計算 CONFLICT：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺",
+        "登記狀態 CONFLICT（非 VERIFIED）",
+        "未掛原典（古籍）來源"
+      ],
+      "linkedSources": [
+        "S-DITIANSUI",
+        "S-DITIANSUI-WUSHEN-QUOTES",
+        "S-ZIPING-ZHENQUAN",
+        "S-TEST-BAZI-FIVE-GODS"
+      ],
+      "missingSources": [],
+      "classicalSources": []
+    },
+    {
+      "claimId": "C-BAZI-SHENSHA-TIANYI",
+      "declaredStatus": "VERIFIED",
+      "gateStatus": "VERIFIED",
+      "ok": true,
+      "reasons": [],
+      "linkedSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN"
+      ]
+    },
+    {
+      "claimId": "C-BAZI-SHENSHA-WENCHANG",
+      "declaredStatus": "VERIFIED",
+      "gateStatus": "VERIFIED",
+      "ok": true,
+      "reasons": [],
+      "linkedSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN"
+      ]
+    },
+    {
+      "claimId": "C-BAZI-SHENSHA-TAOHUA",
+      "declaredStatus": "VERIFIED",
+      "gateStatus": "VERIFIED",
+      "ok": true,
+      "reasons": [],
+      "linkedSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN"
+      ]
+    },
+    {
+      "claimId": "C-BAZI-SHENSHA-YIMA",
+      "declaredStatus": "VERIFIED",
+      "gateStatus": "VERIFIED",
+      "ok": true,
+      "reasons": [],
+      "linkedSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN"
+      ]
+    },
+    {
+      "claimId": "C-DUAL-SHENSHA-JIANGXING",
+      "declaredStatus": "VERIFIED",
+      "gateStatus": "VERIFIED",
+      "ok": true,
+      "reasons": [],
+      "linkedSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN"
+      ]
+    },
+    {
+      "claimId": "C-DUAL-SHENSHA-GEJIAO",
+      "declaredStatus": "VERIFIED",
+      "gateStatus": "VERIFIED",
+      "ok": true,
+      "reasons": [],
+      "linkedSources": [
+        "S-SHENFENG-1929-V2-SCAN",
+        "S-SHENFENG-1929-CATALOG",
+        "S-SHENFENG-WIKISOURCE-GEJIAO"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-SHENFENG-1929-V2-SCAN"
+      ]
+    },
+    {
+      "claimId": "C-DUAL-SHENSHA-YUANCHEN",
+      "declaredStatus": "VERIFIED",
+      "gateStatus": "VERIFIED",
+      "ok": true,
+      "reasons": [],
+      "linkedSources": [
+        "S-TAIJIN-V6-ZJLIB-SCAN",
+        "S-SANMING-TONGHUI-1926-YUANCHEN",
+        "S-TAIJIN-V6-COMMONS-CATALOG"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-TAIJIN-V6-ZJLIB-SCAN"
+      ]
+    },
+    {
+      "claimId": "C-DUAL-SHENSHA-YANGREN",
+      "declaredStatus": "VERIFIED",
+      "gateStatus": "VERIFIED",
+      "ok": true,
+      "reasons": [],
+      "linkedSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN"
+      ]
+    },
+    {
+      "claimId": "C-BAZI-SHENSHA-HUAGAI",
+      "declaredStatus": "VERIFIED",
+      "gateStatus": "VERIFIED",
+      "ok": true,
+      "reasons": [],
+      "linkedSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-MINGLI-TANYUAN-1937-SCAN"
+      ]
+    },
+    {
+      "claimId": "C-SHENSHA-RULE-INTEGRITY",
+      "declaredStatus": "PENDING_POOL",
+      "gateStatus": "PENDING_POOL",
+      "ok": false,
+      "reasons": [
+        "閘門計算 PENDING_POOL：交叉比對來源 2 個，未達 3 個；缺原典（或原始研究）來源",
+        "登記狀態 PENDING_POOL（非 VERIFIED）",
+        "未掛原典（古籍）來源"
+      ],
+      "linkedSources": [
+        "S-SITE-SHENSHA-REFERENCE",
+        "S-SITE-SHENSHA-EXTENSION"
+      ],
+      "missingSources": [],
+      "classicalSources": []
+    },
+    {
+      "claimId": "C-ASURA-LIFE-STAGES",
+      "declaredStatus": "CONFLICT",
+      "gateStatus": "CONFLICT",
+      "ok": false,
+      "reasons": [
+        "閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯；重大衝突：四柱對應歲數：古籍無歲數，後世分界不一",
+        "登記狀態 CONFLICT（非 VERIFIED）"
+      ],
+      "linkedSources": [
+        "S-YUANHAI-WIKISOURCE",
+        "S-ARNETT-2000",
+        "S-MOI-FIRSTBIRTH-109",
+        "S-MOL-LABOR-SURVEY-114",
+        "S-ERIKSON-1950",
+        "S-LEVINSON-1978"
+      ],
+      "missingSources": [],
+      "classicalSources": [
+        "S-ARNETT-2000",
+        "S-MOI-FIRSTBIRTH-109",
+        "S-MOL-LABOR-SURVEY-114"
+      ]
+    },
+    {
+      "claimId": "C-ASURA-GOLD-WORDING",
+      "declaredStatus": "PENDING_POOL",
+      "gateStatus": "PENDING_POOL",
+      "ok": false,
+      "reasons": [
+        "閘門計算 PENDING_POOL：缺權威性的檔案；缺大數據的來源；交叉比對來源 0 個，未達 3 個；交叉來源可信度平均 0，未達 90；缺原典（或原始研究）來源",
+        "登記狀態 PENDING_POOL（非 VERIFIED）",
+        "未掛任何登記表內存在的來源",
+        "未掛原典（古籍）來源"
+      ],
+      "linkedSources": [],
+      "missingSources": [],
+      "classicalSources": []
+    }
+  ]
+}
