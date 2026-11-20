@@ -50,7 +50,7 @@ assert(900-shot.foes[0].hp>=500,'at least half maximum HP after shield absorptio
 assert.equal(shot.actualDamage,900-shot.foes[0].hp);assert.equal(shot.team[0].orbDropCharges,0);assert.equal(shot.team[0].energy,0);
 assert.equal(shot.foes[0].orbDropCounterBlocked,true);
 const stacked = resolveCardAttackTurn({...charged,team:charged.team.map((u,i)=>i?u:{...u,orbDropCharges:3}),action:'energy',attackerId:charged.team[0].id,eventId:'stacked',actionId:'stacked'});
-assert.equal(stacked.team[0].orbDropCharges,2,'one manual click spends exactly one caught orb');
+assert.equal(stacked.team[0].orbDropCharges,1,'batch spends two original hits to finish this target, retains unused charge');
 assert.equal(stacked.team[0].energy,100,'remaining caught orbs stay ready for the next manual click');
 assert.equal(charged.team[0].orbDropCharges,1,'manual attack does not mutate its input');
 const blocked=counterPhase(shot.team,shot.foes,4,undefined,false,1,{turnId:'blocked',energyGate:true});

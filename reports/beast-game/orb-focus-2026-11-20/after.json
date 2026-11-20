@@ -1,0 +1,102 @@
+[
+  {
+    "count": 2,
+    "reduced": true,
+    "cpuSlowdown": 4,
+    "clickToNextFrameMs": 204,
+    "clickToResponseMs": 1339,
+    "clickToReadyMs": 1751.800000011921,
+    "longTasks": [
+      {
+        "start": 4093.199999988079,
+        "duration": 97
+      },
+      {
+        "start": 4219,
+        "duration": 113
+      },
+      {
+        "start": 4332.899999991059,
+        "duration": 82
+      },
+      {
+        "start": 4768.199999988079,
+        "duration": 132
+      },
+      {
+        "start": 5064.29999999702,
+        "duration": 104
+      },
+      {
+        "start": 5217.79999999702,
+        "duration": 107
+      },
+      {
+        "start": 5409.699999988079,
+        "duration": 106
+      },
+      {
+        "start": 5516.5,
+        "duration": 72
+      }
+    ],
+    "calls": 1,
+    "actualDamage": 1000000,
+    "outcome": null,
+    "strikes": 2
+  },
+  {
+    "count": 5,
+    "reduced": false,
+    "cpuSlowdown": 4,
+    "clickToNextFrameMs": 202.5,
+    "clickToResponseMs": 1194.2000000029802,
+    "clickToReadyMs": 2145.5,
+    "longTasks": [
+      {
+        "start": 2351.5,
+        "duration": 109
+      },
+      {
+        "start": 2489.2999999970198,
+        "duration": 135
+      },
+      {
+        "start": 2624.7999999970198,
+        "duration": 74
+      },
+      {
+        "start": 2711.7000000029802,
+        "duration": 165
+      },
+      {
+        "start": 2877.9000000059605,
+        "duration": 105
+      },
+      {
+        "start": 2987.7000000029802,
+        "duration": 168
+      },
+      {
+        "start": 3313.6000000089407,
+        "duration": 162
+      },
+      {
+        "start": 3557,
+        "duration": 102
+      },
+      {
+        "start": 3696.7999999970198,
+        "duration": 198
+      },
+      {
+        "start": 3895.4000000059605,
+        "duration": 118
+      }
+    ],
+    "calls": 1,
+    "actualDamage": 1000000,
+    "outcome": null,
+    "strikes": 2
+  }
+]

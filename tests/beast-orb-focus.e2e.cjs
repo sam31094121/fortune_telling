@@ -20,11 +20,32 @@ const out=path.resolve('reports/beast-game/orb-focus-2026-11-20');fs.mkdirSync(o
  const pending=page.waitForResponse(r=>r.url().endsWith('/orb-turn'));
  await page.locator('[data-testid="match3-ready-energy-orb"][data-source-id]').first().click();const response=await pending,body=await response.json();
  const responseAt=await page.evaluate(()=>performance.now());
- if(label==='after'){assert.equal(body.presentation.groups.length,1);assert.equal(body.presentation.strikes,2);assert.equal(body.presentation.groups[0].amount,1000000);}
+ if(label!=='before'){assert.equal(body.presentation.groups.length,1);assert.equal(body.presentation.strikes,2);assert.equal(body.presentation.groups[0].amount,1000000);}
  await page.waitForFunction(()=>document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy')==='false');
  const metrics=await page.evaluate(()=>({...window.__orbPerf,ready:performance.now(),overflow:document.documentElement.scrollWidth>innerWidth,remainingFocus:document.querySelectorAll('[data-testid="orb-attack-focus"]').length}));
  assert.equal(calls,1);assert.equal(metrics.overflow,false);assert.equal(metrics.remainingFocus,0);
  results.push({count,reduced:count===2,cpuSlowdown:4,clickToNextFrameMs:metrics.frame-metrics.click,clickToResponseMs:responseAt-metrics.click,clickToReadyMs:metrics.ready-metrics.click,longTasks:metrics.long.filter(x=>x.start>=metrics.click),calls,actualDamage:body.actualDamage,outcome:body.outcome,strikes:body.presentation?.strikes??1});
+ if(label!=='before'){
+ // Hold only the 420ms presentation cleanup for a review screenshot, after timing.
+ await page.evaluate(()=>{const original=window.setTimeout;window.setTimeout=function(fn,ms,...args){return original(fn,ms===420?2000:ms,...args)};});
+ await page.addStyleTag({content:'[data-testid="orb-attack-focus"], [data-testid="orb-attack-focus"] > div { animation-duration: 2000ms !important; }'});
+ // Fixture command selects 2/5 participants at the HTTP boundary. Real server
+ // computes the link; this checks rendering, not availability of a five-card mobile gesture.
+ const ids=await page.getByTestId('match3-ally').evaluateAll(nodes=>nodes.map(n=>n.dataset.id));
+ await page.route('**/api/beast-game/orb-turn',async route=>{const body=route.request().postDataJSON();const response=await route.fetch({postData:JSON.stringify({...body,action:'link',linkIds:ids})});await route.fulfill({response})});
+ const p=page.waitForResponse(r=>r.url().endsWith('/orb-turn'));
+ const focusRead=page.waitForFunction(()=>{const nodes=Array.from(document.querySelectorAll('[data-testid="orb-attack-focus"] > div'));return nodes.length?nodes.map(n=>({id:n.dataset.sourceId,element:n.dataset.element,damage:Number(n.dataset.damage)})):false});
+ const capture=focusRead.then(()=>page.screenshot({path:path.join(out,label+'-focus-'+count+'.png')}));
+ await page.locator('[data-testid="match3-ready-energy-orb"][data-source-id]').first().click();
+ await page.locator('[data-testid="match3-ready-energy-orb"][data-source-id]').first().evaluate(e=>e.click());
+ const linkReply=await(await p).json();assert.equal(linkReply.presentation.groups.length,count);
+ const groups=await(await focusRead).jsonValue();
+ assert.deepEqual(groups,linkReply.presentation.groups.map(g=>({id:g.attackerId,element:g.element,damage:g.amount})));
+ await capture;
+ await page.waitForFunction(()=>document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy')==='false');
+ assert.equal(calls,2,'double click cannot send a second link command');
+ results.at(-1).focusGroups=groups;
+ }
  await page.screenshot({path:path.join(out,label+'-'+count+'.png')});await context.close();
  }}finally{await browser.close()}
  fs.writeFileSync(path.join(out,label+'.json'),JSON.stringify(results,null,2));console.log(JSON.stringify(results));

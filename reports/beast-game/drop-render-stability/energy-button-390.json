@@ -6,8 +6,9 @@
   "team": [
     {
       "id": "beast_g_baihu",
-      "hp": 48,
-      "energy": 100
+      "hp": 145,
+      "energy": 100,
+      "charges": 1
     },
     {
       "id": "beast_y14",
@@ -17,15 +18,13 @@
     },
     {
       "id": "beast_y19",
-      "hp": 74,
-      "energy": 100,
-      "charges": 1
+      "hp": 24,
+      "energy": 0
     },
     {
       "id": "beast_y03",
-      "hp": 72,
-      "energy": 100,
-      "charges": 2
+      "hp": 24,
+      "energy": 0
     },
     {
       "id": "beast_y08",

@@ -1,0 +1,125 @@
+[
+  {
+    "count": 2,
+    "reduced": true,
+    "cpuSlowdown": 4,
+    "clickToNextFrameMs": 179.5,
+    "clickToResponseMs": 682.7000000029802,
+    "clickToReadyMs": 1158.2000000029802,
+    "longTasks": [
+      {
+        "start": 5026.70000000298,
+        "duration": 87
+      },
+      {
+        "start": 5161.4000000059605,
+        "duration": 134
+      },
+      {
+        "start": 5506.100000008941,
+        "duration": 128
+      },
+      {
+        "start": 5672.100000008941,
+        "duration": 93
+      },
+      {
+        "start": 5777.70000000298,
+        "duration": 101
+      },
+      {
+        "start": 5879.5,
+        "duration": 70
+      }
+    ],
+    "calls": 1,
+    "actualDamage": 1000000,
+    "outcome": null,
+    "strikes": 2,
+    "focusGroups": [
+      {
+        "id": "beast_g_baihu",
+        "element": "SPACE",
+        "damage": 376
+      },
+      {
+        "id": "beast_y14",
+        "element": "WATER",
+        "damage": 0
+      }
+    ]
+  },
+  {
+    "count": 5,
+    "reduced": false,
+    "cpuSlowdown": 4,
+    "clickToNextFrameMs": 269.5,
+    "clickToResponseMs": 884.1000000089407,
+    "clickToReadyMs": 1744.7999999970198,
+    "longTasks": [
+      {
+        "start": 5885.29999999702,
+        "duration": 121
+      },
+      {
+        "start": 6092.4000000059605,
+        "duration": 172
+      },
+      {
+        "start": 6469.4000000059605,
+        "duration": 167
+      },
+      {
+        "start": 6642.100000008941,
+        "duration": 94
+      },
+      {
+        "start": 6764.9000000059605,
+        "duration": 121
+      },
+      {
+        "start": 6913.100000008941,
+        "duration": 141
+      },
+      {
+        "start": 7055,
+        "duration": 94
+      },
+      {
+        "start": 7151.9000000059605,
+        "duration": 148
+      }
+    ],
+    "calls": 1,
+    "actualDamage": 1000000,
+    "outcome": null,
+    "strikes": 2,
+    "focusGroups": [
+      {
+        "id": "beast_g_baihu",
+        "element": "SPACE",
+        "damage": 1523
+      },
+      {
+        "id": "beast_y14",
+        "element": "WATER",
+        "damage": 0
+      },
+      {
+        "id": "beast_y19",
+        "element": "WATER",
+        "damage": 0
+      },
+      {
+        "id": "beast_y03",
+        "element": "EARTH",
+        "damage": 0
+      },
+      {
+        "id": "beast_y08",
+        "element": "AIR",
+        "damage": 0
+      }
+    ]
+  }
+]

@@ -1,7 +1,7 @@
 'use client';
 import { createPortal } from 'react-dom';
 import type { OrbOutcome } from '@/lib/beast-game/match3/battle-outcome';
-import { ElementTreasureOrb } from '@/components/bazi/customer/ElementTreasureOrb';
+import { ElementTreasureOrb as SharedEnergyOrb } from '@/components/bazi/customer/ElementTreasureOrb';
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 import type { resolveOrbTurn } from '@/lib/beast-game/match3/resolve-turn';
 import OrbTreasures, { TreasureAnimation, type TreasureFlight } from './OrbTreasures';
@@ -21,7 +21,7 @@ import Link from 'next/link';
  * 規則不變：拖過相鄰同色 ≥3 放開發動、普通威力上限 10、≥4 生成魔法珠、剛好 5 顆魔法珠＋五珠技、每顆 +10 能量、
  * 每 3 步反擊、只有主屬性相同的卡出手、克制表 elements.ts、同屬性輔助拿一半能量。卡面只讀 .v2 新卡與 card-face-stats。
  */
-import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
+import { memo, startTransition, useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { BeastCardFace, cardArt480 } from './BeastCardTile';
 import { useBannerQueue } from './bead/useBannerQueue';
 import { getCard, playableCards } from '@/lib/beast-game/registry';
@@ -53,6 +53,7 @@ import Match3RigAttack, { Match3TargetArt, useBattleArtUrl, match3RigAttackers, 
 import { fusedRimVars, fusedRimState, fusedShieldVars, FUSED_HIDE_READY_ORB } from './fused-rim';
 
 /** 決戰神獸框：依各獸透明底邊補 --pad，並鎖定圖框寬高比 --ar（動效助手 v4 量測）。鍵用名稱，不寫死卡片 ID。 */
+const ElementTreasureOrb = memo(SharedEnergyOrb);
 const DUEL_ART_TRIM: Record<string, { pad: number; ar: number }> = {
   '白虎': { pad: 0.0041, ar: 1.4257 },
   '青龍': { pad: 0.0041, ar: 1.3234 },
@@ -1260,13 +1261,16 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   // 回傳值直接當作原本的 applied；前端不先扣血、不判擊倒，擊倒交給 queueKnockouts（id：battleId:skill:N:ko:foeId／battleId:link:N:ko:foeId，同一 id 只播一次）。
   const cardActionId = (kind: 'skill' | 'link') => (battleId.current ||= crypto.randomUUID()) + ':' + kind + ':' + (++cardAttackKey.current);
   const requestCardAttack = async (action: 'energy' | 'link', ids: string[], eventId: string, actionId: string): Promise<CardAttackResult | null> => {
-    const controller = new AbortController(); turnRequest.current = controller; setBusy(true); setLastHealing([]);
+    // Refs lock commands immediately; non-urgent board repaint yields to tap feedback.
+    const controller = new AbortController(); turnRequest.current = controller;
+    startTransition(() => { setBusy(true); setLastHealing([]); });
     const timeout = window.setTimeout(() => controller.abort(), 15000);
     try {
       const response = await postOrbTurn(JSON.stringify({ guestBattleToken:guestState.current.token, sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, board, magic, path:[], team, foes, mode:cfg.id, wins, target:ti, seed:init.seed, move:moves, chosen, rule, attackBoost, treasureGuard, action, ...(action === 'energy' ? { attackerId:ids[0] } : { linkIds:ids }), eventId, actionId }), {'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, controller.signal);
       if (!response.ok) throw new Error('card attack unavailable');
       const result: CardAttackResult & {sharedVersion?:number} = await response.json();
       requireOutcome(result);
+      if (!result.presentation || !Array.isArray(result.presentation.groups) || result.presentation.groups.length > 5 || result.presentation.targetId !== result.targetId) throw new Error('尚未取得後端攻擊展示資料');
       if (controller.signal.aborted) throw new Error('aborted');
         acceptGuestResult(result);
       if(init.sharedBattleToken)sharedVersion.current=result.sharedVersion!;

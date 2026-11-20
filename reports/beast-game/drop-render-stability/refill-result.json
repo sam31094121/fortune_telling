@@ -17,27 +17,27 @@
       "shields": 11,
       "drops": [
         {
-          "owner": "beast_y19",
-          "duration": 4067.2000000000003,
-          "impacts": 8
+          "owner": "beast_g_baihu",
+          "duration": 2867,
+          "impacts": 16
         },
         {
-          "owner": "beast_y03",
-          "duration": 5720,
-          "impacts": 10
+          "owner": null,
+          "duration": 4075,
+          "impacts": 31
+        },
+        {
+          "owner": null,
+          "duration": 4858,
+          "impacts": 24
         },
         {
           "owner": "beast_y14",
-          "duration": 5812.8,
-          "impacts": 9
-        },
-        {
-          "owner": "beast_y03",
-          "duration": 4027.2000000000003,
-          "impacts": 8
+          "duration": 3867,
+          "impacts": 36
         }
       ],
-      "caught": 4
+      "caught": 2
     },
     {
       "case": "drop render work",
@@ -54,27 +54,27 @@
       "shields": 11,
       "drops": [
         {
-          "owner": "beast_y19",
-          "duration": 4067.2000000000003,
-          "impacts": 8
+          "owner": "beast_g_baihu",
+          "duration": 2867,
+          "impacts": 16
         },
         {
-          "owner": "beast_y03",
-          "duration": 5720,
-          "impacts": 10
+          "owner": null,
+          "duration": 4075,
+          "impacts": 31
+        },
+        {
+          "owner": null,
+          "duration": 4858,
+          "impacts": 24
         },
         {
           "owner": "beast_y14",
-          "duration": 5812.8,
-          "impacts": 9
-        },
-        {
-          "owner": "beast_y03",
-          "duration": 4027.2000000000003,
-          "impacts": 8
+          "duration": 3867,
+          "impacts": 36
         }
       ],
-      "caught": 4
+      "caught": 2
     }
   ],
   "errors": []
