@@ -97,7 +97,7 @@ export async function resolveSharedOrbTurn(t:OrbTicket,request:TurnInput,version
     if(!run||run.id!==t.id)throw new Error('原寶珠戰局暫時無法取得。');
     if(run.last?.version===version){if(run.last.command!==command)throw new Error('上一招已保存，請重新讀取戰局。');return current;}
     if(run.version!==version||current.pendingBattle!==t.id)throw new Error('戰局已更新，請重新讀取。');
-    if(!run.input.team.some(c=>c.hp>0)||run.input.foes.every(c=>c.hp<=0))throw new Error('戰鬥已結束。');
+    if(orbOutcome(run.input.team,run.input.foes)!==null)throw new Error('戰局已結束或暫時無法確認，請重新讀取。');
     const input:TurnInput={...run.input,...controls,actionId:`${t.id}:${version}`,eventId:`${t.id}:${version}`,seed:request.action?run.seed:(run.seed+run.input.move*2654435761)>>>0};
     if(!foeAvailable(input.foes,input.target,input.wins+1))throw new Error('目標尚未出戰或已倒下。');
     let response:unknown,next:TurnInput;
@@ -112,7 +112,7 @@ export async function resolveSharedOrbTurn(t:OrbTicket,request:TurnInput,version
     const outcome=orbOutcome(next.team,next.foes),won=outcome==='win',event='orb-win:'+t.id;
     const reward={matchId:event,cardId:campaignAdultIds()[t.wins%28],win:t.wins+1};
     if(won&&reward.win!==(current.orbLedger?.wins??0)+1)throw new Error('關卡紀錄不符。');
-    return {...current,...(input.comeback&&(outcome==='win'||outcome==='lose')?{orbComeback:nextComebackRecord(input.wins,current.orbComeback,outcome)}:{}),orbTreasures:next.treasures,orbRun:{...run,version:version+1,input:next,last:{version,command,response:{...(response as object),sharedVersion:version+1}}},
+    return {...current,...(input.comeback&&(outcome==='win'||outcome==='lose')?{orbComeback:nextComebackRecord(input.wins,current.orbComeback,outcome)}:{}),orbTreasures:next.treasures,orbRun:{...run,version:version+1,input:next,last:{version,command,response:{...(response as object),outcome,sharedVersion:version+1}}},
       ...(won?{state:{...current.state,cards:[...current.state.cards,{id:event,cardId:reward.cardId,bonus:'0'}]},pendingBattle:null,hold:undefined,orbLedger:{wins:reward.win,rewards:[...(current.orbLedger?.rewards??[]),reward],receipts:[...(current.orbLedger?.receipts??[]),reward]},creditedIds:[...(current.creditedIds??[]),event,'closed:'+t.id]}:{})};
   });
   return saved.orbRun!.last!.response;

@@ -73,7 +73,7 @@ export function resolveGuestOrb(ticket:GuestOrbTicket,input:TurnInput) {
   let profile={...ticket.profile,treasures:next.treasures};
   const outcome=orbOutcome(next.team,next.foes);
   if(!ticket.practice&&input.comeback&&(outcome==='win'||outcome==='lose'))profile={...profile,comebackRecord:nextComebackRecord(input.wins,ticket.profile.comebackRecord,outcome)};
-  if(!ticket.practice&&orbOutcome(next.team,next.foes)==='win')profile={...campaignWin(profile,'guest-win:'+ticket.id,ticket.input.wins).profile,treasures:emptyTreasureBook()};
+  if(!ticket.practice&&outcome==='win')profile={...campaignWin(profile,'guest-win:'+ticket.id,ticket.input.wins).profile,treasures:emptyTreasureBook()};
   const updated:GuestOrbTicket={...ticket,version:ticket.version+1,input:next,profile};
-  return {...response,guestBattleToken:sealGuestOrb(updated),guestVersion:updated.version,guestProfile:signedProfile(profile)};
+  return {...response,outcome,guestBattleToken:sealGuestOrb(updated),guestVersion:updated.version,guestProfile:signedProfile(profile)};
 }

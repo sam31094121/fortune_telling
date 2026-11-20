@@ -172,6 +172,13 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .manualEnergyOrb { position: absolute; z-index: 9; top: -22px; right: 0; width: 48px; height: 48px; padding: 3px 8px 11px; border: 1px solid #ffe3a1; border-radius: 50%; background: #171b24; color: #fff2dc; cursor: pointer; touch-action: manipulation; }
 .manualEnergyOrb > span:last-child { position: absolute; bottom: 1px; left: 0; right: 0; font-size: 10px; line-height: 12px; text-align: center; }
 .manualEnergyOrb:disabled { opacity: .55; cursor: default; }
+.manualEnergyOrb:not(:disabled):active { scale: .92; }
+.orbAttackFocus { position:absolute; z-index:24; top:27%; left:4%; width:92%; display:flex; justify-content:center; gap:clamp(7px,2vw,16px); pointer-events:none; contain:layout style; animation:orbFocusFade 420ms ease-out both; }
+.orbAttackFocusItem { position:relative; width:clamp(42px,12vw,68px); height:clamp(42px,12vw,68px); border-radius:50%; background:radial-gradient(circle at 35% 25%,#ffffff60,transparent 43%),#11182780; box-shadow:inset 0 1px 1px #fff8,0 3px 8px #0007; animation:orbFocusStrike 420ms cubic-bezier(.2,.7,.25,1) both; }
+.orbAttackFocusDamage { position:absolute; top:100%; left:50%; transform:translateX(-50%); color:#fff; font-size:14px; font-weight:800; font-variant-numeric:tabular-nums; text-shadow:0 1px 3px #000; white-space:nowrap; }
+@keyframes orbFocusFade { 0% {opacity:0} 18%,65% {opacity:1} 100% {opacity:0} }
+@keyframes orbFocusStrike { 0% {transform:translateY(12px) scale(.7)} 30% {transform:translateY(0) scale(1.12)} 60% {transform:translateY(0) scale(1)} 100% {transform:translateY(-16px) scale(.85)} }
+@media (prefers-reduced-motion:reduce) { .orbAttackFocus,.orbAttackFocusItem {animation:none;} .manualEnergyOrb:not(:disabled):active {scale:1;} }
 .enemyEnergyTrail { stroke-dasharray: 1; animation: enemyEnergyTrail 400ms ease-out both; }
 .enemyEnergySource { animation: enemyEnergySource 220ms ease-out both; }
 .lightningCore { animation: lightningCore 350ms ease-out both; }

@@ -13,6 +13,10 @@ async function post(p){const r=await fetch(base+'/api/beast-game/orb-turn',{meth
 function outcome(r){return r.outcome??r.verdict??r.winner;}
 (async()=>{
  check('unknown double elimination cannot fabricate either winner',()=>assert.equal(orbOutcome([{hp:0}],[{hp:0}]),'unavailable'));
+ const live=fixture();live.move=1000000;live.team[0].attack=0;
+ Object.assign(live,{action:'energy',attackerId:live.team[0].id},signedFixture({...live,action:'energy',attackerId:live.team[0].id},'authority-one-hp'));
+ const ongoing=await post(live);
+ check('both sides keep their last HP after a million turns; HTTP does not predict defeat',()=>{assert.equal(ongoing.status,200);assert.equal(ongoing.body.outcome,null);assert.equal(ongoing.body.team[0].hp,1);assert.equal(ongoing.body.foes[0].hp,1);assert.equal(ongoing.body.guestProfile.receipts.length,0)});
  // Independent expectations: one living player/foe, 1 HP each, positive energy hit.
  const win=fixture();Object.assign(win,{action:'energy',attackerId:win.team[0].id,eventId:'authority-win',actionId:'authority-win'});
  Object.assign(win,signedFixture(win));

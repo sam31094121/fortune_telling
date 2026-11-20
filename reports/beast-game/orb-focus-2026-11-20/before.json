@@ -1,0 +1,150 @@
+[
+  {
+    "count": 2,
+    "reduced": true,
+    "cpuSlowdown": 4,
+    "clickToNextFrameMs": 162.90000000596046,
+    "clickToResponseMs": 539.1000000089407,
+    "clickToReadyMs": 2005.4000000059605,
+    "longTasks": [
+      {
+        "start": 4358.100000008941,
+        "duration": 76
+      },
+      {
+        "start": 4483.9000000059605,
+        "duration": 106
+      },
+      {
+        "start": 4897.100000008941,
+        "duration": 96
+      },
+      {
+        "start": 5005.4000000059605,
+        "duration": 94
+      },
+      {
+        "start": 5100,
+        "duration": 65
+      },
+      {
+        "start": 5181.600000008941,
+        "duration": 100
+      },
+      {
+        "start": 5390.9000000059605,
+        "duration": 88
+      },
+      {
+        "start": 5479.9000000059605,
+        "duration": 61
+      },
+      {
+        "start": 5699.9000000059605,
+        "duration": 92
+      },
+      {
+        "start": 5885.29999999702,
+        "duration": 86
+      },
+      {
+        "start": 5971.70000000298,
+        "duration": 64
+      },
+      {
+        "start": 6039,
+        "duration": 87
+      },
+      {
+        "start": 6126.79999999702,
+        "duration": 65
+      }
+    ],
+    "calls": 1,
+    "actualDamage": 500000,
+    "outcome": null,
+    "strikes": 1
+  },
+  {
+    "count": 5,
+    "reduced": false,
+    "cpuSlowdown": 4,
+    "clickToNextFrameMs": 186.09999999403954,
+    "clickToResponseMs": 863.2999999970198,
+    "clickToReadyMs": 2430.0999999940395,
+    "longTasks": [
+      {
+        "start": 2868.9000000059605,
+        "duration": 102
+      },
+      {
+        "start": 3017.7000000029802,
+        "duration": 55
+      },
+      {
+        "start": 3118.2999999970198,
+        "duration": 143
+      },
+      {
+        "start": 3261.6000000089407,
+        "duration": 186
+      },
+      {
+        "start": 3452.6000000089407,
+        "duration": 56
+      },
+      {
+        "start": 3515.7000000029802,
+        "duration": 109
+      },
+      {
+        "start": 3625.5,
+        "duration": 133
+      },
+      {
+        "start": 3759.1000000089407,
+        "duration": 104
+      },
+      {
+        "start": 3888.7999999970198,
+        "duration": 135
+      },
+      {
+        "start": 4024.1000000089407,
+        "duration": 91
+      },
+      {
+        "start": 4123.79999999702,
+        "duration": 133
+      },
+      {
+        "start": 4257.70000000298,
+        "duration": 125
+      },
+      {
+        "start": 4385.20000000298,
+        "duration": 118
+      },
+      {
+        "start": 4504,
+        "duration": 83
+      },
+      {
+        "start": 4589.70000000298,
+        "duration": 120
+      },
+      {
+        "start": 4739.4000000059605,
+        "duration": 118
+      },
+      {
+        "start": 4857.9000000059605,
+        "duration": 81
+      }
+    ],
+    "calls": 1,
+    "actualDamage": 500000,
+    "outcome": null,
+    "strikes": 1
+  }
+]

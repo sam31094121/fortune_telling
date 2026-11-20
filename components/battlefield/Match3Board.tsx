@@ -349,6 +349,16 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   // 前端先演、後端判決：能量技／連線攻擊一按下就先起手（只有動作與音效，沒有傷害數字、不動血量）。
   // 傷害、生命、擊倒仍只看後端回覆；回覆失敗就收掉這段起手演出。
   const previewStrikeKey = useRef(0);
+  const [orbFocus,setOrbFocus]=useState<{key:number;presentation:CardAttackResult['presentation']}|null>(null);
+  const orbFocusKey=useRef(0);
+  const showOrbFocus=(result:CardAttackResult,foe:Foe)=>{
+    const key=++orbFocusKey.current;
+    setOrbFocus({key,presentation:result.presentation});
+    showOutgoing(result.presentation.groups,foe);
+    hadRig.current=false;
+    cue('impact');
+    later(()=>setOrbFocus(current=>current?.key===key?null:current),420);
+  };
   const startAttackPreview = (attackerIds: string[], foe: Foe) => {
     if (!rigEnabled || !attackerIds.length) return;
     const key = ++strikeKey.current; previewStrikeKey.current = key; hadRig.current = true;
@@ -1274,14 +1284,15 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     const foe = foes[ti]; const amt = skillAmount(rigEnabled ? fighterEffectiveAttack(u) : u.attack, u.element, foe.element);
     const spentTeam = team.map(x => x.id === u.id ? { ...x, energy: 0 } : x);
     const actionId = rigEnabled ? cardActionId('skill') : '';
-    if (rigEnabled) startAttackPreview([u.id], foe);
+    if (rigEnabled && cfg.id !== 'hard45') startAttackPreview([u.id], foe);
     const applied = rigEnabled ? await requestCardAttack('energy', [u.id], `${init.seed}:energy:${++energyActionKey.current}`, actionId) : null;
     if (rigEnabled && !applied) { cancelAttackPreview(); return; }
     const damaged = applied?.foes ?? damageFoe(foes, ti, amt);
     const nextTeam = applied?.team ?? spentTeam;
     const actualAmount = applied?.actualDamage ?? amt;
     if (applied) { showSkillEvents(applied.skillEvents); setConfirmedOutcome(applied.outcome); }
-    showStrike(applied?.actualHits ?? [{ attackerId: u.id, amount: actualAmount }], foe, damaged[ti], true, rigEnabled ? actualAmount : undefined);
+    if (applied && cfg.id === 'hard45') showOrbFocus(applied,foe);
+    else showStrike(applied?.actualHits ?? [{ attackerId: u.id, amount: actualAmount }], foe, damaged[ti], true, rigEnabled ? actualAmount : undefined);
     if (rigEnabled) queueKnockouts(foes, damaged, actionId, 'server-skill', hadRig.current ? RIG_IMPACT_MS : 0);
     if (rigEnabled) { setFired(new Set([u.id])); later(() => setFired(new Set()), 700); }
     setFoes(damaged); if (actualAmount > 0) { setHitFoe(ti); later(() => setHitFoe(null), 500); }
@@ -1310,14 +1321,15 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     const amt = linkDamage(cards.map((c) => rigEnabled ? fighterEffectiveAttack(c) : c.attack)); const foe = foes[ti];
     const spentTeam = team.map((u) => ids.includes(u.id) ? { ...u, energy: u.energy - LINK_ENERGY_COST } : u);
     const actionId = rigEnabled ? cardActionId('link') : '';
-    if (rigEnabled) startAttackPreview(cards.map((c) => c.id), foe);
+    if (rigEnabled && cfg.id !== 'hard45') startAttackPreview(cards.map((c) => c.id), foe);
     const applied = rigEnabled ? await requestCardAttack('link', cards.map((c) => c.id), `${init.seed}:energy:${++energyActionKey.current}`, actionId) : null;
     if (rigEnabled && !applied) { cancelAttackPreview(); return false; }
     const damaged = applied?.foes ?? damageFoe(foes, ti, amt);
     const nextTeam = applied?.team ?? spentTeam;
     const actualAmount = applied?.actualDamage ?? amt;
     if (applied) { showSkillEvents(applied.skillEvents); setConfirmedOutcome(applied.outcome); }
-    showStrike(applied?.actualHits ?? cards.map(c => ({ attackerId: c.id, amount: actualAmount })), foe, damaged[ti], true, rigEnabled ? actualAmount : undefined);
+    if (applied && cfg.id === 'hard45') showOrbFocus(applied,foe);
+    else showStrike(applied?.actualHits ?? cards.map(c => ({ attackerId: c.id, amount: actualAmount })), foe, damaged[ti], true, rigEnabled ? actualAmount : undefined);
     if (rigEnabled) queueKnockouts(foes, damaged, actionId, 'server-link', hadRig.current ? RIG_IMPACT_MS : 0);
     if (rigEnabled) { setFired(new Set(cards.map((c) => c.id))); later(() => setFired(new Set()), 700); }
     setFoes(damaged); setHitFoe(ti); later(() => setHitFoe(null), 500);
@@ -1354,6 +1366,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   if (cfg.id === 'hard45' && confirmedOutcome === 'unavailable') return <section className={styles.wrap} role="alert">暫時無法確認本局勝負，尚未發放獎勵。<button type="button" onClick={onRepick}>返回我的卡片</button></section>;
   return (
     <section ref={root} className={styles.wrap} aria-busy={busy} data-match3-scroll-lock={scrollLocked && !help && !resultShown ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !resultShown ? "true" : undefined} data-last-ally-stage={cfg.id==='hard45'&&lastAllyBig?'true':undefined} data-hold-top={lastAllyBig && holdTopReady.current ? 'true' : undefined} data-mobile-actions={mobileActionless ? 'off' : 'on'} data-manual-link-ready={mobileActionless && readyLinkIds.length >= LINK_MIN_CARDS && !busy && !over && ti >= 0 ? 'true' : undefined} onPointerDownCapture={(e) => { audio.current?.unlock(); setIntro(false); if (mobileActionless && link.length && !(e.target instanceof Element && e.target.closest('[data-testid="match3-ally"]'))) { setLink([]); setLinkMode(false); } }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
+      {orbFocus && <div key={orbFocus.key} className={styles.orbAttackFocus} data-testid="orb-attack-focus" data-target-id={orbFocus.presentation.targetId} aria-hidden="true">{orbFocus.presentation.groups.map(group=><div className={styles.orbAttackFocusItem} key={group.attackerId} data-source-id={group.attackerId} data-element={group.element} data-damage={group.amount}><ElementTreasureOrb element={getProductOrbFromBrand(group.element.toLowerCase() as 'space'|'air'|'water'|'fire'|'earth')} released preview animated={false} visualScale={0.8}/><span className={styles.orbAttackFocusDamage}>{group.amount}</span></div>)}</div>}
       {rigEnabled && <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: 'absolute', pointerEvents: 'none' }}>
         <defs>
           <clipPath id="match3-soft-space" clipPathUnits="objectBoundingBox"><path d="M .42 .1 Q .5 .02 .58 .1 L .9 .42 Q .98 .5 .9 .58 L .58 .9 Q .5 .98 .42 .9 L .1 .58 Q .02 .5 .1 .42 Z" /></clipPath>

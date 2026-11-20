@@ -9,7 +9,7 @@
  */
 import { ENERGY_MAX } from './config';
 import { fighterCanAct, fighterEffectiveAttack, fighterExactAttack, skillAmount } from './damage';
-import { damageFoe, LINK_ENERGY_COST, LINK_MIN_CARDS, linkDamage, linkProblem, type Match3Foe } from './enemies';
+import { damageFoe, foeAvailable, LINK_ENERGY_COST, LINK_MIN_CARDS, linkDamage, linkProblem, type Match3Foe } from './enemies';
 import { resolvePlayerCardAttack } from './player-skills';
 import { progressionStage } from './progression';
 import type { SkillFoe } from './skill-runtime';
@@ -46,6 +46,26 @@ export function resolveEnergyAttack<T extends Player, F extends Match3Foe>(args:
   return { ...applied, baseDamage: amt };
 }
 
+/** Sequential original attacks; never spill charges into another target or a reserve. */
+export function resolveEnergyBatch<T extends Player, F extends Match3Foe>(args: CardAttackArgs<T,F> & { attackerId:string }) {
+  let team=[...args.team],foes=[...args.foes];
+  const actor=team.find(u=>u.id===args.attackerId);
+  const limit=Math.min(256,Math.max(1,Math.floor(actor?.orbDropCharges ?? 0)));
+  const actualHits: {attackerId:string;amount:number}[]=[],skillEvents: ReturnType<typeof resolveEnergyAttack<T,F>>['skillEvents']=[];
+  let actualDamage=0,baseDamage=0,strikes=0;
+  for(let i=0;i<limit;i++) {
+    const u=team.find(c=>c.id===args.attackerId);
+    if(!u||u.hp<=0||u.energy<ENERGY_MAX||!fighterCanAct(u)||!foeAvailable(foes,args.targetIndex,args.stage)||orbOutcome(team,foes)!==null)break;
+    const r=resolveEnergyAttack({...args,team,foes,eventId:i?`${args.eventId}:batch:${i}`:args.eventId});
+    team=r.team;foes=r.foes;actualHits.push(...r.actualHits);skillEvents.push(...r.skillEvents);actualDamage+=r.actualDamage;baseDamage+=r.baseDamage;strikes++;
+  }
+  return {team,foes,actualHits,skillEvents,actualDamage,baseDamage,strikes};
+}
+
+function attackPresentation(team:readonly Player[],ids:readonly string[],targetId:string,hits:readonly {attackerId:string;amount:number}[],strikes:number) {
+  return {targetId,strikes,groups:ids.map(id=>{const u=team.find(c=>c.id===id)!;return {attackerId:id,element:u.element,amount:hits.filter(h=>h.attackerId===id).reduce((sum,h)=>sum+h.amount,0)};})};
+}
+
 /** 連結攻擊：與 1f452bb 前端 rig 分支同式。 */
 export function resolveLinkAttack<T extends Player, F extends Match3Foe>(args: CardAttackArgs<T, F> & { linkIds: readonly string[] }) {
   const { team, foes, targetIndex, stage, eventId, linkIds } = args;
@@ -69,15 +89,15 @@ export function resolveCardAttackTurn(input: TurnInput) {
   if (input.action === 'energy') {
     const u = input.team.find(x => x.id === input.attackerId);
     if (!u || u.hp <= 0 || u.energy < ENERGY_MAX || !fighterCanAct(u)) throw new Error('invalid');
-    const r = resolveEnergyAttack({ team: input.team, foes: input.foes, targetIndex, stage, eventId: input.eventId, attackerId: u.id });
-    return { action: 'energy' as const, actionId: input.actionId, targetId: foe.id, attackerIds: [u.id], ...r, outcome: orbOutcome(r.team, r.foes) };
+    const r = input.mode === 'hard45' ? resolveEnergyBatch({ team: input.team, foes: input.foes, targetIndex, stage, eventId: input.eventId, attackerId: u.id }) : {...resolveEnergyAttack({ team: input.team, foes: input.foes, targetIndex, stage, eventId: input.eventId, attackerId: u.id }),strikes:1};
+    return { action: 'energy' as const, actionId: input.actionId, targetId: foe.id, attackerIds: [u.id], ...r, presentation:attackPresentation(r.team,[u.id],foe.id,r.actualHits,r.strikes), outcome: orbOutcome(r.team, r.foes) };
   }
   if (input.action === 'link') {
     const ids = input.linkIds;
     if (!Array.isArray(ids) || ids.length < LINK_MIN_CARDS || ids.length > input.team.length || ids.some(id => typeof id !== 'string') || new Set(ids).size !== ids.length) throw new Error('invalid');
     if (linkProblem(input.team, ids) || ids.some(id => !fighterCanAct(input.team.find(u => u.id === id)!))) throw new Error('invalid');
     const r = resolveLinkAttack({ team: input.team, foes: input.foes, targetIndex, stage, eventId: input.eventId, linkIds: ids });
-    return { action: 'link' as const, actionId: input.actionId, targetId: foe.id, attackerIds: [...ids], ...r, outcome: orbOutcome(r.team, r.foes) };
+    return { action: 'link' as const, actionId: input.actionId, targetId: foe.id, attackerIds: [...ids], ...r, presentation:attackPresentation(r.team,ids,foe.id,r.actualHits,1), outcome: orbOutcome(r.team, r.foes) };
   }
   throw new Error('invalid');
 }
