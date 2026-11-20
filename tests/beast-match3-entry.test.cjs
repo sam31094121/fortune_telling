@@ -174,7 +174,9 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
     effects.forEach(fn => fn()); return result;
   };
   const by = testid => nodes(render()).find(n => n.props?.['data-testid'] === testid);
-  assert(by('play-guest')); await by('play-guest').props.onClick();
+  assert.equal(by('play-guest').props.disabled, true, 'server/first render waits for interactive handlers');
+  assert.equal(by('play-guest').props.disabled, false, 'hydration enables the existing guest entry');
+  await by('play-guest').props.onClick();
   assert(by('match3-hero-choice'), 'URL adult team cannot bypass hero choice');
   assert.equal(by('confirm-hero').props.disabled, true, 'No automatic hero selection');
   const heroes = nodes(render()).filter(n => n.props?.['data-testid'] === 'pick-hero');
@@ -189,14 +191,24 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
     const card = realPool.find(c => c.id === n.props['data-id']); const skill = getSkill(card.skills[0]);
     assert.equal(face.props.card.skillName, skill.name); assert.equal(face.props.card.description, skill.description);
   }
-  choices.slice(0, 5).forEach(n => n.props.onClick());
+  assert.equal(by('start-battle').props.disabled, false, 'hard45 hero alone is valid; never restore forced-five gate');
+  assert.equal(by('team-ready-hint').props.children, '✓');
+  choices.slice(0, 4).forEach((n,i) => {
+    n.props.onClick();
+    assert.equal(by('start-battle').props.disabled, false, `hard45 ${i+2} members remain valid`);
+    assert.equal(by('team-ready-hint').props.children, '✓');
+    assert(!nodes(render()).some(node=>node.type===Board), 'valid party still waits for explicit start');
+  });
+  choices[4].props.onClick(); // sixth candidate must not extend the five-member cap
   assert.equal(nodes(by('picked-row')).filter(n => n.type === CardFace).length, 5, 'Hero plus four only');
   assert.equal(by('team-ready-hint').props['aria-label'], '隊伍已就緒'); assert.equal(by('team-ready-hint').props.children, '✓', '隊伍就緒只用圖示，不放說明句');
   assert.equal(scrolls.length, 1); assert.equal(scrolls[0].block, 'nearest'); assert.equal(scrolls[0].behavior, 'smooth');
   render(); render(); assert.equal(scrolls.length, 1, 'Rerenders must not scroll repeatedly');
   assert.notEqual(render().type, Board, 'Full team must not auto-start');
   const removable = nodes(by('picked-row')).find(n => n.type === 'button' && !n.props.disabled);
-  removable.props.onClick(); render(); assert.equal(by('team-ready-hint'), undefined);
+  removable.props.onClick(); render();
+  assert.equal(by('team-ready-hint').props.children, '✓', 'approved one-to-five party remains ready with four');
+  assert.equal(by('start-battle').props.disabled, false, 'four valid members may start without auto-starting');
   reducedMotion = true;
   nodes(render()).find(n => n.props?.['data-testid'] === 'pick-card' && n.props['data-id'] === choices[0].props['data-id']).props.onClick();
   render(); assert.equal(scrolls.length, 2); assert.equal(scrolls[1].behavior, 'instant');
@@ -278,6 +290,6 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   const receiptDisplay = C.enhancementReceiptDisplay(profile, operationIds[1]);
   assert.equal(receiptDisplay.beforeAttack, oldAttack);
   assert.equal(receiptDisplay.afterAttack, C.campaignCardAttack(profile, profile.heroId).attack);
-  console.log('PASS: hard campaign requires guardian, locks hero + four young, registered skills and unlocked adult remain selectable');
+  console.log('PASS: hard45 accepts guardian plus zero to four companions; registered skills and unlocked adult remain selectable');
   console.log('PASS: permanent enhancement confirmation, failed save preservation and idempotent retry UI');
 })().catch(error => { console.error(error); process.exitCode = 1; });

@@ -1,0 +1,486 @@
+{
+  "base": "https://heaven-earth-humanity-pair.vercel.app",
+  "started": "2026-11-20T07:47:27.343Z",
+  "moves": [
+    {
+      "turn": 1,
+      "path": [
+        {
+          "r": 0,
+          "c": 3,
+          "el": "FIRE",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 3,
+          "el": "FIRE",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 4,
+          "el": "FIRE",
+          "magic": 0
+        },
+        {
+          "r": 2,
+          "c": 4,
+          "el": "FIRE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 4,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        122,
+        130,
+        102,
+        124,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 2,
+      "path": [
+        {
+          "r": 2,
+          "c": 3,
+          "el": "WATER",
+          "magic": 0
+        },
+        {
+          "r": 3,
+          "c": 4,
+          "el": "WATER",
+          "magic": 0
+        },
+        {
+          "r": 2,
+          "c": 5,
+          "el": "WATER",
+          "magic": 0
+        },
+        {
+          "r": 3,
+          "c": 5,
+          "el": "WATER",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 4,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        0,
+        130,
+        102,
+        124,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 3,
+      "path": [
+        {
+          "r": 3,
+          "c": 4,
+          "el": "FIRE",
+          "magic": 4
+        },
+        {
+          "r": 2,
+          "c": 3,
+          "el": "FIRE",
+          "magic": 0
+        },
+        {
+          "r": 3,
+          "c": 2,
+          "el": "FIRE",
+          "magic": 0
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "el": "FIRE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 4,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        0,
+        114,
+        102,
+        124,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 4,
+      "path": [
+        {
+          "r": 0,
+          "c": 1,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 0,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "el": "SPACE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 3,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        46
+      ],
+      "enemyHp": [
+        0,
+        117,
+        102,
+        124,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 5,
+      "path": [
+        {
+          "r": 1,
+          "c": 3,
+          "el": "WATER",
+          "magic": 0
+        },
+        {
+          "r": 2,
+          "c": 2,
+          "el": "WATER",
+          "magic": 0
+        },
+        {
+          "r": 2,
+          "c": 1,
+          "el": "WATER",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 3,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        47
+      ],
+      "enemyHp": [
+        0,
+        0,
+        102,
+        124,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 6,
+      "path": [
+        {
+          "r": 0,
+          "c": 1,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 2,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 0,
+          "c": 3,
+          "el": "SPACE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 3,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        45
+      ],
+      "enemyHp": [
+        0,
+        0,
+        0,
+        124,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 7,
+      "path": [
+        {
+          "r": 0,
+          "c": 2,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 2,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 2,
+          "c": 1,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 3,
+          "c": 1,
+          "el": "SPACE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 4,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        0,
+        0,
+        0,
+        124,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 8,
+      "path": [
+        {
+          "r": 0,
+          "c": 4,
+          "el": "WATER",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 3,
+          "el": "WATER",
+          "magic": 0
+        },
+        {
+          "r": 2,
+          "c": 3,
+          "el": "WATER",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 2,
+          "el": "WATER",
+          "magic": 0
+        },
+        {
+          "r": 2,
+          "c": 1,
+          "el": "WATER",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 0,
+          "el": "WATER",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 6,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        46
+      ],
+      "enemyHp": [
+        0,
+        0,
+        0,
+        0,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 9,
+      "path": [
+        {
+          "r": 3,
+          "c": 2,
+          "el": "EARTH",
+          "magic": 0
+        },
+        {
+          "r": 4,
+          "c": 3,
+          "el": "EARTH",
+          "magic": 0
+        },
+        {
+          "r": 3,
+          "c": 4,
+          "el": "EARTH",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 3,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        0,
+        0,
+        0,
+        0,
+        28
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 10,
+      "path": [
+        {
+          "r": 0,
+          "c": 3,
+          "el": "WATER",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 3,
+          "el": "WATER",
+          "magic": 0
+        },
+        {
+          "r": 0,
+          "c": 4,
+          "el": "WATER",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 5,
+          "el": "WATER",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 4,
+      "largestShieldPath": 0,
+      "outcome": "win",
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dropCount": 0,
+      "valid": true
+    }
+  ],
+  "achieved": false,
+  "error": "page.waitForResponse: Timeout 15000ms exceeded while waiting for event \"response\""
+}

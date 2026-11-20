@@ -241,7 +241,7 @@ export default function Match3Board({ resumeBattleId, treasurePractice, seed, te
         if(opened.profile)campaign.profile=opened.profile;shared=opened;
       }
       if(owner==='guest' && cfg.id==='hard45' && campaign?.profile){
-        const response=await fetch('/api/beast-game/orb-guest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile:campaign.profile,seed:s})});
+        const response=await fetch('/api/beast-game/orb-guest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile:campaign.profile,seed:s,...(process.env.NODE_ENV==='development'&&new URLSearchParams(window.location.search).get('devChain')==='17'?{devChain:17}:{})})});
         const opened=await response.json();
         if(!response.ok)throw new Error(opened.error ?? '暫時無法開戰。');
         if(!active)return;

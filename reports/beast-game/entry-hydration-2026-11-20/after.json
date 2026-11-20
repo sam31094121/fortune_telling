@@ -1,0 +1,11 @@
+{
+  "phase": "after",
+  "base": "http://localhost:8888",
+  "before": {
+    "disabled": true,
+    "scriptsHeld": 8
+  },
+  "preHydrationClickIgnored": true,
+  "hydratedClickOpenedHero": true,
+  "guestBoardVisible": true
+}

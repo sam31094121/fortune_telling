@@ -1,0 +1,640 @@
+{
+  "base": "http://localhost:8888",
+  "started": "2026-11-20T07:55:31.344Z",
+  "moves": [
+    {
+      "turn": 1,
+      "path": [
+        {
+          "r": 0,
+          "c": 1,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 2,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 2,
+          "c": 2,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 3,
+          "c": 1,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 3,
+          "c": 0,
+          "el": "SPACE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 6,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        96,
+        102,
+        142,
+        88,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 2,
+      "path": [
+        {
+          "r": 4,
+          "c": 3,
+          "el": "FIRE",
+          "magic": 0
+        },
+        {
+          "r": 5,
+          "c": 3,
+          "el": "FIRE",
+          "magic": 0
+        },
+        {
+          "r": 6,
+          "c": 2,
+          "el": "FIRE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 3,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        0,
+        102,
+        142,
+        88,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 3,
+      "path": [
+        {
+          "r": 0,
+          "c": 3,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 0,
+          "c": 2,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 2,
+          "c": 2,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 2,
+          "c": 3,
+          "el": "SPACE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 5,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        0,
+        0,
+        142,
+        88,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 4,
+      "path": [
+        {
+          "r": 3,
+          "c": 2,
+          "el": "FIRE",
+          "magic": 0
+        },
+        {
+          "r": 4,
+          "c": 1,
+          "el": "FIRE",
+          "magic": 0
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "el": "FIRE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 3,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        46
+      ],
+      "enemyHp": [
+        0,
+        0,
+        100,
+        88,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 5,
+      "path": [
+        {
+          "r": 6,
+          "c": 4,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 6,
+          "c": 5,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 7,
+          "c": 5,
+          "el": "SPACE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 3,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        46
+      ],
+      "enemyHp": [
+        0,
+        0,
+        100,
+        88,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 6,
+      "path": [
+        {
+          "r": 4,
+          "c": 1,
+          "el": "AIR",
+          "magic": 0
+        },
+        {
+          "r": 5,
+          "c": 0,
+          "el": "AIR",
+          "magic": 0
+        },
+        {
+          "r": 6,
+          "c": 1,
+          "el": "AIR",
+          "magic": 0
+        },
+        {
+          "r": 6,
+          "c": 2,
+          "el": "AIR",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 4,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        46
+      ],
+      "enemyHp": [
+        0,
+        0,
+        81,
+        88,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 7,
+      "path": [
+        {
+          "r": 6,
+          "c": 1,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 7,
+          "c": 0,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 7,
+          "c": 1,
+          "el": "SPACE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 3,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        0,
+        0,
+        0,
+        88,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 8,
+      "path": [
+        {
+          "r": 3,
+          "c": 0,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 2,
+          "c": 1,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 3,
+          "c": 2,
+          "el": "SPACE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 3,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        0,
+        0,
+        0,
+        88,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 9,
+      "path": [
+        {
+          "r": 3,
+          "c": 1,
+          "el": "FIRE",
+          "magic": 0
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "el": "FIRE",
+          "magic": 0
+        },
+        {
+          "r": 5,
+          "c": 1,
+          "el": "FIRE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 3,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        0,
+        0,
+        0,
+        0,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 10,
+      "path": [
+        {
+          "r": 0,
+          "c": 1,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "el": "SPACE",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 2,
+          "el": "SPACE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 3,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        46
+      ],
+      "enemyHp": [
+        0,
+        0,
+        0,
+        0,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 11,
+      "path": [
+        {
+          "r": 6,
+          "c": 1,
+          "el": "FIRE",
+          "magic": 0
+        },
+        {
+          "r": 7,
+          "c": 0,
+          "el": "FIRE",
+          "magic": 0
+        },
+        {
+          "r": 7,
+          "c": 1,
+          "el": "FIRE",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 3,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        0,
+        0,
+        0,
+        0,
+        152
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 12,
+      "path": [
+        {
+          "r": 2,
+          "c": 0,
+          "el": "AIR",
+          "magic": 0
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "el": "AIR",
+          "magic": 0
+        },
+        {
+          "r": 2,
+          "c": 2,
+          "el": "AIR",
+          "magic": 0
+        },
+        {
+          "r": 3,
+          "c": 2,
+          "el": "AIR",
+          "magic": 0
+        },
+        {
+          "r": 4,
+          "c": 3,
+          "el": "AIR",
+          "magic": 0
+        },
+        {
+          "r": 3,
+          "c": 4,
+          "el": "AIR",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 6,
+      "largestShieldPath": 0,
+      "outcome": null,
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        0,
+        0,
+        0,
+        0,
+        16
+      ],
+      "dropCount": 0,
+      "valid": true
+    },
+    {
+      "turn": 13,
+      "path": [
+        {
+          "r": 2,
+          "c": 1,
+          "el": "EARTH",
+          "magic": 0
+        },
+        {
+          "r": 3,
+          "c": 2,
+          "el": "EARTH",
+          "magic": 0
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "el": "EARTH",
+          "magic": 0
+        },
+        {
+          "r": 3,
+          "c": 1,
+          "el": "EARTH",
+          "magic": 0
+        },
+        {
+          "r": 4,
+          "c": 0,
+          "el": "EARTH",
+          "magic": 0
+        },
+        {
+          "r": 5,
+          "c": 0,
+          "el": "EARTH",
+          "magic": 0
+        }
+      ],
+      "pureShields": false,
+      "physicalCount": 6,
+      "largestShieldPath": 0,
+      "outcome": "win",
+      "playerHp": [
+        164,
+        54,
+        74,
+        72,
+        49
+      ],
+      "enemyHp": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dropCount": 0,
+      "valid": true
+    }
+  ],
+  "battles": [],
+  "achieved": false,
+  "error": "page.waitForResponse: Timeout 15000ms exceeded while waiting for event \"response\""
+}

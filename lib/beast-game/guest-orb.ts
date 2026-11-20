@@ -30,7 +30,7 @@ function open(token:unknown):GuestOrbTicket|{kind:'profile';profile:HardCampaign
 }
 function clean(p:HardCampaign):HardCampaign {const {guestProof,shared,ownedEntries,...rest}=p;return rest;}
 function signedProfile(p:HardCampaign):HardCampaign {const profile=clean(p);return {...profile,guestProof:sealGuestOrb({kind:'profile',profile})};}
-export function beginGuestOrb(raw:HardCampaign,seed:number) {
+export function beginGuestOrb(raw:HardCampaign,seed:number,tweakInitial?:(initial:TurnInput)=>TurnInput) {
   if(!Number.isInteger(seed)||seed<0||seed>4294967295)throw new Error('戰局種子無效。');
   let p:HardCampaign;
   if(raw?.guestProof){
@@ -46,7 +46,8 @@ export function beginGuestOrb(raw:HardCampaign,seed:number) {
   }
   if(!validateCampaignTeam(p,p.teamIds))throw new Error('請選定主角，可另選最多四位夥伴。');
   const stats=Object.fromEntries(playableCards().map(c=>[c.id,campaignCardAttack(p,c.id)]));
-  const initial=initialSharedOrb({...p,shared:{availableIds:p.teamIds,cards:[],stats,selectedEntries:[]}},seed,'hard45');
+  const built=initialSharedOrb({...p,shared:{availableIds:p.teamIds,cards:[],stats,selectedEntries:[]}},seed,'hard45');
+  const initial=tweakInitial?tweakInitial(built):built; // 只有開發環境捷徑會傳入
   p={...p,treasures:initial.treasures};
   const ticket:GuestOrbTicket={kind:'battle',id:randomUUID(),version:0,seed,input:initial,profile:clean(p)};
   return {initial,profile:signedProfile(p),guestBattleId:ticket.id,guestBattleToken:sealGuestOrb(ticket),guestVersion:0,outcome:orbOutcome(initial.team,initial.foes)};
