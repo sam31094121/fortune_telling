@@ -1,0 +1,121 @@
+[
+  {
+    "count": 2,
+    "reduced": true,
+    "cpuSlowdown": 4,
+    "clickToNextFrameMs": 12,
+    "clickToResponseMs": 498.40000000596046,
+    "clickToReadyMs": 966.2000000029802,
+    "longTasks": [
+      {
+        "start": 4593.20000000298,
+        "duration": 87
+      },
+      {
+        "start": 4723.20000000298,
+        "duration": 87
+      },
+      {
+        "start": 4813.0999999940395,
+        "duration": 118
+      },
+      {
+        "start": 4931.0999999940395,
+        "duration": 139
+      },
+      {
+        "start": 5104.5,
+        "duration": 109
+      },
+      {
+        "start": 5246,
+        "duration": 103
+      },
+      {
+        "start": 5363.4000000059605,
+        "duration": 96
+      },
+      {
+        "start": 5460.20000000298,
+        "duration": 60
+      }
+    ],
+    "calls": 1,
+    "actualDamage": 1000000,
+    "outcome": null,
+    "strikes": 2,
+    "focusGroups": [
+      {
+        "id": "beast_g_baihu",
+        "element": "SPACE",
+        "damage": 374
+      },
+      {
+        "id": "beast_y14",
+        "element": "WATER",
+        "damage": 0
+      }
+    ]
+  },
+  {
+    "count": 5,
+    "reduced": false,
+    "cpuSlowdown": 4,
+    "clickToNextFrameMs": 13.600000008940697,
+    "clickToResponseMs": 198,
+    "clickToReadyMs": 909.4000000059605,
+    "longTasks": [
+      {
+        "start": 2954.5999999940395,
+        "duration": 103
+      },
+      {
+        "start": 3209.0999999940395,
+        "duration": 147
+      },
+      {
+        "start": 3356.699999988079,
+        "duration": 126
+      },
+      {
+        "start": 3552.8999999910593,
+        "duration": 130
+      },
+      {
+        "start": 3705.199999988079,
+        "duration": 105
+      }
+    ],
+    "calls": 1,
+    "actualDamage": 1000000,
+    "outcome": null,
+    "strikes": 2,
+    "focusGroups": [
+      {
+        "id": "beast_g_baihu",
+        "element": "SPACE",
+        "damage": 1525
+      },
+      {
+        "id": "beast_y14",
+        "element": "WATER",
+        "damage": 0
+      },
+      {
+        "id": "beast_y19",
+        "element": "WATER",
+        "damage": 0
+      },
+      {
+        "id": "beast_y03",
+        "element": "EARTH",
+        "damage": 0
+      },
+      {
+        "id": "beast_y08",
+        "element": "AIR",
+        "damage": 0
+      }
+    ]
+  }
+]

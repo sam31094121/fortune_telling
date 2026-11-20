@@ -1,0 +1,11 @@
+{
+  "phase": "before",
+  "base": "https://heaven-earth-humanity-pair.vercel.app",
+  "before": {
+    "disabled": false,
+    "scriptsHeld": 25
+  },
+  "preHydrationClickIgnored": true,
+  "hydratedClickOpenedHero": true,
+  "guestBoardVisible": true
+}

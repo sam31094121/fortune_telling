@@ -95,6 +95,9 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     }
   }, [selected.length, phase]);
   const [legacyAvailable, setLegacyAvailable] = useState(false);
+  // SSR buttons must not accept a click before their handlers are hydrated.
+  const [entryReady, setEntryReady] = useState(false);
+  useEffect(() => { setEntryReady(true); }, []);
   useEffect(() => { setLegacyAvailable(readLegacyCampaignStatus().canImport); }, [owner]);
   // 沒有免費試用的卡，預設自動選這種神獸「最強的一張」收藏副本，客戶不用自己挑（想換再點副本圖示）。
   useEffect(() => {
@@ -188,9 +191,10 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const home = <Link href="/" className={styles.homeLink} data-testid="match3-home">回到首頁</Link>;
   if (!owner || !profile) return <section className={styles.picker} data-testid="match3-player-choice" aria-label="選擇遊玩身分">
     {home}<h1>寶珠戰</h1>
+    {!entryReady && <p role="status">正在準備寶珠戰…</p>}
     <div className={picker.playerChoices}>
-      <button type="button" data-testid="play-self" disabled={saving} onClick={() => load('self')}><strong>我自己</strong></button>
-      <button type="button" data-testid="play-guest" disabled={saving} onClick={() => load('guest', false, true)}><strong>親朋好友</strong></button>
+      <button type="button" data-testid="play-self" disabled={!entryReady || saving} onClick={() => load('self')}><strong>我自己</strong></button>
+      <button type="button" data-testid="play-guest" disabled={!entryReady || saving} onClick={() => load('guest', false, true)}><strong>親朋好友</strong></button>
     </div>{error===SLOW_MESSAGE&&<div role="alert" data-testid="campaign-slow" ref={el => { el?.scrollIntoView({ block: 'center' }); }}><p style={{ fontSize: 20, fontWeight: 700, lineHeight: 1.6, margin: '16px 0 8px' }}>{SLOW_MESSAGE}</p><button type="button" data-testid="retry-self" className={`${styles.again} ${picker.readyStart}`} style={{ width: '100%', minHeight: 56, fontSize: 20 }} disabled={saving} onClick={() => void load('self')}>再試一次</button></div>}{error===WALLET_LOST_MESSAGE&&<div role="alert" data-testid="wallet-lost" style={{ display: 'grid', gap: 12, margin: '16px 0' }}>
       <button type="button" data-testid="wallet-lost-restore" className={`${styles.again} ${picker.readyStart}`} style={{ minHeight: 64, fontSize: 22 }} onClick={() => setShowRecovery(true)}>🔑 輸入識別碼找回</button>
       <button type="button" data-testid="wallet-lost-fresh" className={styles.again} style={{ minHeight: 64, fontSize: 22 }} onClick={() => { if (!window.confirm('確定重新開始嗎？')) return; startFreshWallet(); setError(''); void load('self'); }}>🆕 重新開始</button>
