@@ -1933,7 +1933,9 @@
         "lib/red-luan-public-access.ts",
         "lib/red-luan-engineering-audit.ts",
         "docs/red-luan-engineering-audit.md",
-        "lib/korean-copy/pages/red-luan-heartbeat.ts"
+        "lib/korean-copy/pages/red-luan-heartbeat.ts",
+        "lib/english-copy/pages/red-luan-heartbeat.ts",
+        "lib/japanese-copy/pages/red-luan-heartbeat.ts"
       ],
       "authority_files": [
         "S-APA-DICTIONARY"

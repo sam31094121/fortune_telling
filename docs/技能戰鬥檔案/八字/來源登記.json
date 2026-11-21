@@ -877,7 +877,9 @@
       "files": [
         "lib/bazi-four-pillar-beasts.ts",
         "lib/nameology-bazi-crosscheck.ts",
-        "lib/korean-copy/pages/bazi.ts"
+        "lib/korean-copy/pages/bazi.ts",
+        "lib/english-copy/pages/bazi.ts",
+        "lib/japanese-copy/pages/bazi.ts"
       ],
       "authority_files": [
         "S-SIKU-109"

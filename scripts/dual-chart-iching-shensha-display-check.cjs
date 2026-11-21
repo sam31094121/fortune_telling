@@ -204,6 +204,8 @@ function checkShenShaDisplay() {
     inspected.warnings.push(...inspectShenShaPlacement(html));
     const remainingCard = renderToStaticMarkup(React.createElement(ShenShaCard, { result, hidePillarCards: true }));
     inspected.warnings.push(...inspectShenShaCard(result, html + remainingCard));
+    inspected.overclaimWarnings = /已通過交叉比對|已核定|原典已核|VERIFIED/.test(stripTags(html + remainingCard))
+      ? ['神煞卡把待核來源寫成已核定（標示不實）'] : [];
     const pillarKeys = ['hour', 'day', 'month', 'year'];
     const expectedByPillar = Object.fromEntries(pillarKeys.map((key) => [
       key,
@@ -227,8 +229,10 @@ function checkShenShaDisplay() {
     ...inspectShenShaScreenStyles(fs.readFileSync(path.join(root, 'app/dual-chart/dual-chart.module.css'), 'utf8'))];
   const scopeWarnings = [...new Set(samples.flatMap(s => s.scopeWarnings))];
   const sourceWarnings = [...new Set(samples.flatMap(s => s.sourceWarnings))];
-  const warnings = [...deliveryWarnings, ...scopeWarnings, ...sourceWarnings];
-  return { ok: warnings.length === 0, deliveryOk: deliveryWarnings.length === 0, requestedScopeComplete: scopeWarnings.length === 0, sourceVerified: sourceWarnings.length === 0, method: 'SSR PillarGrid with real calculateDualChart + real gate; browser layout verified separately', samples, warnings, scopeWarnings, sourceWarnings };
+  // 待核來源照實列出（SOURCE_PENDING）不阻斷；前端若把待核寫成已核定＝標示不實，阻斷。
+  const overclaim = sourceWarnings.length ? [...new Set(samples.flatMap(s => s.overclaimWarnings))] : [];
+  const warnings = [...deliveryWarnings, ...scopeWarnings, ...overclaim];
+  return { ok: warnings.length === 0, pendingSourceCount: sourceWarnings.length, deliveryOk: deliveryWarnings.length === 0, requestedScopeComplete: scopeWarnings.length === 0, sourceVerified: sourceWarnings.length === 0, method: 'SSR PillarGrid with real calculateDualChart + real gate; browser layout verified separately', samples, warnings, scopeWarnings, sourceWarnings };
 }
 
 module.exports = { checkShenShaDisplay, inspectShenShaRow, inspectShenShaCoverage, inspectShenShaDelivery, inspectShenShaPlacement, inspectShenShaCard, inspectRequestedShenShaScope, inspectShenShaSourceVerification, inspectShenShaScreenStyles };
@@ -253,7 +257,7 @@ if (require.main === module) {
   }
   for (const warning of report.scopeWarnings) console.log(`INCOMPLETE: ${warning}`);
   for (const warning of report.sourceWarnings) console.log(`SOURCE_PENDING: ${warning}`);
-  console.log(`SUMMARY: ${report.samples.length} 個命例，神煞列失敗 ${report.warnings.length} 項（阻斷健康放行）`);
-  console.log(`SHENSHA_DISPLAY_JSON:${JSON.stringify({ ok: report.ok, deliveryOk: report.deliveryOk, requestedScopeComplete: report.requestedScopeComplete, sourceVerified: report.sourceVerified, warnings: report.warnings })}`);
+  console.log(`SUMMARY: ${report.samples.length} 個命例，神煞列失敗 ${report.warnings.length} 項（阻斷健康放行），來源待核 ${report.pendingSourceCount} 項（照實列出、不阻斷）`);
+  console.log(`SHENSHA_DISPLAY_JSON:${JSON.stringify({ ok: report.ok, deliveryOk: report.deliveryOk, requestedScopeComplete: report.requestedScopeComplete, sourceVerified: report.sourceVerified, pendingSourceCount: report.pendingSourceCount, warnings: report.warnings })}`);
   process.exitCode = report.ok ? 0 : 3;
 }

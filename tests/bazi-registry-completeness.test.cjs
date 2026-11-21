@@ -53,3 +53,19 @@ assert.ok(errorFor(noClassic, 'C-NOCLASSIC').reasons.includes('未掛原典（�
 assert.equal(checkRegistry({ version: '1', updatedAt: 'x', sources, claims: [] }).ok, false);
 
 console.log('PASS: bazi registry completeness — verified+sourced passes; PENDING_POOL, CONFLICT, no source, dangling source, no classical source, empty registry all fail');
+
+// 7. 三態：誠實待核（登記狀態＝閘門計算）不阻斷；標示不實（自稱 VERIFIED 但閘門未過、或與閘門不一致）才是故障
+const honestPending = checkRegistry(registry(claim('C-GOOD'), claim('C-PENDING', { status: 'PENDING_POOL', cross_references: ['S-ORIG-1'] })));
+assert.equal(honestPending.ok, false, '嚴格模式仍須標出待核');
+assert.equal(honestPending.healthy, true, JSON.stringify(honestPending.results));
+assert.equal(honestPending.pendingCount, 1);
+assert.equal(honestPending.blockingErrors, 0);
+const liar = checkRegistry(registry(claim('C-LIAR', { cross_references: ['S-ORIG-1'] })));
+assert.equal(liar.healthy, false, '自稱 VERIFIED 但閘門未過必須擋下');
+assert.equal(liar.blockingErrors, 1);
+const noSrcHonest = checkRegistry(registry(claim('C-SELF', { status: 'PENDING_POOL', authority_files: [], big_data_sources: [], cross_references: [] })));
+assert.equal(noSrcHonest.healthy, true);
+assert.equal(noSrcHonest.ok, false);
+const dangling2 = checkRegistry(registry(claim('C-D', { status: 'PENDING_POOL', cross_references: ['S-GHOST'] })));
+assert.equal(dangling2.healthy, false, '指向不存在的來源永遠是故障');
+console.log('PASS: three-state — honest pending is healthy, mislabeled/dangling still blocks');

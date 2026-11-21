@@ -48,6 +48,7 @@ function checkRegistry(registryOverride) {
     const claimId = claim.claim_id || '(缺 claim_id)';
     const declaredStatus = claim.status ?? '(未填)';
     const reasons = [];
+    const blocking = []; // 真正的故障或標示不實；待核（來源未過閘門）不在此列
     let gateStatus = 'ERROR';
     try {
       const normalized = { ...claim, conflicts: asArray(claim.conflicts) };
@@ -57,14 +58,19 @@ function checkRegistry(registryOverride) {
       if (gateStatus !== 'VERIFIED') reasons.push(`閘門計算 ${gateStatus}：${evaluated.reasons.join('；') || '無細項'}`);
     } catch (error) {
       reasons.push(`閘門計算失敗：${error.message}`);
+      blocking.push(`閘門計算失敗：${error.message}`);
     }
     if (declaredStatus !== 'VERIFIED') reasons.push(`登記狀態 ${declaredStatus}（非 VERIFIED）`);
+    // 標示不實才算故障：登記自稱的狀態必須等於閘門算出的狀態。
+    if (gateStatus !== 'ERROR' && declaredStatus !== gateStatus) {
+      blocking.push(`登記狀態 ${declaredStatus} 與閘門計算 ${gateStatus} 不一致（標示不實）`);
+    }
 
     const linked = linkedSourceIds(claim);
     const existing = linked.filter((id) => index[id]);
     const missing = linked.filter((id) => !index[id]);
     if (!existing.length) reasons.push('未掛任何登記表內存在的來源');
-    if (missing.length) reasons.push(`指向不存在的來源：${missing.join('、')}`);
+    if (missing.length) { reasons.push(`指向不存在的來源：${missing.join('、')}`); blocking.push(`指向不存在的來源：${missing.join('、')}`); }
     const needsClassical = !engineeringDomains.includes(claim.domain);
     const classical = existing.filter((id) => originalKinds.includes(index[id].kind));
     if (needsClassical && !classical.length) reasons.push('未掛原典（古籍）來源');
@@ -74,6 +80,9 @@ function checkRegistry(registryOverride) {
       declaredStatus,
       gateStatus,
       ok: reasons.length === 0,
+      // PENDING＝誠實標示為待核（與閘門一致的 PENDING_POOL／CONFLICT），不算故障也不算已核定。
+      state: blocking.length ? 'ERROR' : reasons.length ? 'PENDING' : 'VERIFIED',
+      blockingReasons: blocking,
       reasons,
       linkedSources: existing,
       missingSources: missing,
@@ -82,10 +91,13 @@ function checkRegistry(registryOverride) {
   });
 
   if (!claims.length) {
-    results.push({ claimId: '(無)', declaredStatus: '-', gateStatus: '-', ok: false, reasons: ['登記表沒有任何 claim'], linkedSources: [], missingSources: [], classicalSources: [] });
+    results.push({ claimId: '(無)', declaredStatus: '-', gateStatus: '-', ok: false, state: 'ERROR', blockingReasons: ['登記表沒有任何 claim'], reasons: ['登記表沒有任何 claim'], linkedSources: [], missingSources: [], classicalSources: [] });
   }
   const errors = results.filter((r) => !r.ok).length;
-  return { ok: errors === 0, total: claims.length, passed: results.length - errors, errors, results };
+  const blockingErrors = results.filter((r) => r.state === 'ERROR').length;
+  const pendingCount = results.filter((r) => r.state === 'PENDING').length;
+  // ok＝全部已核定（嚴格）；healthy＝沒有故障或標示不實（待核照實列出，不阻斷）。
+  return { ok: errors === 0, healthy: blockingErrors === 0, total: claims.length, passed: results.length - errors, errors, blockingErrors, pendingCount, results };
 }
 
 module.exports = { checkRegistry, linkedSourceIds, loadTs, REGISTRY_PATH };
@@ -104,10 +116,12 @@ if (require.main === module) {
     const sourceNote = r.linkedSources.length ? `來源 ${r.linkedSources.length} 個` : '無來源';
     if (r.ok) {
       console.log(`OK: ${r.claimId} status=${r.declaredStatus} gate=${r.gateStatus} ${sourceNote}`);
+    } else if (r.state === 'PENDING') {
+      console.log(`PENDING: ${r.claimId} status=${r.declaredStatus} gate=${r.gateStatus} ${sourceNote}（誠實標示待核，不得稱已核定） | ${r.reasons.join(' / ')}`);
     } else {
       console.log(`ERROR: ${r.claimId} status=${r.declaredStatus} gate=${r.gateStatus} ${sourceNote} | ${r.reasons.join(' / ')}${missingNote}`);
     }
   }
-  console.log(`SUMMARY: ${report.total} 筆 claim，OK ${report.passed}，ERROR ${report.errors}`);
-  process.exitCode = report.ok ? 0 : 1;
+  console.log(`SUMMARY: ${report.total} 筆 claim，已核定 ${report.passed}，待核 ${report.pendingCount}，故障 ${report.blockingErrors}`);
+  process.exitCode = report.healthy ? 0 : 1;
 }
