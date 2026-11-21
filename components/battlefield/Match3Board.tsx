@@ -68,6 +68,7 @@ function duelArtVars(name: string): Record<string, string> {
 import { readMatch3Progress, saveMatch3Progress, type Match3ProgressOwner } from '@/lib/beast-game/match3/progress-store';
 import { readCampaign, settleWin, transactTreasures, saveGuestOrbProfile, type CampaignSettlement } from '@/lib/beast-game/match3/hard-campaign-store';
 import { postOrbTurn } from '@/lib/beast-game/match3/orb-request';
+import { useOrbDiagnostics } from './useOrbDiagnostics';
 import { sharedRequest, sharedWalletHeaders } from '@/lib/beast-cultivation-client';
 import { validateCampaignTeam, campaignAttack, campaignCardAttack, type HardCampaign } from '@/lib/beast-game/match3/hard-campaign';
 import EnhanceAura, { type EnhanceInfo } from './EnhanceAura';
@@ -1359,6 +1360,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const drag = useDragChain(board, !busy && !over, release, cfg.diagonal, magic, rigEnabled, false);
   const pct = (a: number, b: number) => `${Math.max(0, Math.min(100, Math.round((a / b) * 100)))}%`;
 
+  useOrbDiagnostics(over ? 'ended' : falling.size ? 'fall' : flash.size ? 'clear' : matchFrame ? 'match' : awaitingTurn ? 'request' : busy ? 'battle' : 'idle', busy);
   const actions = (
 <div className={styles.actionBar} role="toolbar" aria-label="連線攻擊" data-testid="match3-actionbar">
         <button type="button" className={`${linkMode ? styles.on : ''} ${pulse ? styles.pulse : ''}`} data-testid="match3-link-mode" aria-pressed={linkMode} onClick={() => { setLinkMode(!linkMode); if (linkMode) setLink([]); }}>{linkMode ? '連線模式：開' : '連線模式'}{rigEnabled && <small data-testid="match3-link-mode-hint">{linkMode ? '點卡＝加入連線' : '點滿能量卡＝能量技'}</small>}</button>

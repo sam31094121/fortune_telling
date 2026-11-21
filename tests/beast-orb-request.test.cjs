@@ -1,5 +1,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),ts=require('typescript');
-const Module=require('node:module'),m=new Module(__filename);
+const Module=require('node:module'),m=new Module(require('node:path').resolve('lib/beast-game/match3/orb-request.ts'));
+require.extensions['.ts']=(mod,file)=>mod._compile(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,file);
+m.filename=require('node:path').resolve('lib/beast-game/match3/orb-request.ts');m.paths=module.paths;
 m._compile(ts.transpileModule(fs.readFileSync('lib/beast-game/match3/orb-request.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,__filename);
 const {postOrbTurn}=m.exports;
 (async()=>{const original=global.fetch;try{

@@ -1,0 +1,47 @@
+{
+  "visibility": "visible",
+  "busy": "false",
+  "samples": 0,
+  "inputs": [
+    {
+      "path": [
+        {
+          "r": 7,
+          "c": 0
+        },
+        {
+          "r": 7,
+          "c": 1
+        },
+        {
+          "r": 7,
+          "c": 2
+        },
+        {
+          "r": 7,
+          "c": 3
+        },
+        {
+          "r": 7,
+          "c": 4
+        }
+      ],
+      "lastRow": [
+        "EARTH",
+        "AIR",
+        "FIRE",
+        "SPACE",
+        "AIR",
+        "AIR",
+        "WATER"
+      ]
+    }
+  ],
+  "results": [
+    {
+      "valid": false,
+      "reason": "path"
+    }
+  ],
+  "note": "Fixture expected FIRE in bottom row columns 0 through 4; request sent a different board."
+}

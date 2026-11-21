@@ -1,0 +1,1937 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "case": "recorded match then clear",
+      "width": 320,
+      "length": 5,
+      "reduced": false,
+      "chains": 9,
+      "releaseToReadyMs": 5814,
+      "requestMs": 2526,
+      "responseToFirstMatchMs": -2468,
+      "inputFeedbackMs": 23
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 6,
+      "reduced": false,
+      "chains": 5,
+      "releaseToReadyMs": 6947,
+      "requestMs": 1544,
+      "responseToFirstMatchMs": -1488,
+      "inputFeedbackMs": 23
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 768,
+      "length": 6,
+      "reduced": false,
+      "chains": 8,
+      "releaseToReadyMs": 7547,
+      "requestMs": 2166,
+      "responseToFirstMatchMs": -2105,
+      "inputFeedbackMs": 25
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 1440,
+      "length": 7,
+      "reduced": false,
+      "chains": 2,
+      "releaseToReadyMs": 3805,
+      "requestMs": 1580,
+      "responseToFirstMatchMs": -1520,
+      "inputFeedbackMs": 24
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 5,
+      "reduced": true,
+      "chains": 6,
+      "releaseToReadyMs": 3020,
+      "requestMs": 1588,
+      "responseToFirstMatchMs": -1532,
+      "inputFeedbackMs": 23
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 320,
+      "length": 5,
+      "reduced": false,
+      "chains": 5,
+      "releaseToReadyMs": 3642,
+      "requestMs": 1552,
+      "responseToFirstMatchMs": -1497,
+      "inputFeedbackMs": 23
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 6,
+      "reduced": false,
+      "chains": 4,
+      "releaseToReadyMs": 3185,
+      "requestMs": 1547,
+      "responseToFirstMatchMs": -1490,
+      "inputFeedbackMs": 24
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 768,
+      "length": 6,
+      "reduced": false,
+      "chains": 7,
+      "releaseToReadyMs": 5320,
+      "requestMs": 1548,
+      "responseToFirstMatchMs": -1494,
+      "inputFeedbackMs": 23
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 1440,
+      "length": 7,
+      "reduced": false,
+      "chains": 2,
+      "releaseToReadyMs": 2025,
+      "requestMs": 1546,
+      "responseToFirstMatchMs": -1475,
+      "inputFeedbackMs": 29
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 5,
+      "reduced": true,
+      "chains": 2,
+      "releaseToReadyMs": 1769,
+      "requestMs": 1554,
+      "responseToFirstMatchMs": -1481,
+      "inputFeedbackMs": 29
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 320,
+      "length": 5,
+      "reduced": false,
+      "chains": 16,
+      "releaseToReadyMs": 10532,
+      "requestMs": 1571,
+      "responseToFirstMatchMs": -1497,
+      "inputFeedbackMs": 30
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 6,
+      "reduced": false,
+      "chains": 3,
+      "releaseToReadyMs": 4672,
+      "requestMs": 1560,
+      "responseToFirstMatchMs": -1481,
+      "inputFeedbackMs": 32
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 768,
+      "length": 6,
+      "reduced": false,
+      "chains": 4,
+      "releaseToReadyMs": 5046,
+      "requestMs": 1912,
+      "responseToFirstMatchMs": -1841,
+      "inputFeedbackMs": 29
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 1440,
+      "length": 7,
+      "reduced": false,
+      "chains": 6,
+      "releaseToReadyMs": 7641,
+      "requestMs": 3113,
+      "responseToFirstMatchMs": -3038,
+      "inputFeedbackMs": 31
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 5,
+      "reduced": true,
+      "chains": 7,
+      "releaseToReadyMs": 2662,
+      "requestMs": 1596,
+      "responseToFirstMatchMs": -1515,
+      "inputFeedbackMs": 30
+    },
+    {
+      "width": 320,
+      "frames": 215,
+      "sample": [
+        {
+          "busy": "true",
+          "disabled": true,
+          "overflow": "hidden",
+          "cells": [
+            {
+              "r": 1,
+              "from": 0,
+              "delay": 0.018,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.98, 0, 0, 0.98, 0, -43.1406)",
+              "opacity": "1"
+            },
+            {
+              "r": 2,
+              "from": 1,
+              "delay": 0.004,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.98, 0, 0, 0.98, 0, -43.1406)",
+              "opacity": "1"
+            }
+          ]
+        },
+        {
+          "busy": "true",
+          "disabled": true,
+          "overflow": "hidden",
+          "cells": [
+            {
+              "r": 1,
+              "from": 0,
+              "delay": 0.018,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.981399, 0, 0, 0.981399, 0, -40.1239)",
+              "opacity": "1"
+            },
+            {
+              "r": 2,
+              "from": 1,
+              "delay": 0.004,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.983527, 0, 0, 0.983527, 0, -35.5336)",
+              "opacity": "1"
+            }
+          ]
+        }
+      ],
+      "after": {
+        "round": "簡單·2回合",
+        "enemy": [
+          {
+            "id": "beast_y15",
+            "hp": 115
+          },
+          {
+            "id": "beast_y02",
+            "hp": 102
+          },
+          {
+            "id": "beast_y07",
+            "hp": 142
+          },
+          {
+            "id": "beast_y06",
+            "hp": 86
+          },
+          {
+            "id": "beast_y17",
+            "hp": 152
+          }
+        ],
+        "ally": [
+          {
+            "id": "beast_g_baihu",
+            "hp": 145
+          },
+          {
+            "id": "beast_y14",
+            "hp": 54
+          },
+          {
+            "id": "beast_y19",
+            "hp": 74
+          },
+          {
+            "id": "beast_y03",
+            "hp": 72
+          },
+          {
+            "id": "beast_y08",
+            "hp": 49
+          }
+        ],
+        "damage": 13,
+        "cells": [
+          {
+            "r": 0,
+            "c": 0,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 1,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 2,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 3,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 4,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 5,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 6,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 0,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 1,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 2,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 3,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 4,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 5,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 6,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 0,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 1,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 2,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 3,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 4,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 5,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 6,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 0,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 1,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 2,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 3,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 4,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 5,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 6,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 0,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 1,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 2,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 3,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 4,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 5,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 6,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 0,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 1,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 2,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 3,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 4,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 5,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 6,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 0,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 1,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 2,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 3,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 4,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 5,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 6,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 0,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 1,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 2,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 3,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 4,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 5,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 6,
+            "el": "FIRE",
+            "mp": 0
+          }
+        ],
+        "width": 320,
+        "scroll": 320
+      }
+    },
+    {
+      "width": 390,
+      "frames": 68,
+      "sample": [
+        {
+          "busy": "true",
+          "disabled": true,
+          "overflow": "hidden",
+          "cells": [
+            {
+              "r": 2,
+              "from": 0,
+              "delay": 0.004,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.98, 0, 0, 0.98, 0, -106.281)",
+              "opacity": "1"
+            }
+          ]
+        },
+        {
+          "busy": "true",
+          "disabled": true,
+          "overflow": "hidden",
+          "cells": [
+            {
+              "r": 2,
+              "from": 0,
+              "delay": 0.004,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.982405, 0, 0, 0.982405, 0, -93.5028)",
+              "opacity": "1"
+            }
+          ]
+        }
+      ],
+      "after": {
+        "round": "簡單·2回合",
+        "enemy": [
+          {
+            "id": "beast_y22",
+            "hp": 64
+          },
+          {
+            "id": "beast_y02",
+            "hp": 102
+          },
+          {
+            "id": "beast_y26",
+            "hp": 102
+          },
+          {
+            "id": "beast_y27",
+            "hp": 116
+          },
+          {
+            "id": "beast_y10",
+            "hp": 118
+          }
+        ],
+        "ally": [
+          {
+            "id": "beast_g_baihu",
+            "hp": 145
+          },
+          {
+            "id": "beast_y14",
+            "hp": 54
+          },
+          {
+            "id": "beast_y19",
+            "hp": 74
+          },
+          {
+            "id": "beast_y03",
+            "hp": 72
+          },
+          {
+            "id": "beast_y08",
+            "hp": 49
+          }
+        ],
+        "damage": 32,
+        "cells": [
+          {
+            "r": 0,
+            "c": 0,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 1,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 2,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 3,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 4,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 5,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 6,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 0,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 1,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 2,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 3,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 4,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 5,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 6,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 0,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 1,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 2,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 3,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 4,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 5,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 6,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 0,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 1,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 2,
+            "el": "FIRE",
+            "mp": 7
+          },
+          {
+            "r": 3,
+            "c": 3,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 4,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 5,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 6,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 0,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 1,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 2,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 3,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 4,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 5,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 6,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 0,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 1,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 2,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 3,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 4,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 5,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 6,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 0,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 1,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 2,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 3,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 4,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 5,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 6,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 0,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 1,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 2,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 3,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 4,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 5,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 6,
+            "el": "AIR",
+            "mp": 0
+          }
+        ],
+        "width": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "width": 820,
+      "frames": 114,
+      "sample": [
+        {
+          "busy": "true",
+          "disabled": true,
+          "overflow": "hidden",
+          "cells": [
+            {
+              "r": 0,
+              "from": -2,
+              "delay": 0.017,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.98, 0, 0, 0.98, 0, -112)",
+              "opacity": "0"
+            },
+            {
+              "r": 0,
+              "from": -1,
+              "delay": 0.005,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.98, 0, 0, 0.98, 0, -56)",
+              "opacity": "0"
+            },
+            {
+              "r": 1,
+              "from": -1,
+              "delay": 0.003,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.98, 0, 0, 0.98, 0, -112)",
+              "opacity": "0"
+            }
+          ]
+        },
+        {
+          "busy": "true",
+          "disabled": true,
+          "overflow": "hidden",
+          "cells": [
+            {
+              "r": 0,
+              "from": -2,
+              "delay": 0.017,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.98, 0, 0, 0.98, 0, -112)",
+              "opacity": "0"
+            },
+            {
+              "r": 0,
+              "from": -1,
+              "delay": 0.005,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.98, 0, 0, 0.98, 0, -56)",
+              "opacity": "0"
+            },
+            {
+              "r": 1,
+              "from": -1,
+              "delay": 0.003,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.98, 0, 0, 0.98, 0, -112)",
+              "opacity": "0"
+            }
+          ]
+        }
+      ],
+      "after": {
+        "round": "簡單·2回合",
+        "enemy": [
+          {
+            "id": "beast_y15",
+            "hp": 0
+          },
+          {
+            "id": "beast_y23",
+            "hp": 130
+          },
+          {
+            "id": "beast_y26",
+            "hp": 102
+          },
+          {
+            "id": "beast_y11",
+            "hp": 120
+          },
+          {
+            "id": "beast_y03",
+            "hp": 144
+          }
+        ],
+        "ally": [
+          {
+            "id": "beast_g_baihu",
+            "hp": 145
+          },
+          {
+            "id": "beast_y14",
+            "hp": 54
+          },
+          {
+            "id": "beast_y19",
+            "hp": 74
+          },
+          {
+            "id": "beast_y03",
+            "hp": 72
+          },
+          {
+            "id": "beast_y08",
+            "hp": 49
+          }
+        ],
+        "damage": 128,
+        "cells": [
+          {
+            "r": 0,
+            "c": 0,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 1,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 2,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 3,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 4,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 5,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 6,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 0,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 1,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 2,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 3,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 4,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 5,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 6,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 0,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 1,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 2,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 3,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 4,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 5,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 6,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 0,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 1,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 2,
+            "el": "WATER",
+            "mp": 6
+          },
+          {
+            "r": 3,
+            "c": 3,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 4,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 5,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 6,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 0,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 1,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 2,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 3,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 4,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 5,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 6,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 0,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 1,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 2,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 3,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 4,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 5,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 6,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 0,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 1,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 2,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 3,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 4,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 5,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 6,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 0,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 1,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 2,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 3,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 4,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 5,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 6,
+            "el": "EARTH",
+            "mp": 0
+          }
+        ],
+        "width": 820,
+        "scroll": 805
+      }
+    },
+    {
+      "width": 1440,
+      "frames": 63,
+      "sample": [
+        {
+          "busy": "true",
+          "disabled": true,
+          "overflow": "hidden",
+          "cells": [
+            {
+              "r": 1,
+              "from": 0,
+              "delay": 0.01,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.98, 0, 0, 0.98, 0, -56)",
+              "opacity": "1"
+            },
+            {
+              "r": 1,
+              "from": 0,
+              "delay": 0.012,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.98, 0, 0, 0.98, 0, -56)",
+              "opacity": "1"
+            }
+          ]
+        },
+        {
+          "busy": "true",
+          "disabled": true,
+          "overflow": "hidden",
+          "cells": [
+            {
+              "r": 1,
+              "from": 0,
+              "delay": 0.01,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.981352, 0, 0, 0.981352, 0, -52.2145)",
+              "opacity": "1"
+            },
+            {
+              "r": 1,
+              "from": 0,
+              "delay": 0.012,
+              "animation": "Match3Board_m3RefillFall__aZA4o, Match3Board_m3RefillLand__tEyz0",
+              "transform": "matrix(0.981131, 0, 0, 0.981131, 0, -52.8337)",
+              "opacity": "1"
+            }
+          ]
+        }
+      ],
+      "after": {
+        "round": "簡單·2回合",
+        "enemy": [
+          {
+            "id": "beast_y22",
+            "hp": 0
+          },
+          {
+            "id": "beast_y16",
+            "hp": 100
+          },
+          {
+            "id": "beast_y05",
+            "hp": 146
+          },
+          {
+            "id": "beast_y04",
+            "hp": 94
+          },
+          {
+            "id": "beast_y17",
+            "hp": 152
+          }
+        ],
+        "ally": [
+          {
+            "id": "beast_g_baihu",
+            "hp": 145
+          },
+          {
+            "id": "beast_y14",
+            "hp": 54
+          },
+          {
+            "id": "beast_y19",
+            "hp": 74
+          },
+          {
+            "id": "beast_y03",
+            "hp": 72
+          },
+          {
+            "id": "beast_y08",
+            "hp": 49
+          }
+        ],
+        "damage": 96,
+        "cells": [
+          {
+            "r": 0,
+            "c": 0,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 1,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 2,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 3,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 4,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 5,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 0,
+            "c": 6,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 0,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 1,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 2,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 3,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 4,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 5,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 1,
+            "c": 6,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 0,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 1,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 2,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 3,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 4,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 5,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 2,
+            "c": 6,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 0,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 1,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 2,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 3,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 4,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 5,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 3,
+            "c": 6,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 0,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 1,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 2,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 3,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 4,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 5,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 4,
+            "c": 6,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 0,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 1,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 2,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 3,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 4,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 5,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 5,
+            "c": 6,
+            "el": "WATER",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 0,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 1,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 2,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 3,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 4,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 5,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 6,
+            "c": 6,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 0,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 1,
+            "el": "SPACE",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 2,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 3,
+            "el": "EARTH",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 4,
+            "el": "FIRE",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 5,
+            "el": "AIR",
+            "mp": 0
+          },
+          {
+            "r": 7,
+            "c": 6,
+            "el": "WATER",
+            "mp": 0
+          }
+        ],
+        "width": 1440,
+        "scroll": 1425
+      }
+    },
+    {
+      "case": "leave during refill cancels pending actions"
+    }
+  ],
+  "reduced": [
+    "Match3Board_m3hit__uE_oi"
+  ],
+  "errors": []
+}

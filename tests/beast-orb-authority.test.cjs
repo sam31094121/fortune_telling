@@ -72,7 +72,11 @@ function outcome(r){return r.outcome??r.verdict??r.winner;}
  const failedResults=await page.getByTestId('match3-result').count();check('failed request cannot display victory',()=>assert.equal(failedResults,0));await page.unroute('**/api/beast-game/orb-turn');
  // A response missing authority must not be "repaired" by the browser from HP.
  await page.route('**/api/beast-game/orb-turn',async route=>{const r=await route.fetch(),body=await r.json();delete body.outcome;await route.fulfill({response:r,json:body})});
- await page.locator('[data-testid="match3-ready-energy-orb"][data-source-id]').first().click();await page.waitForFunction(()=>document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy')==='false');
+ const missingVerdictResponse=page.waitForResponse(r=>r.url().endsWith('/orb-turn'));
+ await page.locator('[data-testid="match3-ready-energy-orb"][data-source-id]').first().click();
+ const missingVerdictBody=await (await missingVerdictResponse).json();
+ assert.equal(missingVerdictBody.outcome,undefined,'fixture must deliver the missing verdict before the next action');
+ await page.waitForFunction(()=>document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy')==='false');
  const absentVerdict=await page.getByTestId('match3-result').count();check('missing server outcome cannot produce client-guessed victory',()=>assert.equal(absentVerdict,0));await page.unroute('**/api/beast-game/orb-turn');
  const pending=page.waitForResponse(r=>r.url().endsWith('/orb-turn'),{timeout:20000});
  await page.locator('[data-testid="match3-ready-energy-orb"][data-source-id]').first().click();const response=await pending,body=await response.json();await page.getByTestId('match3-result').waitFor();

@@ -313,7 +313,10 @@ try {
       assert(orbDock.x>=after.x+after.w/2&&orbDock.right<=width&&orbDock.y>=after.y+after.h-1&&orbDock.bottom<=(Number(process.env.MATCH3_VIEWPORT_HEIGHT)||844),'right orb stays beside card and below board');
       results.push({case:'last ally side dock',width,before,after,dock,orbDock});continue;
     }
-    await state({board,magic:M.emptyMagic(board)}); await sleep(100);
+    await state({board,magic:M.emptyMagic(board)});
+    // React may commit the injected fixture later under concurrent health load.
+    // Observe all real cells, rather than assuming a fixed 100ms establishes it.
+    await wait(`JSON.stringify([...document.querySelectorAll('[data-testid="match3-board"] [data-r]')].map(e=>e.dataset.el)) === ${JSON.stringify(JSON.stringify(board.flat()))}`);
     await js(`window.__replaySamples=[];window.__turns=[];window.__turnInputs=[];window.__pointerSamples=[];window.__submitAck=null;
       for(const type of ['pointerdown','pointermove','pointerup'])document.addEventListener(type,e=>{const h=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-r]'),r=h?.getBoundingClientRect();window.__pointerSamples.push({type,x:e.clientX,y:e.clientY,hit:h?[h.dataset.r,h.dataset.c]:null,coalesced:e.getCoalescedEvents?.().map(p=>({x:p.clientX,y:p.clientY}))??[],rect:r?{x:r.x,y:r.y,w:r.width,h:r.height}:null});},true);
       const nativeFetch=window.fetch;window.fetch=async (url,options)=>{
@@ -346,6 +349,11 @@ try {
       assert.deepEqual(restored.enemy,beforePrediction.enemy,'rejected prediction cannot damage foes');
       assert.equal(restored.round,beforePrediction.round,'rejected prediction cannot advance turn');
       assert.equal(await js('document.querySelectorAll("[data-testid=match3-replay-lines]").length'),0);
+      const diagnostic = await js('JSON.parse(sessionStorage.getItem("orb-diagnostics-v1"))');
+      assert(diagnostic?.events.some(e=>e.event==='response'&&e.status===400&&e.ms>=0),'real rejected request keeps timing evidence');
+      assert(diagnostic.events.some(e=>e.event==='phase'&&!e.busy),'recovery is recorded');
+      assert(diagnostic.events.length<=100);
+      assert(diagnostic.events.every(e=>Object.keys(e).every(k=>['at','event','phase','hidden','busy','ms','status'].includes(k))),'diagnostics exclude credentials and customer payloads');
       results.push({case:'referee rejection restores board',width,reduced});continue;
     }
     assert.deepEqual(observed.input.path,Array.from({length},(_,c)=>({r:7,c})),'every selected cell reaches the backend');
