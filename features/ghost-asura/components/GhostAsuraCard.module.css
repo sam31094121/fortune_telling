@@ -2392,3 +2392,16 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 .asuraBanner {
   background-color: #0A1608;
 }
+/* === 防跳動（2026-11-21，用戶 11/17 授權「現在」音效＋防跳動）：過去／現在／未來三格在 hover、按下、聚焦時一律不位移、不縮放；按下改用變亮 === */
+.asuraTiles .tileSquare:not(:disabled):hover,
+.asuraTiles .tileSquare:not(:disabled):active,
+.asuraTiles .tileSquare:focus-visible,
+.card[data-display-contract] .asuraTiles .tileSquare:not(:disabled):hover,
+.card[data-display-contract] .asuraTiles .tileSquare:not(:disabled):active,
+.card[data-display-contract] .asuraTiles .tileSquare:focus-visible {
+  transform: none;
+}
+.asuraTiles .tileSquare:not(:disabled):active,
+.card[data-display-contract] .asuraTiles .tileSquare:not(:disabled):active {
+  filter: brightness(1.12);
+}
