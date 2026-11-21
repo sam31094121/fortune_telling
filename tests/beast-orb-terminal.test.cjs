@@ -3,6 +3,13 @@ require('./guest-orb-fixture.cjs');
 const { orbOutcome } = require('../lib/beast-game/match3/battle-outcome.ts');
 const { foeAvailable } = require('../lib/beast-game/match3/enemies.ts');
 const { playableCards } = require('../lib/beast-game/registry.ts');
+for (let size = 1; size <= 5; size++) for (let slot = 0; slot < size; slot++) {
+  for (const hp of [Number.MIN_VALUE, 0.01, 1, 10000000]) {
+    const living = Array.from({length:size},(_,i)=>({hp:i===slot?hp:0}));
+    assert.equal(orbOutcome(living,[{hp:10000000}]),null,'any positive life forbids defeat, for every permitted party size and slot');
+  }
+  assert.equal(orbOutcome(Array.from({length:size},()=>({hp:0})),[{hp:1}]),'lose','all members must reach zero before defeat');
+}
 for (let slot = 0; slot < 5; slot++) {
   const last = Array.from({ length: 5 }, (_, i) => ({ hp: i === slot ? 1 : 0 }));
   const dominant = Array.from({ length: 5 }, () => ({ hp: 10000000 }));
