@@ -78,6 +78,15 @@ function outcome(r){return r.outcome??r.verdict??r.winner;}
  assert.equal(missingVerdictBody.outcome,undefined,'fixture must deliver the missing verdict before the next action');
  await page.waitForFunction(()=>document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy')==='false');
  const absentVerdict=await page.getByTestId('match3-result').count();check('missing server outcome cannot produce client-guessed victory',()=>assert.equal(absentVerdict,0));await page.unroute('**/api/beast-game/orb-turn');
+ // Deliberately inconsistent response: never let a verdict overwrite living HP.
+ await page.route('**/api/beast-game/orb-turn',async route=>{const r=await route.fetch(),body=await r.json();body.outcome='lose';await route.fulfill({response:r,json:body})});
+ const inconsistentResponse=page.waitForResponse(r=>r.url().endsWith('/orb-turn'));
+ await page.locator('[data-testid="match3-ready-energy-orb"][data-source-id]').first().click();
+ const inconsistent=await(await inconsistentResponse).json();assert(inconsistent.team.some(u=>u.hp>0));
+ await page.waitForFunction(()=>document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy')==='false');
+ const inconsistentShown=await page.getByTestId('match3-result').count();
+ check('living player rejects inconsistent loss verdict',()=>assert.equal(inconsistentShown,0,'positive HP must never show defeat'));
+ await page.unroute('**/api/beast-game/orb-turn');
  const pending=page.waitForResponse(r=>r.url().endsWith('/orb-turn'),{timeout:20000});
  await page.locator('[data-testid="match3-ready-energy-orb"][data-source-id]').first().click();const response=await pending,body=await response.json();await page.getByTestId('match3-result').waitFor();
  const shown=await page.getByTestId('match3-result').getAttribute('data-result');
@@ -94,9 +103,14 @@ function outcome(r){return r.outcome??r.verdict??r.winner;}
  const afterOld=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('match3-hard-campaign-guest-v1')));check('old reply after leaving cannot award or finish next battle',()=>assert.deepEqual(afterOld.receipts,stored.receipts));assert.equal(await page.getByTestId('match3-result').count(),0);
  // Presentation contract playback of the separately verified real lethal-counter response.
  // No fabricated winner: l was independently checked against 1 -> 0 actual HP above.
+ await page.emulateMedia({reducedMotion:'no-preference'});
  await page.evaluate(()=>window.__m3Debug.fillEnergy());
+ await page.evaluate(()=>{window.__lossPresentation=[];const sample=()=>{const dialog=document.querySelector('[data-testid="match3-result"]');if(dialog?.getAttribute('data-result')==='lose')window.__lossPresentation.push([...document.querySelectorAll('[data-testid="match3-ally"]')].map(e=>({hp:Number(e.getAttribute('data-hp')),fill:parseFloat(getComputedStyle(e.querySelector('[role="progressbar"] > span')).width),opacity:parseFloat(getComputedStyle(e).opacity)})));if(!window.__lossPresentation.length)requestAnimationFrame(sample)};requestAnimationFrame(sample)});
  await page.route('**/api/beast-game/orb-turn',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({action:'energy',actionId:'presentation-loss',targetId:l.body.counter.foes[0].id,presentation:{targetId:l.body.counter.foes[0].id,strikes:0,groups:[]},attackerIds:[l.body.counter.team[0].id],team:l.body.counter.team,foes:l.body.counter.foes,actualDamage:0,actualHits:[],skillEvents:[],outcome:l.body.outcome,guestVersion:l.body.guestVersion,guestBattleToken:l.body.guestBattleToken,guestProfile:l.body.guestProfile})}));
  await page.locator('[data-testid="match3-ready-energy-orb"][data-source-id]').first().click();await page.getByTestId('match3-result').waitFor();const lossShown=await page.getByTestId('match3-result').getAttribute('data-result');check('verified loss fact playback displays defeat, not player victory',()=>assert.equal(lossShown,'lose'));
+ await page.waitForFunction(()=>window.__lossPresentation.length>0);
+ const lossFrame=await page.evaluate(()=>window.__lossPresentation[0]);
+ check('defeat first appears only after every HP bar is empty and cards are down',()=>assert(lossFrame.length&&lossFrame.every(u=>u.hp===0&&u.fill===0&&u.opacity<=.45)));
  }finally{await browser.close()}
  console.log(JSON.stringify({passed:checks.length,failed:failures.length,failures,limits:['guest synthetic endgames only; no production customer match','self database and double-zero policy require separate verification','independent HP expectations do not establish full game balance']}));if(failures.length)process.exitCode=1;
 })().catch(e=>{console.error(e.stack);process.exitCode=1});

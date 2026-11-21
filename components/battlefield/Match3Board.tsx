@@ -533,10 +533,32 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   }, []);
 
   const [confirmedOutcome, setConfirmedOutcome] = useState<OrbOutcome>(init.outcome ?? null);
-  const requireOutcome = (result: { outcome?: OrbOutcome }) => {
+  const requireOutcome = (result: { outcome?: OrbOutcome; team?: readonly {hp:number}[]; counter?: {team: readonly {hp:number}[]} }) => {
     if (cfg.id === 'hard45' && ![null, 'win', 'lose', 'unavailable'].includes(result.outcome!)) throw new Error('尚未取得後端勝負確認');
+    if (result.outcome === 'lose') {
+      const life = result.counter?.team ?? result.team;
+      if (!life?.length || life.some(unit => !Number.isFinite(unit.hp) || unit.hp !== 0)) throw new Error('後端生命與勝負不一致，暫時無法確認');
+    }
   };
-  const over = cfg.id === 'hard45' ? (confirmedOutcome === 'unavailable' ? null : confirmedOutcome) : foes.every(f => f.hp <= 0) ? 'win' : team.every(u => u.hp <= 0) ? 'lose' : null;
+  const lossMismatch = confirmedOutcome === 'lose' && (!team.length || team.some(unit => !Number.isFinite(unit.hp) || unit.hp !== 0));
+  const over = cfg.id === 'hard45' ? (confirmedOutcome === 'unavailable' || lossMismatch ? null : confirmedOutcome) : foes.every(f => f.hp <= 0) ? 'win' : team.every(u => u.hp <= 0) ? 'lose' : null;
+  const [lossPresentationReady, setLossPresentationReady] = useState(false);
+  useEffect(() => {
+    setLossPresentationReady(false);
+    if (cfg.id !== 'hard45' || over !== 'lose') return;
+    let frame = 0;
+    const inspect = () => {
+      const allies = Array.from(root.current?.querySelectorAll<HTMLElement>('[data-testid="match3-ally"]') ?? []);
+      const settled = !document.hidden && !busy && allies.length > 0 && allies.every(ally => {
+        const fill = ally.querySelector<HTMLElement>('[role="progressbar"] > span');
+        return ally.dataset.hp === '0' && !!fill && parseFloat(getComputedStyle(fill).width) === 0 && parseFloat(getComputedStyle(ally).opacity) <= 0.45;
+      });
+      if (settled) setLossPresentationReady(true);
+      else frame = requestAnimationFrame(inspect);
+    };
+    frame = requestAnimationFrame(inspect);
+    return () => cancelAnimationFrame(frame);
+  }, [cfg.id, over, busy]);
   // 結算畫面等最後的死亡特效播完（魔王等爆炸 done）才顯示；保底上限避免卡住（一般 6.5s、魔王 12s，從分出勝負起算，涵蓋 6 倍降速）。
   const deathPendingAny = deathPending.size > 0;
   const deathPendingBoss = knockouts.some(e => e.isFinalBoss && deathPending.has(e.id));
@@ -546,7 +568,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     const t = window.setTimeout(() => setResultHoldExpired(true), deathPendingBoss ? RESULT_HOLD_BOSS_MAX_MS : RESULT_HOLD_MAX_MS);
     return () => window.clearTimeout(t);
   }, [over, deathPendingAny, deathPendingBoss]);
-  const resultWaiting = !!over && deathPendingAny && !resultHoldExpired;
+  const resultWaiting = !!over && ((deathPendingAny && !resultHoldExpired) || (cfg.id === 'hard45' && over === 'lose' && !lossPresentationReady));
   /** 結算畫面真的出現了（分出勝負且死亡／爆炸特效播完或保底逾時）。在這之前版面一律凍結在分出勝負前一刻。 */
   const resultShown = !!over && !resultWaiting;
   const overRef = useRef(over); overRef.current = over;
@@ -1369,7 +1391,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       </div>
   );
 
-  if (cfg.id === 'hard45' && confirmedOutcome === 'unavailable') return <section className={styles.wrap} role="alert">暫時無法確認本局勝負，尚未發放獎勵。<button type="button" onClick={onRepick}>返回我的卡片</button></section>;
+  if (cfg.id === 'hard45' && (confirmedOutcome === 'unavailable' || lossMismatch)) return <section className={styles.wrap} role="alert">暫時無法確認本局勝負，尚未發放獎勵。<button type="button" onClick={onRepick}>返回我的卡片</button></section>;
   return (
     <section ref={root} className={styles.wrap} aria-busy={busy} data-match3-scroll-lock={scrollLocked && !help && !resultShown ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !resultShown ? "true" : undefined} data-last-ally-stage={cfg.id==='hard45'&&lastAllyBig?'true':undefined} data-hold-top={lastAllyBig && holdTopReady.current ? 'true' : undefined} data-mobile-actions={mobileActionless ? 'off' : 'on'} data-manual-link-ready={mobileActionless && readyLinkIds.length >= LINK_MIN_CARDS && !busy && !over && ti >= 0 ? 'true' : undefined} onPointerDownCapture={(e) => { audio.current?.unlock(); setIntro(false); if (mobileActionless && link.length && !(e.target instanceof Element && e.target.closest('[data-testid="match3-ally"]'))) { setLink([]); setLinkMode(false); } }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
       {orbFocus && <div key={orbFocus.key} className={styles.orbAttackFocus} data-testid="orb-attack-focus" data-target-id={orbFocus.presentation.targetId} aria-hidden="true">{orbFocus.presentation.groups.map(group=><div className={styles.orbAttackFocusItem} key={group.attackerId} data-source-id={group.attackerId} data-element={group.element} data-damage={group.amount}><ElementTreasureOrb element={getProductOrbFromBrand(group.element.toLowerCase() as 'space'|'air'|'water'|'fire'|'earth')} released preview animated={false} visualScale={0.8}/></div>)}</div>}

@@ -1,0 +1,3578 @@
+{
+  "scope": "25 synthetic signed guest weapon variants, energy action, then repeated legal drags; real backend resolver, no customer data",
+  "checked": 180,
+  "falseLoss": 0,
+  "mismatch": 0,
+  "records": [
+    {
+      "element": "SPACE",
+      "variant": 0,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 7,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "SPACE",
+      "variant": 1,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 7,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "SPACE",
+      "variant": 2,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 7,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "SPACE",
+      "variant": 3,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 7,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "SPACE",
+      "variant": 4,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 7,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "AIR",
+      "variant": 0,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "AIR",
+      "variant": 1,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "AIR",
+      "variant": 2,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "AIR",
+      "variant": 3,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "AIR",
+      "variant": 4,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "WATER",
+      "variant": 0,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "WATER",
+      "variant": 1,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "WATER",
+      "variant": 2,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "WATER",
+      "variant": 3,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "WATER",
+      "variant": 4,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "FIRE",
+      "variant": 0,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "FIRE",
+      "variant": 1,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "FIRE",
+      "variant": 2,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "FIRE",
+      "variant": 3,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "FIRE",
+      "variant": 4,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "EARTH",
+      "variant": 0,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "EARTH",
+      "variant": 1,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "EARTH",
+      "variant": 2,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "EARTH",
+      "variant": 3,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    },
+    {
+      "element": "EARTH",
+      "variant": 4,
+      "turns": [
+        {
+          "step": 0,
+          "action": "treasure",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 1,
+          "action": "energy",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 2,
+          "action": "drag",
+          "before": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 3,
+          "action": "drag",
+          "before": [
+            0,
+            100,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 4,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            100,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 5,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            100,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "outcome": null
+        },
+        {
+          "step": 6,
+          "action": "drag",
+          "before": [
+            0,
+            0,
+            0,
+            0,
+            100
+          ],
+          "hp": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "outcome": "lose"
+        }
+      ]
+    }
+  ]
+}

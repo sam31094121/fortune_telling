@@ -1,0 +1,2247 @@
+{
+  "scope": "signed synthetic guest; real drag and backend; not a customer incident",
+  "responseFact": {
+    "status": 200,
+    "outcome": "lose",
+    "hp": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "hits": [
+      {
+        "enemy": 0,
+        "enemyId": "beast_y01",
+        "targetId": "beast_g_baihu",
+        "damage": 90000,
+        "hpBefore": 14,
+        "hpAfter": 0,
+        "actualDamage": 14
+      }
+    ]
+  },
+  "frames": [
+    {
+      "t": 10471.899999976158,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10525.399999976158,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10548.399999976158,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10617.199999988079,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10624.399999976158,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10635.799999982119,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10657.59999999404,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10665.5,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10673.899999976158,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10682.199999988079,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10699.199999988079,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10709.199999988079,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10720.299999982119,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10732.399999976158,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10741,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10751,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10760,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10769.299999982119,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10778.5,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10790.899999976158,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10800.399999976158,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10809.5,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10817.699999988079,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10826.5,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10834.09999999404,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10842.799999982119,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10850.59999999404,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10859.09999999404,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10867.699999988079,
+      "outcome": "lose",
+      "busy": "true",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10896.199999988079,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10902.399999976158,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10923.699999988079,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10928.799999982119,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10932.699999988079,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10940.899999976158,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10949.399999976158,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10957.699999988079,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10966.09999999404,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10974.299999982119,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10982.799999982119,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 10992.5,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11000.399999976158,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11007.899999976158,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11016.299999982119,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11024.899999976158,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11032.899999976158,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11041.699999988079,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11049.799999982119,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11058.199999988079,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11066.59999999404,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11074.299999982119,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11083,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11091.59999999404,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11099.59999999404,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11107.899999976158,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11116.299999982119,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11124.799999982119,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11132.799999982119,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11141.5,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    },
+    {
+      "t": 11150,
+      "outcome": "lose",
+      "busy": "false",
+      "allies": [
+        {
+          "hp": 0,
+          "barWidth": 7,
+          "hpTextVisible": "none",
+          "opacity": "1"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        },
+        {
+          "hp": 0,
+          "barWidth": 0,
+          "hpTextVisible": "none",
+          "opacity": "0.45"
+        }
+      ]
+    }
+  ]
+}
