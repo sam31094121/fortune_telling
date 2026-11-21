@@ -1,6 +1,6 @@
 /**
  * 鬼魅阿修羅｜「現在」音效（技能檔「互動音效：點『現在』」16:55 版）。
- * - 按「現在」展開就播（開頭即一記戰鼓），展開期間無縫循環；收起、切到別格、離開頁面就停（150 ms 淡出，不拖尾）。
+ * - 按「現在」展開就播：每 5.000 秒一記戰鼓、12 記一圈 60 秒（第 1 記在開頭 0.18 秒），展開期間無縫循環；收起、切到別格、離開頁面就停（150 ms 淡出，不拖尾）。
  * - 重複展開從頭開始，只會有一條聲音（不疊放）。
  * - 不看網站靜音設定、不設開關；界面不顯示任何音效資訊。
  * - 用 Web Audio（AudioContext＋解碼後的 buffer，loopStart／loopEnd 無縫循環），並把 iOS audio session 設為 playback，
@@ -9,11 +9,13 @@
  */
 
 const SRC = '/sfx/asura-now-wardrum-60s.mp3';
-/** 檔頭 0.1 s 墊音（迴圈尾），迴圈區 0.1 s～60.1 s；戰鼓在檔案 0.18 s。 */
+/** 檔頭 0.1 s 墊音（迴圈尾），迴圈區 0.1 s～60.1 s，之後 1 s 墊尾；戰鼓在檔案 0.18 s 起每 5 s 一記。 */
 const LOOP_START = 0.1;
 const LOOP_END = 60.1;
 const VOLUME = 0.6;
 const FADE_S = 0.15;
+/** 接點修補長度（樣本）：見 seamLoop。 */
+const SEAM_SAMPLES = 2048;
 
 type AnyAudioContext = typeof AudioContext;
 
@@ -60,12 +62,37 @@ function decode(context: BaseAudioContext): Promise<AudioBuffer | null> {
           : null,
       )
       .then((buf) => {
-        if (buf) buffer = buf;
+        if (buf) buffer = seamLoop(buf);
         decoding = null;
         return buf;
       });
   }
   return decoding;
+}
+
+/**
+ * mp3 在 loopStart 與 loopEnd 兩處的編碼誤差不同，硬跳會有極小台階。
+ * 把 loopStart 起 2048 個樣本，由「loopEnd 之後的墊尾」（同一段連續音訊）交叉淡回原樣，
+ * 讓跳點兩側來自同一段連續解碼。只改解碼後記憶體裡的 buffer，不動音檔。
+ */
+function seamLoop(buf: AudioBuffer): AudioBuffer {
+  try {
+    const rate = buf.sampleRate;
+    const ls = Math.round(LOOP_START * rate);
+    const le = Math.round(LOOP_END * rate);
+    const n = Math.min(SEAM_SAMPLES, buf.length - le);
+    if (n <= 0) return buf;
+    for (let c = 0; c < buf.numberOfChannels; c += 1) {
+      const d = buf.getChannelData(c);
+      for (let i = 0; i < n; i += 1) {
+        const w = i / n;
+        d[ls + i] = (1 - w) * d[le + i] + w * d[ls + i];
+      }
+    }
+  } catch {
+    /* 靜默 */
+  }
+  return buf;
 }
 
 function preferPlaybackSession(): void {
