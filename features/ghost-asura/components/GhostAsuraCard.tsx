@@ -20,6 +20,7 @@ import visual from './GhostAsuraCard.visual.module.css';
 import { AsuraNatureCard } from './AsuraNatureCard';
 import { SealMotion } from './SealMotion';
 import { PresentGuide, COLUMN_ACCENTS } from './PresentGuide';
+import { playAsuraNowSfx, primeAsuraNowSfx, stopAsuraNowSfx } from './asura-now-sfx';
 import { AsuraAgeTimeline, type AsuraAgeFocusRequest } from './AsuraAgeTimeline';
 
 /** Mobile or reduced-motion: instant scroll (perf). Desktop may smooth. */
@@ -190,6 +191,30 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
   const [copyStatus, setCopyStatus] = useState<Record<string, boolean>>({});
   const [focusRequest, setFocusRequest] = useState<AsuraAgeFocusRequest | null>(null);
 
+  /** 「現在」音效（純畫面層，不碰資料）：卡片出現後閒置時預載；離開頁面（隱藏／pagehide）或卸載就停。 */
+  useEffect(() => {
+    const idle = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    let idleId: number | undefined;
+    let timer: number | undefined;
+    if (idle.requestIdleCallback) idleId = idle.requestIdleCallback(primeAsuraNowSfx, { timeout: 3000 });
+    else timer = window.setTimeout(primeAsuraNowSfx, 1500);
+    const onHidden = () => {
+      if (document.visibilityState === 'hidden') stopAsuraNowSfx();
+    };
+    document.addEventListener('visibilitychange', onHidden);
+    window.addEventListener('pagehide', stopAsuraNowSfx);
+    return () => {
+      if (idleId !== undefined) idle.cancelIdleCallback?.(idleId);
+      if (timer !== undefined) window.clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onHidden);
+      window.removeEventListener('pagehide', stopAsuraNowSfx);
+      stopAsuraNowSfx();
+    };
+  }, []);
+
   /** 複製卡片話術或程式碼至剪貼簿（修羅檔案專用） */
   const handleCopyCard = (section: AsuraDisplay['sections'][0], mode: 'narrative' | 'code') => {
     let payload = '';
@@ -321,7 +346,12 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
                 aria-expanded={open}
                 aria-controls={`asura-fn-panel-${section.key}`}
                 data-asura-tile={section.key}
-                onClick={() => setOpenKey(open ? null : section.key)}
+                onClick={() => {
+                  // 「現在」展開就播、收起或改開其他格就停（音效只在點擊當下啟動）
+                  if (section.key === 'pillars' && !open) playAsuraNowSfx();
+                  else if (openKey === 'pillars') stopAsuraNowSfx();
+                  setOpenKey(open ? null : section.key);
+                }}
               >
                 {section.heading}
               </button>

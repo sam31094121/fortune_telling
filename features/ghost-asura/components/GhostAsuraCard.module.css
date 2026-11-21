@@ -825,7 +825,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 }
 
 .tileSquare:not(:disabled):hover {
-  transform: translateY(-4px);
+  /* 不再上浮：手機點完會黏住 hover，格子位置跳動（2026-11-21 防跳動） */
   border-color: var(--gold-hi);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.15) inset,
@@ -873,7 +873,8 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 }
 .tileSquare:nth-of-type(2n)::after { top: auto; bottom: -16px; right: auto; left: -16px; }
 .tileSquare:not(:disabled):active {
-  transform: translateY(2px) scale(0.97);
+  /* 按下改用變亮，不位移、不縮放（2026-11-21 防跳動） */
+  filter: brightness(1.12);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.15) inset,
     inset -1px -1px 2px rgba(255, 245, 150, 0.12),
@@ -1157,8 +1158,9 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 }
 
 @keyframes asuraFnReveal {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: none; }
+  /* 只淡入、不位移（2026-11-21 防跳動） */
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 @media (max-width: 640px) {
   .fnPanel { padding: 16px 14px 20px; }
@@ -2389,4 +2391,17 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 /* Solid page-ink under banner text avoids flash-through while filter is off */
 .asuraBanner {
   background-color: #0A1608;
+}
+/* === 防跳動（2026-11-21，用戶 11/17 授權「現在」音效＋防跳動）：過去／現在／未來三格在 hover、按下、聚焦時一律不位移、不縮放；按下改用變亮 === */
+.asuraTiles .tileSquare:not(:disabled):hover,
+.asuraTiles .tileSquare:not(:disabled):active,
+.asuraTiles .tileSquare:focus-visible,
+.card[data-display-contract] .asuraTiles .tileSquare:not(:disabled):hover,
+.card[data-display-contract] .asuraTiles .tileSquare:not(:disabled):active,
+.card[data-display-contract] .asuraTiles .tileSquare:focus-visible {
+  transform: none;
+}
+.asuraTiles .tileSquare:not(:disabled):active,
+.card[data-display-contract] .asuraTiles .tileSquare:not(:disabled):active {
+  filter: brightness(1.12);
 }
