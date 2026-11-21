@@ -229,7 +229,7 @@ try {
   }
   // Deterministic input fixture, real server response and real pointer playback.
   // Isolated browser profile: never edits the customer's saved game.
-  for (const [width, length, reduced] of ((process.env.MATCH3_LAYOUT_AUDIT==='1'||process.env.MATCH3_PARTY_AUDIT==='1')?[]:Array.from({length:Number(process.env.MATCH3_REPLAY_REPEAT)||1},()=>[[320,5,false],[390,6,false],[768,6,false],[1440,7,false],[390,5,true]]).flat())) {
+  for (const [width, length, reduced] of ((process.env.MATCH3_REFILL_ONLY==='1'||process.env.MATCH3_LAYOUT_AUDIT==='1'||process.env.MATCH3_PARTY_AUDIT==='1')?[]:Array.from({length:Number(process.env.MATCH3_REPLAY_REPEAT)||1},()=>[[320,5,false],[390,6,false],[768,6,false],[1440,7,false],[390,5,true]]).flat())) {
     if(process.env.MATCH3_REPLAY_CASE&&String(width)!==process.env.MATCH3_REPLAY_CASE)continue;
     if(liveServer&&reduced)continue;
     await send('Emulation.setEmulatedMedia',{features: reduced ? [{name:'prefers-reduced-motion',value:'reduce'}] : []});
@@ -404,7 +404,10 @@ try {
     await js('window.__falls=[];window.__watch=true;function sampleFall(){const b=document.querySelector("[data-testid=match3-board]");if(b?.dataset.refilling){const cells=[...b.querySelectorAll("[data-fall-from]")];window.__falls.push({busy:b.getAttribute("aria-busy"),disabled:document.querySelector("[data-testid=open-picker]").disabled,overflow:getComputedStyle(b).overflow,cells:cells.map(c=>({r:+c.dataset.r,from:+c.dataset.fallFrom,delay:parseFloat(getComputedStyle(c).animationDelay),animation:getComputedStyle(c).animationName,transform:getComputedStyle(c).transform,opacity:getComputedStyle(c).opacity}))})}if(window.__watch)requestAnimationFrame(sampleFall)}requestAnimationFrame(sampleFall)');
     const baseline=await snap();writeFileSync(path.join(output,'free-play-before-'+width+'.json'),JSON.stringify(baseline,null,2));
     const play=drag(findPath(baseline.cells,3));
-    await wait('document.querySelector("[data-testid=match3-board]")?.dataset.refilling === "true"',20000);await sleep(120);await save('refill-moving-'+width);await play;
+    if (process.env.MATCH3_REFILL_OBSERVER_DELAY_MS) await sleep(Number(process.env.MATCH3_REFILL_OBSERVER_DELAY_MS));
+    // Falling is transient: retain browser-frame evidence rather than requiring
+    // a 150ms CDP poll to overlap it. The actual motion assertions below stay unchanged.
+    await wait('window.__falls?.length > 0',20000);await sleep(120);await save('refill-observed-'+width);await play;
     const observations=await js('window.__watch=false;window.__falls');
     assert(observations.length>2,'actual falling frames must render');
     assert(observations.every(f=>f.busy==='true'&&f.disabled&&f.overflow==='hidden'),'no input while unsettled and entering beads stay inside board');
