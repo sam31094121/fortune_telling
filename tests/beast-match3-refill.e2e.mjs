@@ -55,9 +55,14 @@ try {
   }
   // Offline fixture adapter: authenticate the test's explicitly injected board/magic.
   // Production has no signing endpoint; authority.test separately forbids snapshot tampering.
-  await send('Fetch.enable',{patterns:[{urlPattern:'*/api/beast-game/orb-turn',requestStage:'Request'}]});
+  await send('Fetch.enable',{patterns:[{urlPattern:'*/api/beast-game/orb-turn',requestStage:'Request'},...(process.env.MATCH3_LAYOUT_IMAGE_DELAY_MS?[{resourceType:'Image',requestStage:'Request'}]:[])]});
   ws.addEventListener('message',async event=>{
     const m=JSON.parse(event.data);if(m.method!=='Fetch.requestPaused')return;
+    if(m.params.resourceType==='Image'){
+      await sleep(Number(process.env.MATCH3_LAYOUT_IMAGE_DELAY_MS));
+      // A new fixture navigation may cancel an old page's delayed image.
+      await send('Fetch.continueRequest',{requestId:m.params.requestId}).catch(error=>{if(!String(error).includes('Invalid InterceptionId'))errors.push(String(error));});return;
+    }
     try{
       if(process.env.MATCH3_PREDICTION_REJECT==='1'){
         await send('Fetch.fulfillRequest',{requestId:m.params.requestId,responseCode:400,responseHeaders:[{name:'Content-Type',value:'application/json'}],body:Buffer.from(JSON.stringify({error:'測試：裁判拒絕此操作'})).toString('base64')});return;
@@ -122,7 +127,9 @@ try {
     return releaseToReadyMs;
   };
   const start = async (wins, width) => {
-    await send('Emulation.setDeviceMetricsOverride', { width, height: Number(process.env.MATCH3_VIEWPORT_HEIGHT)||844, deviceScaleFactor: 2, mobile: width < 768 });
+    // Layout audit exercises classic scrollbars. Select that mode before mounting
+    // the battlefield, not after it has cached its mobile viewport geometry.
+    await send('Emulation.setDeviceMetricsOverride', { width, height: Number(process.env.MATCH3_VIEWPORT_HEIGHT)||844, deviceScaleFactor: 2, mobile: process.env.MATCH3_LAYOUT_AUDIT==='1' ? false : width < 768 });
     // 同分頁重新整理會自動接回上次的玩家（產品行為）；這裡模擬全新進入，先清掉那個記號再導頁，斷言不變。
     await js(`(()=>{try{sessionStorage.removeItem('m3-campaign-last-owner')}catch{}return true})()`);
     await send('Page.navigate', { url: `${base}/beast-game/match3-hard` });
@@ -215,8 +222,8 @@ try {
     await state({board,magic:Array.from({length:8},()=>Array(7).fill(7)),lastAlly:true});
     for(const height of (process.env.MATCH3_LAYOUT_HEIGHT?[Number(process.env.MATCH3_LAYOUT_HEIGHT)]:[844,700,680,650,640,600,580,720])){
       process.env.MATCH3_VIEWPORT_HEIGHT=String(height);await start(18,435);await state({board,magic:Array.from({length:8},()=>Array(7).fill(7)),lastAlly:true});
-      await send('Emulation.setDeviceMetricsOverride',{width:435,height,deviceScaleFactor:2,mobile:false});await sleep(700);
-      const samples=await js(`new Promise(resolve=>{const a=[];function frame(){const b=document.querySelector('[data-testid="match3-board"]'),r=b.closest('section'),t=document.querySelector('[data-testid="match3-ally"]')?.parentElement;const box=e=>{const r=e.getBoundingClientRect();return [r.x,r.y,r.width,r.height]};a.push({board:box(b),root:box(r),team:box(t),lock:r.dataset.match3ScrollLock,width:document.documentElement.clientWidth,scroll:scrollY,style:r.getAttribute('style')});if(a.length<120)requestAnimationFrame(frame);else resolve(a)}requestAnimationFrame(frame)})`);
+      await sleep(700);
+      const samples=await js(`new Promise(resolve=>{const a=[];function frame(){const b=document.querySelector('[data-testid="match3-board"]'),r=b.closest('section'),t=document.querySelector('[data-testid="match3-ally"]')?.parentElement;const box=e=>{const r=e.getBoundingClientRect();return [r.x,r.y,r.width,r.height]};a.push({at:performance.now(),viewport:{width:innerWidth,height:innerHeight,visualWidth:visualViewport?.width,gutter:getComputedStyle(document.documentElement).scrollbarGutter},pendingImages:[...r.querySelectorAll('img')].filter(i=>!i.complete).length,board:box(b),root:box(r),team:box(t),lock:r.dataset.match3ScrollLock,width:document.documentElement.clientWidth,scroll:scrollY,style:r.getAttribute('style')});if(a.length<120)requestAnimationFrame(frame);else resolve(a)}requestAnimationFrame(frame)})`);
       writeFileSync(path.join(output,'layout-'+height+'.json'),JSON.stringify(samples));
       const spread=Math.max(...[0,1,2,3].map(i=>Math.max(...samples.map(s=>s.board[i]))-Math.min(...samples.map(s=>s.board[i]))));
       assert(spread<=1,'Idle board must not oscillate: '+height+' drift '+spread);

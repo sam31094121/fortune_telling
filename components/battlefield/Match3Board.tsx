@@ -704,8 +704,11 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
             const leftoverPre = hold.teamH + hold.below - 8;
             const ratios = Array.from(teamEl.querySelectorAll<HTMLImageElement>('[data-testid="match3-ally"] img')).map(i => i.naturalWidth > 0 && i.naturalHeight > 0 ? i.naturalWidth / i.naturalHeight : 1);
             const rMin = ratios.length ? Math.min(...ratios) : 1;
+            const firstCard = teamEl.querySelector<HTMLElement>('[data-testid="match3-ally"]');
+            const cardStyle = firstCard ? getComputedStyle(firstCard) : null;
+            const cardInset = cfg.id === 'hard45' && cardStyle ? number(cardStyle.paddingLeft) + number(cardStyle.paddingRight) + number(cardStyle.borderLeftWidth) + number(cardStyle.borderRightWidth) : 0;
             const preWidth = cfg.id === 'hard45' && window.innerWidth <= 640 ? contentWidth - (height <= 650 ? 176 : 136) : contentWidth * 0.72;
-            const pre = Math.max(0, Math.min(preWidth, 290, leftoverPre > 19 ? (leftoverPre - 19) * rMin : 0));
+            const pre = Math.max(0, Math.min(preWidth, 290, leftoverPre > 19 ? Math.max(0, leftoverPre - 19 - cardInset) * rMin + cardInset : 0));
             const preVal = `${Math.round(pre * 100) / 100}px`;
             if (element.style.getPropertyValue('--last-ally-max') !== preVal) element.style.setProperty('--last-ally-max', preVal);
             // 比例也一併預設成最直的那張：大卡登場第一幀高度＝寬÷比例，剛好落在預算內，不會先撐高一幀再縮回。
@@ -725,7 +728,12 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           if (img && !img.naturalWidth) img.addEventListener('load', schedule, { once: true });
           const ratio = img && img.naturalWidth > 0 && img.naturalHeight > 0 ? img.naturalWidth / img.naturalHeight : 1;
           const weaponReserve = 0;
-          const maxByHeight = leftover > 19 + weaponReserve ? (leftover - 19 - weaponReserve) * ratio : 0;
+          const cardStyle = live ? getComputedStyle(live) : null;
+          const cardInset = cfg.id === 'hard45' && cardStyle ? number(cardStyle.paddingLeft) + number(cardStyle.paddingRight) + number(cardStyle.borderLeftWidth) + number(cardStyle.borderRightWidth) : 0;
+          // The cap is a border-box width; only the artwork scales with its
+          // aspect ratio. Scaling the fixed inset makes late image loads move
+          // the card's top edge and, through the preview offset, the board.
+          const maxByHeight = leftover > 19 + weaponReserve ? Math.max(0, leftover - 19 - weaponReserve - cardInset) * ratio + cardInset : 0;
           const sideDock = cfg.id === 'hard45' && window.innerWidth <= 640;
           const cap = Math.max(0, Math.min(sideDock ? contentWidth - (height <= 650 ? 176 : 136) : contentWidth * 0.72, 290, maxByHeight));
           const maxVal = `${Math.round(cap * 100) / 100}px`;
