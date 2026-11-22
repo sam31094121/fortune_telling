@@ -61,6 +61,17 @@ button.node:disabled { cursor: default; }
 .lockActions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; font-weight: 800; }
 .lockActions > span { display: inline-flex; align-items: center; gap: 4px; }
 .feed { margin-top: 12px; }
+.targetOverview { display: grid; grid-template-columns: 100px minmax(0, 1fr); align-items: start; gap: 12px; padding: 10px; border: 1px solid #ffffff26; border-radius: 18px; background: #0b0e1c; }
+.targetOverview .stage { padding: 0; }
+.targetOverview .stageCard { width: 100%; box-sizing: border-box; }
+.selectedTotal { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 36px; color: #94e8ff; font-size: 20px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.targetGrowth { min-width: 0; }
+.targetGrowth .previewDetails { margin: 0; padding: 0; border: 0; background: transparent; }
+.targetGrowth .previewDetails dl { gap: 6px; }
+.targetGrowth .previewDetails dl > div { flex-wrap: wrap; gap: 2px 6px; }
+.targetGrowth .previewDetails dt, .targetGrowth .previewDetails dd { font-size: 13px; }
+.targetGrowth .growth { margin: 8px 0 0; font-size: 13px; }
+.pendingPreview { display: grid; place-items: center; min-height: 28px; color: #94e8ff; }
 .stage { display: grid; justify-items: center; gap: 6px; padding: 14px 0 6px; border-radius: 22px; background: radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 65%); }
 .stageCard { display: block; width: 150px; aspect-ratio: 63 / 88; overflow: hidden; border-radius: 16px; border: 2px solid var(--accent); box-shadow: 0 0 28px color-mix(in srgb, var(--accent) 50%, transparent); }
 .stageCard img { width: 100%; height: 100%; object-fit: cover; }

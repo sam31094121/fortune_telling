@@ -78,9 +78,9 @@ function NoTargetCue({ view }: { view: FourBeastsView }) {
 }
 
 /** 預覽與最後確認共用伺服端數值，不在前端重算成長。 */
-function GrowthPreview({ summary }: { summary: CultivationBatchSummary }) {
+function GrowthPreview({ summary, compact = false }: { summary: CultivationBatchSummary; compact?: boolean }) {
   return <div className={s.previewDetails} data-growth-preview>
-    <div className={s.previewTarget}><img src={THUMB.get(summary.targetCardId)} alt={summary.targetName} /><span><EnhanceIcon name="cards" />−{summary.count}<EnhanceIcon name="up" /></span></div>
+    {!compact && <div className={s.previewTarget}><img src={THUMB.get(summary.targetCardId)} alt={summary.targetName} /><span><EnhanceIcon name="cards" />−{summary.count}<EnhanceIcon name="up" /></span></div>}
     <dl>
       <div data-preview-orb><dt><EnhanceIcon name="bead" />寶石捷連線</dt><dd>{summary.beforeOrbAttack} → {summary.afterOrbAttack} <small>+{summary.addedBonus}</small></dd></div>
       <div data-preview-battle><dt><EnhanceIcon name="sword" />神獸戰鬥</dt><dd>{summary.beforeBattleAttack} → {summary.afterBattleAttack} <small>+{summary.addedBattleBonus}</small></dd></div>
@@ -88,7 +88,7 @@ function GrowthPreview({ summary }: { summary: CultivationBatchSummary }) {
     </dl>
     <CardStarBar stars={summary.starsAfter} percent={summary.totalPercentAfter.label} />
     {summary.starsAfter && <progress className={s.starProgress} value={summary.starsAfter.fed} max={summary.starsAfter.capFeeds} aria-label="累計五星成長進度" />}
-    <div className={s.materialReceipt} aria-label={`消耗材料 ${summary.count} 張，${summary.targetName}保留`}>{summary.materials.map(m => <span key={m.cardId} aria-label={`${m.name} ${m.count} 張`}><img src={THUMB.get(m.cardId)} alt={m.name} /><b>×{m.count}</b></span>)}</div>
+    {!compact && <div className={s.materialReceipt} aria-label={`消耗材料 ${summary.count} 張，${summary.targetName}保留`}>{summary.materials.map(m => <span key={m.cardId} aria-label={`${m.name} ${m.count} 張`}><img src={THUMB.get(m.cardId)} alt={m.name} /><b>×{m.count}</b></span>)}</div>}
   </div>;
 }
 
@@ -323,14 +323,22 @@ export default function EnhancePage() {
     </>}
 
     {step.kind === 'feed' && target && <section className={s.feed} data-feed-step aria-label="餵卡">
-      <div className={`${s.stage} ${ELEMENT_CLASS[trees.find(x => x.cardId === target.cardId || x.mansions.some(m => m.cardId === target.cardId))?.element ?? '']}`}>
+      <div className={`${s.targetOverview} ${ELEMENT_CLASS[trees.find(x => x.cardId === target.cardId || x.mansions.some(m => m.cardId === target.cardId))?.element ?? '']}`} data-target-overview>
+      <div className={s.stage}>
         <span className={s.stageCard} data-target-stage data-shared-target={step.copyId} data-target-stars={targetCopy?.stars?.stars ?? target.stars?.stars}><img src={target.thumb} alt="" /></span>
-        {targetCopy?.stars && <CardStarBar stars={targetCopy.stars} percent={targetCopy.bonusPercent} atCap={targetCopy.atBonusCap} />}
+        <span className={s.selectedTotal} aria-label={`已加入 ${total} 張`}><EnhanceIcon name="cards" />×<b data-selected-count>{total}</b></span>
       </div>
+      <div className={s.targetGrowth} aria-live="polite" aria-busy={total > 0 && !ready}>
+      {ready && preview ? <section aria-label="強化結果預覽"><GrowthPreview summary={preview.summary} compact /></section> : <>
+      {targetCopy?.stars && <CardStarBar stars={targetCopy.stars} percent={targetCopy.bonusPercent} atCap={targetCopy.atBonusCap} />}
       {targetCopy && <p className={s.growth} data-growth-readout>
         <span>連線攻擊 <b>{targetCopy.orbAttack}</b> · 神獸戰鬥 <b>{targetCopy.battleAttack}</b></span>
         {targetCopy.stars && <span>{targetCopy.stars.maxed ? '五星已滿 ✓' : <>下一星還差 <b>{targetCopy.stars.toNext}</b> 張</>}</span>}
       </p>}
+      {total > 0 && <span className={s.pendingPreview} role="status" aria-label="正在計算強化預覽"><EnhanceIcon name="wait" className={s.spin} /></span>}
+      </>}
+      </div>
+      </div>
       <div className={s.eatArrow} aria-hidden="true"><EnhanceIcon name="up" /><EnhanceIcon name="up" /></div>
       <div className={s.materialActions}>
         <button type="button" className={s.textBtn} data-pick-all-materials disabled={busy || blocked || !limits || limits.max <= 0} onClick={addAll}><EnhanceIcon name="cards" />加入可用材料</button>
@@ -354,7 +362,6 @@ export default function EnhancePage() {
           <Link href={GAME_PATH.orb} className={s.textBtn}><EnhanceIcon name="bead" />寶石捷連線</Link>
         </div>}
       </div>}
-      {ready && preview && <section aria-label="強化結果預覽" aria-live="polite"><GrowthPreview summary={preview.summary} /></section>}
       <div className={s.dock} data-dock>
         {feedError && <p role="alert" className={s.dockAlert} data-dock-alert>{feedError}</p>}
         {total > 0 && <p className={s.previewNote} data-preview-note>{ready && preview && preview.summary.addedBattleBonus === '0' ? '預覽・尚未消耗：比例成長還沒滿一點攻擊，進度會累積' : '預覽・尚未消耗'}</p>}
