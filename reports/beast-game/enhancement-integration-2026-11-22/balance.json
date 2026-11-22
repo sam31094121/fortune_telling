@@ -1,0 +1,17 @@
+{
+  "targets": 32,
+  "starChecks": 160,
+  "duels": 1920,
+  "openingKills": 0,
+  "opponentActions": 1920,
+  "playerWins": 1889,
+  "opponentWins": 31,
+  "draws": 0,
+  "batchMs": 13,
+  "orbTurns": 6,
+  "orbCounterHits": 1,
+  "orbAttack": 129,
+  "orbOpponentUnchanged": true,
+  "concurrentV4SingleDeduction": true,
+  "clientCannotChooseLegacyRule": true
+}

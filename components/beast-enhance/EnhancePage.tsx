@@ -77,6 +77,36 @@ function NoTargetCue({ view }: { view: FourBeastsView }) {
   </aside>;
 }
 
+/** 預覽與最後確認共用伺服端數值，不在前端重算成長。 */
+function GrowthPreview({ summary }: { summary: CultivationBatchSummary }) {
+  return <div className={s.previewDetails} data-growth-preview>
+    <div className={s.previewTarget}><img src={THUMB.get(summary.targetCardId)} alt={summary.targetName} /><span><EnhanceIcon name="cards" />−{summary.count}<EnhanceIcon name="up" /></span></div>
+    <dl>
+      <div data-preview-orb><dt><EnhanceIcon name="bead" />寶石捷連線</dt><dd>{summary.beforeOrbAttack} → {summary.afterOrbAttack} <small>+{summary.addedBonus}</small></dd></div>
+      <div data-preview-battle><dt><EnhanceIcon name="sword" />神獸戰鬥</dt><dd>{summary.beforeBattleAttack} → {summary.afterBattleAttack} <small>+{summary.addedBattleBonus}</small></dd></div>
+      {summary.starsBefore && summary.starsAfter && <div data-preview-stars><dt><EnhanceIcon name="star" /></dt><dd>{summary.starsBefore.stars} → {summary.starsAfter.stars} / 5</dd></div>}
+    </dl>
+    <CardStarBar stars={summary.starsAfter} percent={summary.totalPercentAfter.label} />
+    {summary.starsAfter && <progress className={s.starProgress} value={summary.starsAfter.fed} max={summary.starsAfter.capFeeds} aria-label="累計五星成長進度" />}
+    <div className={s.materialReceipt} aria-label={`消耗材料 ${summary.count} 張，${summary.targetName}保留`}>{summary.materials.map(m => <span key={m.cardId} aria-label={`${m.name} ${m.count} 張`}><img src={THUMB.get(m.cardId)} alt={m.name} /><b>×{m.count}</b></span>)}</div>
+  </div>;
+}
+
+function ConfirmEnhancement({ summary, busy, error, onCancel, onConfirm }: { summary: CultivationBatchSummary; busy: boolean; error: string; onCancel: () => void; onConfirm: () => void }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => { const el = dialog.current; el?.showModal(); return () => el?.close(); }, []);
+  return <dialog ref={dialog} className={s.confirmDialog} aria-labelledby="enhancement-confirm-title" data-enhancement-confirm onCancel={event => { event.preventDefault(); if (!busy) onCancel(); }}>
+    <h2 id="enhancement-confirm-title">確認強化</h2>
+    <p>消耗 {summary.count} 張 · 保留{summary.targetName}</p>
+    <GrowthPreview summary={summary} />
+    {error && <p role="alert" data-confirm-error>{error}</p>}
+    <div className={s.confirmActions}>
+      <button type="button" className={s.textBtn} data-dismiss-enhancement disabled={busy} onClick={onCancel}>取消</button>
+      <button type="button" className={s.primary} data-submit-enhancement disabled={busy} onClick={onConfirm}><EnhanceIcon name={busy ? 'wait' : 'check'} />確認消耗</button>
+    </div>
+  </dialog>;
+}
+
 export default function EnhancePage() {
   const [view, setView] = useState<FourBeastsView | null>(null);
   const [shared, setShared] = useState<SharedCultivationView | null>(null);
@@ -89,6 +119,7 @@ export default function EnhancePage() {
   const [options, setOptions] = useState<Options | null>(null);
   const [picks, setPicks] = useState<Record<string, number>>({});
   const [preview, setPreview] = useState<{ key: string; summary: CultivationBatchSummary } | null>(null);
+  const [confirmKey, setConfirmKey] = useState<string | null>(null);
   const [feedError, setFeedError] = useState('');
   const [lockOpen, setLockOpen] = useState(false);
   const [main, setMain] = useState<string[]>([]);
@@ -139,6 +170,7 @@ export default function EnhancePage() {
   const nodes = useMemo(() => new Map(trees.flatMap(x => [x, ...x.mansions.flatMap(m => [m, m.young])]).map(n => [n.cardId, n])), [trees]);
 
   const openFeed = (copyId: string, cardId: string) => {
+    setConfirmKey(null);
     setHintPile(null); picksRef.current = {}; setPicks({}); setPreview(null); setOptions(null); setFeedError(''); operation.current = null;
     setStep({ kind: 'feed', copyId, cardId });
   };
@@ -169,8 +201,9 @@ export default function EnhancePage() {
     const now = Date.now(); since.current ??= now;
     const wait = Math.max(0, Math.min(PREVIEW_DEBOUNCE_MS, PREVIEW_MAX_WAIT_MS - (now - since.current)));
     const body = { type: 'PREVIEW', summaryOnly: true, revision: view.revision, choices }, k = key;
-    const timer = window.setTimeout(() => { since.current = null; sharedRequest(body).then(r => { setPreview({ key: k, summary: r.summary }); setFeedError(''); }).catch(e => setFeedError(errorText(e, '暫時算不出強化結果，稍後再試'))); }, wait);
-    return () => window.clearTimeout(timer);
+    let active = true;
+    const timer = window.setTimeout(() => { since.current = null; sharedRequest(body).then(r => { if (active) { setPreview({ key: k, summary: r.summary }); setFeedError(''); } }).catch(e => { if (active) setFeedError(errorText(e, '暫時算不出強化結果，稍後再試')); }); }, wait);
+    return () => { active = false; window.clearTimeout(timer); };
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
   const ready = !!preview && preview.key === key && choices.length > 0;
 
@@ -184,9 +217,15 @@ export default function EnhancePage() {
   };
   /** 「加入可用材料」：每堆加到伺服端給的上限，總數不超過伺服端的剩餘張數（五星封頂）；仍要按「強化」才送出。 */
   const addAll = () => { if (!limits) return; picksRef.current = {}; for (const p of limits.piles) add(p.cardId, p.max); setPicks({ ...picksRef.current }); };
+  const removeOne = (cardId: string) => {
+    stopHold();
+    const next = { ...picksRef.current };
+    if ((next[cardId] ?? 0) <= 1) delete next[cardId]; else next[cardId]--;
+    picksRef.current = next; setPicks(next);
+  };
   const hold = useRef<{ timer: number | null; start: number } | null>(null);
   const stopHold = () => { if (hold.current?.timer) window.clearTimeout(hold.current.timer); hold.current = null; };
-  useEffect(() => stopHold, []);
+  useEffect(() => stopHold, [feedCopy]);
   const press = (cardId: string) => {
     stopHold(); if (busy) return;
     if (add(cardId, 1) !== 'ok') return;
@@ -196,14 +235,15 @@ export default function EnhancePage() {
   };
 
   const fuse = async () => {
-    if (!view || !feedCopy || step.kind !== 'feed' || !ready || busy) return;
+    if (!view || !feedCopy || step.kind !== 'feed' || !ready || confirmKey !== key || busy) return;
     setBusy(true); setFeedError(''); operation.current ??= crypto.randomUUID();
     try {
       const r = await withCollectionLock(() => sharedRequest({ type: 'FUSE', summaryOnly: true, revision: view.revision, operationId: operation.current, choices }));
       operation.current = null; picksRef.current = {}; setPicks({}); setPreview(null);
+      setConfirmKey(null);
       setStep({ kind: 'result', copyId: step.copyId, cardId: step.cardId, summary: r.summary });
       void load(false); // 張數、星級、還能吃幾張：重新向伺服端讀
-    } catch (e) { setFeedError(errorText(e, '這次沒有存到，請再按一次「強化」')); }
+    } catch (e) { setFeedError(errorText(e, '這次沒有存到，請再按一次「確認消耗」')); }
     finally { setBusy(false); }
   };
 
@@ -285,7 +325,7 @@ export default function EnhancePage() {
     {step.kind === 'feed' && target && <section className={s.feed} data-feed-step aria-label="餵卡">
       <div className={`${s.stage} ${ELEMENT_CLASS[trees.find(x => x.cardId === target.cardId || x.mansions.some(m => m.cardId === target.cardId))?.element ?? '']}`}>
         <span className={s.stageCard} data-target-stage data-shared-target={step.copyId} data-target-stars={targetCopy?.stars?.stars ?? target.stars?.stars}><img src={target.thumb} alt="" /></span>
-        {target.stars && <CardStarBar stars={target.stars} percent={target.bonusPercent} atCap={target.atBonusCap} iconOnly />}
+        {targetCopy?.stars && <CardStarBar stars={targetCopy.stars} percent={targetCopy.bonusPercent} atCap={targetCopy.atBonusCap} />}
       </div>
       {targetCopy && <p className={s.growth} data-growth-readout>
         <span>連線攻擊 <b>{targetCopy.orbAttack}</b> · 神獸戰鬥 <b>{targetCopy.battleAttack}</b></span>
@@ -298,7 +338,7 @@ export default function EnhancePage() {
       </div>
       {!limits && !feedError && <div className={s.pileRow} aria-busy="true">{[0, 1, 2].map(i => <span key={i} className={`${s.pile} ${s.skeleton}`} />)}</div>}
       {limits && <div className={s.pileRow} role="group" aria-label="點一下加入一張，長按連續加入">
-        {limits.piles.filter(p => p.max > 0).map(p => { const n = picks[p.cardId] ?? 0, o = options?.byId[p.ids[0]]; return <button key={p.cardId} type="button" className={`${s.pile} ${n ? s.picked : ''}`} data-pile={p.cardId} data-picked={n} data-hint-pile={hintPile === p.cardId || undefined} disabled={busy || blocked}
+        {limits.piles.filter(p => p.max > 0).map(p => { const n = picks[p.cardId] ?? 0, o = options?.byId[p.ids[0]]; return <div key={p.cardId} className={s.pileControl}><button type="button" className={`${s.pile} ${n ? s.picked : ''}`} data-pile={p.cardId} data-picked={n} data-hint-pile={hintPile === p.cardId || undefined} disabled={busy || blocked}
           aria-label={`持有 ${p.ids.length} 張，已加入 ${n} 張${o?.feedback ? `，一張約 +${o.feedback.addedPercent.label}%` : ''}`}
           onPointerDown={ev => { if (ev.pointerType === 'mouse' && ev.button !== 0) return; try { ev.currentTarget.setPointerCapture(ev.pointerId); } catch {} press(p.cardId); }}
           onPointerUp={stopHold} onPointerCancel={stopHold} onLostPointerCapture={stopHold} onContextMenu={ev => ev.preventDefault()}
@@ -307,25 +347,27 @@ export default function EnhancePage() {
           <i className={s.copies}>×{p.ids.length - n}</i>
           {n > 0 ? <em className={s.pickedChip}>+{n}</em> : o?.feedback ? <b className={s.pct}>+{o.feedback.addedPercent.label}%</b> : null}
           {hintPile === p.cardId && n === 0 && <span className={s.hint}><EnhanceIcon name="tap" /></span>}
-        </button>; })}
+        </button><button type="button" className={s.subtract} data-remove-material={p.cardId} aria-label="這種材料減一張" disabled={busy || blocked || n === 0} onClick={() => removeOne(p.cardId)}>−1</button></div>; })}
         {limits.piles.every(p => p.max <= 0) && <p role="status" className={s.noMaterial} data-no-material>{targetCopy?.stars?.maxed ? '五星已滿，不能再吃卡。' : '這張目前沒有可以吃的材料（鎖定主力不能當材料）。'}</p>}
         {limits.piles.every(p => p.max <= 0) && !targetCopy?.stars?.maxed && <div className={s.getCards} data-get-cards>
           <Link href={GAME_PATH.battle} className={s.textBtn}><EnhanceIcon name="sword" />神獸戰鬥</Link>
           <Link href={GAME_PATH.orb} className={s.textBtn}><EnhanceIcon name="bead" />寶石捷連線</Link>
         </div>}
       </div>}
+      {ready && preview && <section aria-label="強化結果預覽" aria-live="polite"><GrowthPreview summary={preview.summary} /></section>}
       <div className={s.dock} data-dock>
         {feedError && <p role="alert" className={s.dockAlert} data-dock-alert>{feedError}</p>}
-        {total > 0 && <p className={s.previewNote} data-preview-note>{ready && preview && preview.summary.addedBattleBonus === '0' ? '預覽・尚未消耗：比例成長還沒滿一點攻擊，進度會累積' : '預覽・尚未消耗：按「強化」後這些卡會被吃掉'}</p>}
+        {total > 0 && <p className={s.previewNote} data-preview-note>{ready && preview && preview.summary.addedBattleBonus === '0' ? '預覽・尚未消耗：比例成長還沒滿一點攻擊，進度會累積' : '預覽・尚未消耗'}</p>}
         <div className={s.dockRow}>
           <span className={s.sum} aria-label={`已加入 ${total} 張${preview && ready ? `，神獸戰鬥攻擊 +${preview.summary.addedBattleBonus}` : ''}`}>
             <span aria-hidden="true"><EnhanceIcon name="cards" />×<b data-hint-count={total > 0 ? '' : undefined}>{total}</b></span>
             <span aria-hidden="true" data-stale={ready ? undefined : 'true'}><EnhanceIcon name="sword" />+<b data-hint-attack>{ready && preview ? preview.summary.addedBattleBonus : '–'}</b></span>
           </span>
           <button type="button" className={s.iconBtn} data-cancel aria-label="清除已加入的卡" disabled={busy || total === 0} onClick={() => { picksRef.current = {}; setPicks({}); setPreview(null); }}><EnhanceIcon name="close" /></button>
-          <button type="button" className={s.primary} data-confirm-fuse data-confirm-shared-fusion disabled={busy || !ready || blocked} onClick={() => void fuse()}>{busy || (total > 0 && !ready) ? <EnhanceIcon name="wait" className={s.spin} /> : <EnhanceIcon name="check" />}強化</button>
+          <button type="button" className={s.primary} data-confirm-fuse data-confirm-shared-fusion disabled={busy || !ready || blocked} onClick={() => setConfirmKey(key)}>{busy || (total > 0 && !ready) ? <EnhanceIcon name="wait" className={s.spin} /> : <EnhanceIcon name="check" />}強化</button>
         </div>
       </div>
+      {confirmKey === key && ready && preview && !blocked && <ConfirmEnhancement summary={preview.summary} busy={busy} error={feedError} onCancel={() => setConfirmKey(null)} onConfirm={() => void fuse()} />}
     </section>}
 
     {step.kind === 'result' && target && <section className={s.result} data-result-step data-food-chain-feedback="saved" aria-live="polite" aria-label={`強化完成：吃了 ${step.summary.count} 張，神獸戰鬥攻擊 +${step.summary.addedBattleBonus}`}>
@@ -342,9 +384,10 @@ export default function EnhancePage() {
         {step.summary.starsBefore && step.summary.starsAfter && step.summary.starsAfter.stars > step.summary.starsBefore.stars && <span data-star-up><EnhanceIcon name="star" />{step.summary.starsBefore.stars}<EnhanceIcon name="up" className={s.rot} />{step.summary.starsAfter.stars}</span>}
       </div>
       {step.summary.addedBattleBonus === '0' && <p className={s.resultNote} data-fc-zero>比例成長還沒滿一點攻擊，進度已累積</p>}
-      {target.stars && <CardStarBar stars={target.stars} percent={target.bonusPercent} atCap={target.atBonusCap} iconOnly />}
+      <p className={s.resultNote} data-consumed-summary>已消耗材料 {step.summary.count} 張，{step.summary.targetName}保留。兩種遊戲共用成長。</p>
+      <CardStarBar stars={step.summary.starsAfter} percent={step.summary.totalPercentAfter.label} />
       <div className={s.next} data-saved-growth>
-        {target.copyId && target.stars?.toNext !== null && <button type="button" className={s.primary} data-again onClick={() => target.copyId && openFeed(target.copyId, target.cardId)}><EnhanceIcon name="retry" />再強化</button>}
+        {step.summary.starsAfter?.toNext !== null && <button type="button" className={s.primary} data-again disabled={loading} onClick={() => openFeed(step.copyId, step.cardId)}><EnhanceIcon name="retry" />再強化</button>}
         <button type="button" className={s.textBtn} data-to-tree onClick={toTree}><EnhanceIcon name="cards" />看全部</button>
         {(from ? [from] : (['battle', 'orb'] as const)).map(f => <Link key={f} href={GAME_PATH[f]} className={s.textBtn} data-back-game={f}><EnhanceIcon name={f === 'battle' ? 'sword' : 'bead'} />{from ? GAME_LABEL[f] : GO_LABEL[f]}</Link>)}
       </div>
