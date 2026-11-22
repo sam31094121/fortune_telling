@@ -51,25 +51,32 @@ fi
 
 # 二、守門測試。命理三核心是招牌，神獸是目前主要施工面。
 FAILED=""
+# 神獸測試共用同一個 .beast-game-build/：先編一次、設 BEAST_BUILD_READY=1，
+# 各支就不會各編各的（與 screen-health-monitor 同一做法）。編不起來就各自編，寧可慢也不誤判。
+if npm run build:beast >"$LOG" 2>&1; then export BEAST_BUILD_READY=1; echo "   ✓ 神獸共用編譯"; fi
 # 真實瀏覽器點擊＋登入後的真實伺服器測試（約 3～4 分鐘，需要本機 Edge）：預設不跑，PUSH_E2E=1 git push 才跑；
 # 推送前一律手動先跑 npm run test:pre-push-e2e（2026-10-15 起的固定流程）。
 E2E_TESTS=""
 if [ -n "${PUSH_E2E:-}" ]; then E2E_TESTS="test:e2e-asura test:asura-live"; fi
-for t in test:three-core test:three-in-one test:bazi-contract test:taiji-ios test:ghost-asura-skill test:nine-grid-asura-fusion test:ghost-asura-skill-file test:ghost-asura-customer-output test:ghost-asura-three-core-voice test:ghost-asura-life-stages test:ghost-asura-seal-voice test:ghost-asura-gold-wording test:ghost-asura-card-toggle \
+TESTS="test:three-core test:three-in-one test:bazi-contract test:taiji-ios test:ghost-asura-skill test:nine-grid-asura-fusion test:ghost-asura-skill-file test:ghost-asura-customer-output test:ghost-asura-three-core-voice test:ghost-asura-life-stages test:ghost-asura-seal-voice test:ghost-asura-gold-wording test:ghost-asura-card-toggle \
          test:beast-game test:beast-ritual test:beast-clip test:beast-voice \
          test:beast-battlefield test:beast-bridge test:beast-interactive:full \
          test:beast-difficulty test:iching-sources test:ziwei-quanshu test:ziwei-wording-authority test:mobile-zoom-pan test:locked-cards test:share-version test:beast-backend-only test:beast-battle-dock test:beast-rig-body \
          test:true-solar-time test:credibility-wording test:soul-match test:nameology-grids test:nine-grid \
          test:model-lab-lattice test:taiji-square-cavity \
-         test:model-lab-projection test:model-lab-multiverse test:taiji-4d-cells test:taiji-contact-ribs test:model-lab-equal-edge test:taiji-hollow-squares test:model-lab-4d-audit $E2E_TESTS; do
-  # 不印「進行中」—— 在管線或 CI 記錄裡不會清行，會留下半截字。
-  if npm run "$t" >"$LOG" 2>&1; then
-    echo "   ✓ $t"
-  else
-    echo "   ✗ $t"
-    FAILED="$FAILED $t"
-  fi
+         test:model-lab-projection test:model-lab-multiverse test:taiji-4d-cells test:taiji-contact-ribs test:model-lab-equal-edge test:taiji-hollow-squares test:model-lab-4d-audit $E2E_TESTS"
+
+# 並行跑（上限 4）：已逐支審查，閘內測試各用各的輸出目錄（神獸那批共用已先編好），互不踩踏。
+# 每支輸出各寫自己的檔，最後照清單順序回報，報告長相固定。
+LOGDIR=$(mktemp -d 2>/dev/null || echo /tmp/push-gate.d); mkdir -p "$LOGDIR"
+run_one() { t="$1"; if npm run "$t" >"$LOGDIR/$t.log" 2>&1; then : >"$LOGDIR/$t.ok"; fi; }
+export -f run_one; export LOGDIR
+printf '%s
+' $TESTS | xargs -P 4 -I{} bash -c 'run_one {}'
+for t in $TESTS; do
+  if [ -f "$LOGDIR/$t.ok" ]; then echo "   ✓ $t"; else echo "   ✗ $t"; FAILED="$FAILED $t"; LAST="$LOGDIR/$t.log"; fi
 done
+[ -n "${LAST:-}" ] && cp "$LAST" "$LOG"
 
 if [ -n "$FAILED" ]; then
   echo
