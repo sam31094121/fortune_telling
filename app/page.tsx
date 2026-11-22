@@ -1,5 +1,6 @@
 'use client';
 import taijiArtwork from '@/components/TaijiBeastHomeArtwork.module.css';
+import { acquireBgm, duckBgm, releaseBgm } from '@/components/audio/site-bgm';
 import nineGridArtwork from '@/components/NineGridHomeArtwork.module.css';
 import nameBaziArtwork from '@/components/NameBaziHomeArtwork.module.css';
 import nameArtwork from '@/components/NameologyHomeArtwork.module.css';
@@ -1566,6 +1567,11 @@ export default function HomePage() {
     '[data-home-tools-card] button, [data-home-tools-card] [role="option"], [data-home-tools-card] a, [data-home-tools-card] [data-language-picker], [data-install-shield-panel]',
     showScrollTop,
   );
+  // 首頁背景循環（迷霧開場，2 分鐘無縫）：進首頁就要求播放；瀏覽器擋自動播放時，等第一次點擊／觸碰／按鍵再開始；離開首頁就淡出停止。
+  useEffect(() => {
+    acquireBgm('home', 'home-page');
+    return () => releaseBgm('home', 'home-page');
+  }, []);
   // 2026-10-17 穩定性：「易經個人成長中心」展開狀態在同一次瀏覽內記住（重新整理、返回上一頁都維持），新分頁仍從收合開始。
   useEffect(() => {
     const KEY = 'home-growth-disclosure-open-v1';
@@ -1852,6 +1858,7 @@ export default function HomePage() {
 
   const playModalBowlSound = (type: number) => {
     if (typeof window === 'undefined' || isModalTaijiAudioReduced()) return;
+    duckBgm(5, 1); // 頌缽響起時背景音壓低約 5 dB、1 秒
     try {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioContextClass) return;
@@ -1920,6 +1927,7 @@ export default function HomePage() {
 
   const playEvolutionTone = (stage: EvolutionStage) => {
     if (typeof window === 'undefined' || stage === 'idle' || isModalTaijiAudioReduced()) return;
+    duckBgm(5, 1); // 頌缽響起時背景音壓低約 5 dB、1 秒
 
     try {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
