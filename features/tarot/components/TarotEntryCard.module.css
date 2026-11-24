@@ -8,7 +8,7 @@
   background-size:auto, auto 100%;
   background-repeat:no-repeat;
 }
-.scenery.is-art-ready,
+.scenery:global(.is-art-ready),
 .scenery[data-art-eager] {
   background-image:linear-gradient(rgb(4 13 10 / 18%), transparent 85%), url('/home-entry/tarot-dragon-willow-scenery-v1.thumb.webp');
 }

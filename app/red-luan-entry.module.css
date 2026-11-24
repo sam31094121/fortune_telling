@@ -67,7 +67,7 @@
   inset: 0;
   background: center / cover no-repeat;
 }
-.scenery.is-art-ready,
+.scenery:global(.is-art-ready),
 .scenery[data-art-eager] {
   background-image: url('/home-entry/xinyuehu-environment-ai-v1.thumb.webp');
   mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
@@ -80,7 +80,7 @@
  opacity:1 !important;
  background:linear-gradient(180deg, rgb(16 18 29 / 12%), transparent 45%, rgb(16 18 29 / 10%)) center / cover no-repeat !important;
 }
-:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry.is-art-ready,
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry:global(.is-art-ready),
 :global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry[data-art-eager] {
  background-image:linear-gradient(180deg, rgb(16 18 29 / 12%), transparent 45%, rgb(16 18 29 / 10%)),url('/home-entry/xinyuehu-environment-ai-v1.thumb.webp') !important;
 }

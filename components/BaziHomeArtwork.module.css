@@ -1,8 +1,8 @@
 .scenery { position:absolute; inset:0; pointer-events:none; background:#080502 center bottom / auto 100% no-repeat; }
-.scenery.is-art-ready,
+.scenery:global(.is-art-ready),
 .scenery[data-art-eager] { background-image: url('/home-entry/bazi-goat-bamboo-scenery-v1.thumb.webp'); }
 .scenery::after { content:''; position:absolute; top:58px;left:50%;height:calc(100% - 104px);aspect-ratio:4/3;max-width:calc(100% - 32px);transform:translateX(-50%);background:none;mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 50%,rgba(0,0,0,.75) 66%,rgba(0,0,0,.2) 84%,transparent 100%); }
-.scenery.is-art-ready::after,
+.scenery:global(.is-art-ready)::after,
 .scenery[data-art-eager]::after { background:url('/beast-game/front/young-23.v2.webp') center / contain no-repeat; }
 .foreground { position:absolute;inset:0;z-index:2;pointer-events:none; }
 .artwork { position:absolute;pointer-events:none; }

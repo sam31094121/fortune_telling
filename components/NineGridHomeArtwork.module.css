@@ -58,7 +58,7 @@
 /* 容器單位用來讓神獸寬度永遠不超過卡片，字級放大、卡片變高時不被裁切。 */
 :global(body #home-eight-card-route) a:has(.artwork) { container-type:inline-size; }
 
-.scenery.is-art-ready,
+.scenery:global(.is-art-ready),
 .scenery[data-art-eager] {
   background-image: url('/home-entry/nine-grid-dog-autumn-scenery-v1.thumb.webp');
 }
