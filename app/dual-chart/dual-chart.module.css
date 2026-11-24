@@ -1501,3 +1501,9 @@ details[open] > summary .moreHint::after {
 .page:not(.printPreview) .cell.body{background:linear-gradient(180deg,#1c5249,#133a3a);box-shadow:inset 0 0 0 1px rgba(120,210,190,.3),inset 0 1px 0 rgba(190,240,225,.28)}
 .page:not(.printPreview) .cellTitle{color:#efdcae}
 .page:not(.printPreview) .center{background:radial-gradient(circle at 50% 28%,#2c2742,#151522);box-shadow:inset 0 0 0 1px rgba(201,169,97,.42),inset 0 0 44px rgba(201,169,97,.05)}
+
+/* ── 畫面版其餘區塊：列印入口、對比頁籤、神煞易經（2026-11-24 修圖技能檔案）──────────
+   同一組稀有色票；只改顏色、漸層、細線色、陰影；不改文字、字級、尺寸、排版、資料與運算；靜態無動畫。 */
+.page:not(.printPreview) .printEntry .printButton{background:linear-gradient(180deg,#4b3b66,#33274a);color:#f1dc9f;border-color:rgba(201,169,97,.78);box-shadow:inset 0 1px 0 rgba(246,227,184,.35),0 6px 16px rgba(0,0,0,.35);letter-spacing:.14em}
+.page:not(.printPreview) :is(.shenshaSummary,.flowStrip,.teacherCard){box-shadow:inset 0 1px 0 rgba(201,169,97,.32)}
+.page:not(.printPreview) .shareButton{background:linear-gradient(180deg,#4b3b66,#33274a);color:#f1dc9f;border-color:rgba(201,169,97,.78);box-shadow:inset 0 1px 0 rgba(246,227,184,.3)}
