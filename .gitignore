@@ -138,3 +138,6 @@ _tmp_*/
 _backup-*/
 
 .zh-hans-test-build
+
+# scripts/health 健康檢查輸出（預設在系統暫存，指定在 repo 內時也不進版控）
+/reports/health-runs/
