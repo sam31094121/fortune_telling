@@ -13,7 +13,7 @@ export default function BaziIChingShenShaCard({ result, language = 'zh', monochr
   return (
     <article className={`${styles.panel} ${styles.fusedChart}`} data-card="bazi-iching-shensha" data-print-fit>
       <h2>八字易經神煞命盤</h2>
-      <p className={styles.fusedSubtitle}>八字 → 特星神煞 → 易經 · 完全融合一體</p>
+      {false && <p className={styles.fusedSubtitle}>八字 → 特星神煞 → 易經 · 完全融合一體</p>}
 
       {/* 八字命盤部分 - 保留核心，隱藏ShenShaCard（在融合卡片中單獨顯示） */}
       <BaziChart result={result} monochrome={monochrome} language={language} hideShenShaCard={true} />
