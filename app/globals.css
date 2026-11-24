@@ -27664,3 +27664,22 @@ body:has(#home-eight-card-route) #home-eight-card-route#home-eight-card-route .h
   letter-spacing: inherit !important;
   line-height: inherit !important;
 }
+
+/* 2026-11-24 手機連點／長按可點文字：不再選取文字、跳出系統選取列／Google 輕觸搜尋／長按選單。
+   只在觸控裝置生效；用 :where() 零權重，元件自己寫的 user-select／touch-action 照舊。
+   結果頁、誠信頁等內文（非可點元件）仍可選取複製；輸入框維持可選取。 */
+@media (hover: none) and (pointer: coarse) {
+  :where(a[href], button, [role="button"], [role="tab"], [role="link"], [role="option"], [role="switch"], [role="menuitem"], label, summary, [data-home-step]) {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  :where(button, [role="button"], [role="tab"], [role="option"], [role="switch"], [role="menuitem"], label, summary) {
+    touch-action: manipulation;
+  }
+  :where(input, textarea, select, [contenteditable]:not([contenteditable="false"])) {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+  }
+}
