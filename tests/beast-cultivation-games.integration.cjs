@@ -29,7 +29,9 @@ function findChain(b,magic,colors){for(let r=0;r<b.length;r++)for(let c=0;c<b[0]
   const p={...campaign.chooseCampaignHero(campaign.newCampaign(),'beast_g_qinglong'),teamIds:ids,ownedEntries:Object.fromEntries(cards.map(c=>[c.cardId,c.id]))};
   const start=await orb.beginSharedOrb(owner,p,'test-orb',17,'hard45');assert.equal(start.initial.team[0].attackExact.length,401);
   const replayStart=await orb.beginSharedOrb(owner,p,'test-orb',18,'hard45');assert.deepEqual(JSON.parse(JSON.stringify(start.initial)),replayStart.initial);
-  await assert.rejects(orb.beginSharedOrb(owner,p,'other-orb',19,'hard45'));
+  const diverted=await orb.beginSharedOrb(owner,p,'other-orb',19,'hard45');
+  assert.equal(diverted.battleId,start.battleId,'a new begin during a held orb battle resumes the original fight');
+  assert.deepEqual(JSON.parse(JSON.stringify(diverted.initial)),JSON.parse(JSON.stringify(start.initial)));
   await assert.rejects(transactCultivation(repo,owner,'during-battle',(await repo.read(owner)).revision,{type:'MAIN_TEAM',ids:cards.map(c=>c.id)}));
   let finished=false,turns=0,lastBody;
   while(!finished&&turns<90){

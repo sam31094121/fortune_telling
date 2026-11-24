@@ -56,7 +56,19 @@ export async function beginSharedOrb(owner:string,profile:unknown,operationId:st
   if(typeof operationId!=='string'||!operationId||operationId.length>100)throw new Error('戰局識別無效。');
   const p=await sharedOrbProfile(owner,profile);if(!validateCampaignTeam(p,p.teamIds))throw new Error('請選定完整隊伍。');
   const initial=initialSharedOrb(p,seed,mode);
-  const id='orb:'+operationId;await holdCultivationBattle(owner,id,'orb',p.shared!.selectedEntries);
+  const id='orb:'+operationId;
+  // 對戰中若元件重掛、重新整理或再開一場，會帶新的 operationId；此時改接續已保留的寶珠戰，避免把玩家丟進無按鈕的擋板。
+  try {
+    await holdCultivationBattle(owner,id,'orb',p.shared!.selectedEntries);
+  } catch (error) {
+    if (error instanceof Error && error.message === '請先接續或離開原戰鬥，再使用共同卡庫。') {
+      const held = await cultivationRepository().read(owner);
+      if (typeof held.pendingBattle === 'string' && held.pendingBattle.startsWith('orb:')) {
+        return resumeSharedOrb(owner, held.pendingBattle);
+      }
+    }
+    throw error;
+  }
   const saved=await updateCultivationAccount(owner,current=>{
     if(current.pendingBattle!==id)throw new Error('戰局已變更。');
     if(current.orbRun?.id===id){if(JSON.stringify(current.orbRun.input.team.map(c=>c.id))!==JSON.stringify(p.teamIds)||current.orbRun.input.mode!==mode)throw new Error('同一戰局不能更換隊伍或模式。');return current;}

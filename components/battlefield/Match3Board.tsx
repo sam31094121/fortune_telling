@@ -210,33 +210,52 @@ export default function Match3Board({ resumeBattleId, treasurePractice, seed, te
   const [init, setInit] = useState<{ rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; guestBattleToken?:string;guestBattleId?:string;guestVersion?:number;sharedBattleToken?:string; sharedBattleId?:string; sharedVersion?:number;outcome?:OrbOutcome;totalDamage?:number;lastDamage?:number; resumeInput?: import('@/lib/beast-game/match3/resolve-turn').TurnInput; revision: number; enhance?: Readonly<Record<string, EnhanceInfo>> } | null>(null);
   const revision = useRef(0);
   const sharedStart = useRef<string | null>(null);
-  const [initError, setInitError] = useState('');
+  const [initError, setInitError] = useState<{ message: string; pendingBattle?: string | null; pendingBattleHref?: string | null } | null>(null);
   const [recovery, setRecovery] = useState(0);
   const resumeId = useRef(resumeBattleId);
   const opening = useRef<{ key:string; promise:ReturnType<typeof sharedRequest> } | null>(null);
   const recoveryAttempts=useRef(0),recoveryVersion=useRef<number | undefined>(undefined);
+  useEffect(() => { if (resumeBattleId) resumeId.current = resumeBattleId; }, [resumeBattleId]);
+  const showError = (message: string, extra?: { pendingBattle?: string | null; pendingBattleHref?: string | null }) => setInitError({ message, ...extra });
   const recover = () => {
     resumeId.current = init?.sharedBattleId ?? resumeId.current;
-    if(++recoveryAttempts.current>2){setInitError('戰局尚未恢復，請重新連線接續。');return;}
+    if(++recoveryAttempts.current>2){showError('戰局尚未恢復，請重新連線接續。');return;}
     setRecovery(n => n + 1);
   };
   const key = teamIds?.join(',') ?? '';
   useEffect(() => {
     let active = true;
-    setInitError(''); setInit(null);
+    setInitError(null); setInit(null);
     const initialize = async () => {
       const s = seed ?? (Date.now() % 100000); const rng = seededRng(s);
       const owner = cfg.id === 'medium' ? null : progressOwner;
       const campaign = campaignEnabled && owner ? readCampaign(owner) : null;
-      if (campaignEnabled && (!campaign?.ok || !campaign.profile)) { setInitError(campaign?.error ?? '請先選擇主角及夥伴'); return; }
-      if (!resumeId.current && campaign?.profile && !validateCampaignTeam(campaign.profile, teamIds ?? [])) { setInitError('請先選擇主角，可另選最多四張已解鎖夥伴'); return; }
+      if (campaignEnabled && (!campaign?.ok || !campaign.profile)) { showError(campaign?.error ?? '請先選擇主角及夥伴'); return; }
+      if (!resumeId.current && campaign?.profile && !validateCampaignTeam(campaign.profile, teamIds ?? [])) { showError('請先選擇主角，可另選最多四張已解鎖夥伴'); return; }
       let shared: {guestBattleToken?:string;guestBattleId?:string;guestVersion?:number;token?:string;battleId?:string;version?:number;outcome?:OrbOutcome;totalDamage?:number;lastDamage?:number;initial?:import('@/lib/beast-game/match3/resolve-turn').TurnInput} = {};
       if(owner==='self' && campaign?.profile){
         sharedStart.current??=crypto.randomUUID();
         const requestKey = [key,cfg.id,recovery,resumeId.current ?? sharedStart.current].join(':');
-        if(opening.current?.key!==requestKey)opening.current={key:requestKey,promise:sharedRequest(resumeId.current ? {type:'ORB_RESUME',battleId:resumeId.current} : {type:'ORB_BEGIN',profile:campaign.profile,operationId:sharedStart.current,seed:s,mode:cfg.id})};
+        const openShared = async () => {
+          if (resumeId.current) return sharedRequest({type:'ORB_RESUME',battleId:resumeId.current});
+          try {
+            return await sharedRequest({type:'ORB_BEGIN',profile:campaign.profile,operationId:sharedStart.current,seed:s,mode:cfg.id});
+          } catch (error) {
+            const message = error instanceof Error ? error.message : '';
+            if (!message.includes('請先接續或離開原戰鬥')) throw error;
+            const view = (await sharedRequest()).view as { pendingBattle?: string | null; pendingBattleHref?: string | null } | undefined;
+            const pending = view?.pendingBattle;
+            if (typeof pending === 'string' && pending.startsWith('orb:')) {
+              resumeId.current = pending;
+              return sharedRequest({type:'ORB_RESUME',battleId:pending});
+            }
+            throw Object.assign(new Error(message), { pendingBattle: pending ?? null, pendingBattleHref: view?.pendingBattleHref ?? (typeof pending === 'string' && pending.startsWith('card:') ? '/beast-game/battlefield' : null) });
+          }
+        };
+        if(opening.current?.key!==requestKey)opening.current={key:requestKey,promise:openShared()};
         const opened=await opening.current.promise;
-        if(opened.initial?.mode!==cfg.id)throw new Error('原戰局模式不同，請返回原遊戲接續。');
+        if(opened.battleId) resumeId.current = opened.battleId as string;
+        if(opened.initial?.mode!==cfg.id)throw Object.assign(new Error('原戰局模式不同，請返回原遊戲接續。'), { pendingBattle: opened.battleId, pendingBattleHref: opened.initial?.mode === 'hard45b' ? '/beast-game/match3-hard2' : '/beast-game/match3-hard' });
         if(recoveryVersion.current!==opened.version)recoveryAttempts.current=0;
         recoveryVersion.current=opened.version;
         if(opened.profile)campaign.profile=opened.profile;shared=opened;
@@ -259,12 +278,44 @@ export default function Match3Board({ resumeBattleId, treasurePractice, seed, te
       if (profile) for (const u of team) { const a = campaignCardAttack(profile, u.id); const bonus = Number(a.bonus); if (bonus > 0) enhance[u.id] = { bonus, baseAttack: Number(a.baseAttack) }; }
       setInit({ rng, seed: s, wins, owner, guestBattleToken:shared.guestBattleToken,guestBattleId:shared.guestBattleId,guestVersion:shared.guestVersion,sharedBattleToken:shared.token, sharedBattleId:shared.battleId, sharedVersion:shared.version, outcome:shared.outcome, revision: ++revision.current, ...lineup, enhance, board: generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, cfg.id === 'medium' ? 3 : progressionStage(wins).minChain), ...(shared.initial?{seed:shared.initial.seed,wins:shared.initial.wins,team:shared.initial.team,enemies:shared.initial.foes,board:shared.initial.board,resumeInput:shared.initial,totalDamage:shared.totalDamage,lastDamage:shared.lastDamage}:{}) });
     };
-    void initialize().catch(e=>{if(active)setInitError(e instanceof Error?e.message:"暫時無法開戰。");});
+    void initialize().catch(e=>{
+      if(!active)return;
+      const extra = e && typeof e === 'object' ? e as { pendingBattle?: string | null; pendingBattleHref?: string | null } : {};
+      showError(e instanceof Error?e.message:"暫時無法開戰。", { pendingBattle: extra.pendingBattle, pendingBattleHref: extra.pendingBattleHref });
+    });
     return () => { active = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seed, key, cfg.id, progressOwner, campaignEnabled, recovery]);
-  const leave=async(next?:()=>void)=>{try{const id=init?.sharedBattleId??resumeId.current;if(id)await sharedRequest({type:'RELEASE',battleId:id});next?.();}catch(e){setInitError(e instanceof Error?e.message:'暫時無法離開戰鬥。');}};
-  if (initError) return <section className={styles.wrap} role="alert">{initError}<button type="button" data-testid="orb-reconnect" onClick={()=>{recoveryAttempts.current=0;recover();}}>重新連線</button><button type="button" onClick={()=>void leave(onRepick)}>返回我的卡片</button></section>;
+  const leave=async(next?:()=>void)=>{try{const id=init?.sharedBattleId??resumeId.current;if(id)await sharedRequest({type:'RELEASE',battleId:id});next?.();}catch(e){showError(e instanceof Error?e.message:'暫時無法離開戰鬥。');}};
+  const continuePending=()=>{
+    const pending=initError?.pendingBattle, href=initError?.pendingBattleHref;
+    if(typeof pending==='string' && pending.startsWith('orb:')){
+      const here=typeof window!=='undefined'?window.location.pathname:'';
+      if(href && href!==here && href!==here+'/'){window.location.assign(href);return;}
+      resumeId.current=pending;recoveryAttempts.current=0;setInitError(null);setRecovery(n=>n+1);return;
+    }
+    if(href)window.location.assign(href);
+  };
+  const leavePending=async()=>{
+    try{
+      const pending=initError?.pendingBattle; if(!pending)return;
+      await sharedRequest({type:'RELEASE',battleId:pending});
+      resumeId.current=undefined;sharedStart.current=crypto.randomUUID();opening.current=null;recoveryAttempts.current=0;
+      setInitError(null);setRecovery(n=>n+1);
+    }catch(e){showError(e instanceof Error?e.message:'暫時無法離開原戰鬥，請重試。', { pendingBattle: initError?.pendingBattle, pendingBattleHref: initError?.pendingBattleHref });}
+  };
+  if (initError) {
+    const holdBlocked = initError.message.includes('請先接續或離開原戰鬥') || initError.message.includes('原戰局模式不同');
+    return <section className={styles.wrap} role="alert" data-testid="orb-init-error">
+      <p className={styles.initErrorText}>{holdBlocked ? (initError.message.includes('原戰局模式不同') ? '上一場寶珠戰還在進行，而且模式不同。請先回到原遊戲接續，或離開原戰鬥再開始這一場。' : '還有一場戰鬥沒結束，進度都還在。請接續原戰鬥，或先離開再開始這一場。') : initError.message}</p>
+      <div className={styles.initErrorActions}>
+        {holdBlocked && (initError.pendingBattle || initError.pendingBattleHref) && <button type="button" className={styles.again} data-testid="orb-continue-pending" onClick={continuePending}>接續原戰鬥</button>}
+        {holdBlocked && initError.pendingBattle && <button type="button" className={styles.again} data-testid="orb-leave-pending" onClick={()=>void leavePending()}>離開原戰鬥</button>}
+        <button type="button" className={styles.again} data-testid="orb-reconnect" onClick={()=>{recoveryAttempts.current=0;recover();}}>重新連線</button>
+        <button type="button" className={styles.again} data-testid="orb-return-cards" onClick={()=>void leave(onRepick)}>返回我的卡片</button>
+      </div>
+    </section>;
+  }
   if (!init) return <section className={styles.wrap} aria-busy="true" role="status">正在讀取已保存的戰局…</section>;
   return <Match3Game onRecover={recover} treasurePractice={treasurePractice} key={`${key}:${cfg.id}:${init.revision}`} init={init} teamIds={teamIds} rule={sameElementRule} onRepick={()=>void leave(onRepick)} cfg={cfg} campaignEnabled={campaignEnabled} onCampaignContinue={()=>void leave(onCampaignContinue)} isFinalBoss={isFinalBoss} />;
 }
