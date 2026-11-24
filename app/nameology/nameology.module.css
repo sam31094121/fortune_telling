@@ -66,3 +66,109 @@
     overflow-wrap: anywhere;
   }
 }
+
+/* 2026-11-24 姓名學主卡（NameologyUltimateDecisionPanel）字級＋美化，只作用於這張卡。
+   依修圖技能檔「卡面修圖手法」：單一光向（左上→右下）、只在頂緣做細接觸高光、不加整圈光暈、
+   字級層次固定（名字＞節奏句＞內文＞小標）、等比留白、不溢出；漸層最多 2 層、不用 filter／backdrop-filter。
+   資訊內容與文案不變。 */
+.page .nameCard {
+  border-color: rgba(244, 201, 93, 0.32) !important;
+  /* 頂緣細金線：手機效能模式會把 box-shadow 降級，頂緣高光改用不吃效能的 border-top。 */
+  border-top-color: rgba(253, 230, 138, 0.58) !important;
+  background:
+    radial-gradient(120% 70% at 10% 0%, rgba(251, 191, 36, 0.17), transparent 58%),
+    linear-gradient(162deg, #191331 0%, #100c24 52%, #0a0817 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(253, 230, 138, 0.42),
+    8px 16px 34px rgba(2, 6, 23, 0.42) !important;
+}
+
+.page .nameCard::before {
+  background: linear-gradient(180deg, rgba(253, 230, 138, 0.09), transparent 22%) !important;
+}
+
+.page .nameCard > * {
+  position: relative;
+}
+
+.page .nameCard .nameEyebrow {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0.3em !important;
+  color: #fcd98a !important;
+}
+
+.page .nameCard .nameTitle {
+  font-size: 60px !important;
+  line-height: 1.12 !important;
+  letter-spacing: 0.08em !important;
+  color: #fde7ae !important;
+  text-shadow: 1px 2px 0 rgba(120, 53, 15, 0.55);
+  overflow-wrap: anywhere;
+}
+
+.page .nameCard .nameTitle::after {
+  display: block;
+  width: 56px;
+  height: 2px;
+  margin-top: 12px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(253, 230, 138, 0.85), rgba(253, 230, 138, 0));
+  content: '';
+}
+
+.page .nameCard .nameLead {
+  font-size: 16px !important;
+  line-height: 1.75 !important;
+}
+
+.page .nameCard .namePanel {
+  padding: 18px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 3px 6px 14px rgba(2, 6, 23, 0.28);
+}
+
+.page .nameCard .nameCorePanel {
+  border-color: rgba(253, 230, 138, 0.3) !important;
+  background: linear-gradient(180deg, rgba(120, 53, 15, 0.22), rgba(0, 0, 0, 0.22)) !important;
+}
+
+.page .nameCard .nameLabel {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0.12em !important;
+}
+
+.page .nameCard .nameCore {
+  font-size: 20px !important;
+  line-height: 1.65 !important;
+  color: #fcecc6 !important;
+}
+
+.page .nameCard .nameBody {
+  font-size: 18px !important;
+  line-height: 1.7 !important;
+}
+
+@media (max-width: 640px) {
+  .page .nameCard .nameEyebrow {
+    font-size: 14px !important;
+  }
+
+  .page .nameCard .nameTitle {
+    font-size: clamp(40px, 11.5vw, 48px) !important;
+    line-height: 1.15 !important;
+  }
+
+  .page .nameCard .nameTitle::after {
+    width: 48px;
+    margin-top: 10px;
+  }
+
+  .page .nameCard .nameCore {
+    font-size: 19px !important;
+  }
+
+  .page .nameCard .nameBody {
+    font-size: 17px !important;
+  }
+}

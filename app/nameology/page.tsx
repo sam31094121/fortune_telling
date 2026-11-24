@@ -526,30 +526,30 @@ function NameologyUltimateDecisionPanel({ analysis }: { analysis: NameologyAnaly
     .replace('能名字', '這個名字');
 
   return (
-    <section className="fortune-card overflow-hidden border-amber-300/35 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),rgba(15,23,42,0.90)_58%,rgba(2,6,23,0.98)_100%)] p-5 sm:p-7">
+    <section data-nameology-main-card className={`fortune-card ${styles.nameCard} overflow-hidden border-amber-300/35 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),rgba(15,23,42,0.90)_58%,rgba(2,6,23,0.98)_100%)] p-5 sm:p-7`}>
       <div className="min-w-0">
-        <p className="text-[11px] font-black tracking-[0.24em] text-amber-200">姓名學</p>
-        <h2 className="mt-3 break-words font-serif text-4xl font-black leading-tight text-amber-100 sm:text-5xl">{output.name.normalized}</h2>
-        <p className="mt-3 text-sm font-bold leading-7 text-cyan-100">先看這個名字想帶給你的方向</p>
+        <p className={`${styles.nameEyebrow} text-[11px] font-black tracking-[0.24em] text-amber-200`}>姓名學</p>
+        <h2 className={`${styles.nameTitle} mt-3 break-words font-serif text-4xl font-black leading-tight text-amber-100 sm:text-5xl`}>{output.name.normalized}</h2>
+        <p className={`${styles.nameLead} mt-3 text-sm font-bold leading-7 text-cyan-100`}>先看這個名字想帶給你的方向</p>
       </div>
 
-      <div className="mt-5 rounded-2xl border border-amber-200/25 bg-black/25 p-4">
-        <p className="text-xs font-black tracking-[0.18em] text-amber-200">這個名字的節奏</p>
-        <p className="mt-3 break-words text-lg font-black leading-8 text-amber-50">{coreJudgment}</p>
+      <div className={`${styles.namePanel} ${styles.nameCorePanel} mt-5 rounded-2xl border border-amber-200/25 bg-black/25 p-4`}>
+        <p className={`${styles.nameLabel} text-xs font-black tracking-[0.18em] text-amber-200`}>這個名字的節奏</p>
+        <p className={`${styles.nameCore} mt-3 break-words text-lg font-black leading-8 text-amber-50`}>{coreJudgment}</p>
       </div>
 
       <div className="mt-4 grid gap-3">
-        <article className="min-w-0 rounded-2xl border border-slate-300/15 bg-slate-900/55 p-4">
-          <p className="text-xs font-black text-slate-200">可以先放下</p>
-          <p className="mt-2 break-words text-base font-bold leading-7 text-slate-50">{layer1.coreObstacle.replace(/^目前必須停止：/, '')}</p>
+        <article className={`${styles.namePanel} min-w-0 rounded-2xl border border-slate-300/15 bg-slate-900/55 p-4`}>
+          <p className={`${styles.nameLabel} text-xs font-black text-slate-200`}>可以先放下</p>
+          <p className={`${styles.nameBody} mt-2 break-words text-base font-bold leading-7 text-slate-50`}>{layer1.coreObstacle.replace(/^目前必須停止：/, '')}</p>
         </article>
-        <article className="min-w-0 rounded-2xl border border-cyan-200/15 bg-cyan-950/15 p-4">
-          <p className="text-xs font-black text-cyan-100">可以試著</p>
-          <p className="mt-2 break-words text-base font-bold leading-7 text-cyan-50">{layer1.firstDirection.replace(/^第一調整方向：/, '')}</p>
+        <article className={`${styles.namePanel} min-w-0 rounded-2xl border border-cyan-200/15 bg-cyan-950/15 p-4`}>
+          <p className={`${styles.nameLabel} text-xs font-black text-cyan-100`}>可以試著</p>
+          <p className={`${styles.nameBody} mt-2 break-words text-base font-bold leading-7 text-cyan-50`}>{layer1.firstDirection.replace(/^第一調整方向：/, '')}</p>
         </article>
-        <article className="min-w-0 rounded-2xl border border-amber-200/20 bg-amber-950/20 p-4">
-          <p className="text-xs font-black text-amber-100">今天的小一步</p>
-          <p className="mt-2 break-words text-base font-black leading-7 text-amber-50">{layer1.immediateAction.replace(/^立即行動：/, '')}</p>
+        <article className={`${styles.namePanel} min-w-0 rounded-2xl border border-amber-200/20 bg-amber-950/20 p-4`}>
+          <p className={`${styles.nameLabel} text-xs font-black text-amber-100`}>今天的小一步</p>
+          <p className={`${styles.nameBody} mt-2 break-words text-base font-black leading-7 text-amber-50`}>{layer1.immediateAction.replace(/^立即行動：/, '')}</p>
         </article>
       </div>
     </section>
