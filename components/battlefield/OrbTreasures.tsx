@@ -1,5 +1,5 @@
 'use client';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, PointerEvent } from 'react';
 import type { BeastElement } from '@/lib/beast-game/elements';
 import type { treasureCatalog, TreasureUse, TreasureRole } from '@/lib/beast-game/match3/treasures';
 import styles from './OrbTreasures.module.css';
@@ -18,11 +18,14 @@ export function TreasureGlyph({ element: affinity, role }: { element: BeastEleme
     {element === 'EARTH' && !(role === 'guard' && affinity === 'WATER') && <><path d="m24 5 16 10v23H8V15ZM8 15h32M15 23h18v9H15Z"/><path d="M3 43h42M18 15V8m12 7V8"/></>}
   </svg>;
 }
-export default function OrbTreasures({ catalog, disabled, guard, onUse, sideDock=false, partyCount }: { partyCount?: number; sideDock?: boolean; catalog: ReturnType<typeof treasureCatalog>; disabled: boolean; guard: number; onUse: (element: BeastElement, variant: number) => void }) {
+// 手指一碰就亮（手機的 :active 要等點擊確認才套用）；只改這顆按鈕的 data 屬性，不觸發 React 重繪。
+const pressOn = (e: PointerEvent<HTMLButtonElement>) => { if (!e.currentTarget.disabled) e.currentTarget.dataset.pressed = 'true'; };
+const pressOff = (e: PointerEvent<HTMLButtonElement>) => { delete e.currentTarget.dataset.pressed; };
+export default function OrbTreasures({ catalog, disabled, guard, onUse, sideDock=false, partyCount, pending=null }: { pending?: string | null; partyCount?: number; sideDock?: boolean; catalog: ReturnType<typeof treasureCatalog>; disabled: boolean; guard: number; onUse: (element: BeastElement, variant: number) => void }) {
   const visibleCatalog = catalog;
   const soloWeapon = sideDock && visibleCatalog.length === 1;
   return <div className={styles.inventory} data-party-count={partyCount} data-solo-weapon={soloWeapon ? "true" : undefined} data-testid="orb-treasures" data-side-dock={sideDock?'true':undefined} data-guard={guard}>
-    <div className={styles.slots}>{visibleCatalog.map(x => <button key={x.element+':'+x.variant} type="button" data-treasure={x.element} data-variant={x.variant} data-role={x.role} data-owner={x.ownerId} data-count={x.count} disabled={disabled || x.count < 1 || !x.available} aria-label={x.name+'，第'+x.tier+'階，'+x.count+'件，點擊釋放'} onClick={() => onUse(x.element,x.variant)} style={{ '--treasure-color': colors[x.element], '--affinity-color': colors[x.element], '--gem-color': gemColors[x.variant] } as CSSProperties}><small className={styles.tier}>{x.tier}</small><TreasureGlyph element={x.element} role={x.role}/><span>{x.count}</span></button>)}</div>
+    <div className={styles.slots}>{visibleCatalog.map(x => <button key={x.element+':'+x.variant} type="button" data-treasure={x.element} data-variant={x.variant} data-role={x.role} data-owner={x.ownerId} data-count={x.count} data-pending={pending === x.element+':'+x.variant ? 'true' : undefined} disabled={disabled || x.count < 1 || !x.available} aria-label={x.name+'，第'+x.tier+'階，'+x.count+'件，點擊釋放'} onPointerDown={pressOn} onPointerUp={pressOff} onPointerCancel={pressOff} onPointerLeave={pressOff} onClick={() => onUse(x.element,x.variant)} style={{ '--treasure-color': colors[x.element], '--affinity-color': colors[x.element], '--gem-color': gemColors[x.variant] } as CSSProperties}><small className={styles.tier}>{x.tier}</small><TreasureGlyph element={x.element} role={x.role}/><span>{x.count}</span></button>)}</div>
   </div>;
 }
 

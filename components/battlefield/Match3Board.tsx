@@ -523,6 +523,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   };
   const [treasureGuard, setTreasureGuard] = useState(init.resumeInput?.treasureGuard ?? 1);
   const [treasureFlight, setTreasureFlight] = useState<TreasureFlight | null>(null);
+  const [pendingTreasure, setPendingTreasure] = useState<string | null>(null);
   const catalogRevision = useRef(0);
   const treasureAction = useRef(0);
   const battleId = useRef('');
@@ -1017,6 +1018,8 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
 
   const useTreasure = async (element: BeastElement, variant: number) => {
     if (busy || turnRequest.current || over || ti < 0 || (!treasurePractice && (!init.owner || !campaignEnabled))) return;
+    // 點下即回饋：蓄力音與按鈕亮起不等伺服端往返；傷害、庫存與飛行動畫仍只吃伺服端結果。
+    cue('charge'); setPendingTreasure(element + ':' + variant);
     catalogRevision.current++;
     const controller = new AbortController(); turnRequest.current = controller; setBusy(true); setLastHealing([]);
     const timeout = window.setTimeout(() => controller.abort(), 15000);
@@ -1039,11 +1042,10 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       const target = root.current!.querySelector('[data-testid="match3-enemy"][data-id="'+result.effect.targetId+'"]')!.getBoundingClientRect();
       setTreasures(result.catalog);
       setTreasureFlight({effect:result.effect,x1:source.left+source.width/2-bounds.left,y1:source.top+source.height/2-bounds.top,x2:target.left+target.width/2-bounds.left,y2:target.top+target.height/2-bounds.top});
-      cue('charge');
       later(() => { queueKnockouts(foes, result.foes, actionId, 'server-treasure', 0); setTeam(result.team); setFoes(result.foes); setConfirmedOutcome(result.outcome); setTreasureGuard(result.guardScale); setLastDmg(result.effect.damage); setTotalDmg(d=>d===null?null:d+result.effect.damage); setLog(result.effect.description); setSupportText([result.effect.description,result.comebackText].filter(Boolean).join('；')); cue('impact'); }, 950);
       later(() => { setTreasureFlight(null); setBusy(false); }, 1900);
     } catch (e) { if(turnRequest.current===controller){if (init.sharedBattleToken) onRecover(); else { setLog(e instanceof Error ? e.message : '寶器未保存，請重試。'); setBusy(false); }} }
-    finally { window.clearTimeout(timeout); if (turnRequest.current === controller) turnRequest.current = null; }
+    finally { window.clearTimeout(timeout); setPendingTreasure(null); if (turnRequest.current === controller) turnRequest.current = null; }
   };
 
   const release = async (path: Cell[]) => {
@@ -1586,7 +1588,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           );
         })}
       </div>
-      {rigEnabled && (campaignEnabled || treasurePractice) && <OrbTreasures partyCount={cfg.id === 'hard45' ? team.length : undefined} catalog={lastAllyBig ? treasures.filter(x => x.ownerId === (held?.lastAllyId ?? team.find(u => u.hp > 0)?.id)) : treasures} sideDock={cfg.id==='hard45'&&lastAllyBig} disabled={busy || !!over} guard={treasureGuard} onUse={useTreasure}/>}
+      {rigEnabled && (campaignEnabled || treasurePractice) && <OrbTreasures partyCount={cfg.id === 'hard45' ? team.length : undefined} catalog={lastAllyBig ? treasures.filter(x => x.ownerId === (held?.lastAllyId ?? team.find(u => u.hp > 0)?.id)) : treasures} sideDock={cfg.id==='hard45'&&lastAllyBig} disabled={busy || !!over} guard={treasureGuard} pending={pendingTreasure} onUse={useTreasure}/>}
       {orbDrops && <OrbDropAnimation drops={orbDrops.drops} catches={orbDrops.catches} onSound={cue} onCredit={drop => { const reward=drop.reward; if(reward)setTreasures(items=>items.map(x=>x.ownerId===drop.ownerId && x.element===reward.element && x.variant===reward.variant && reward.count>x.count ? {...x,count:reward.count} : x)); }} onDone={() => { const finish=finishOrbDrops.current; finishOrbDrops.current=null; setOrbDrops(null); finish?.(); }}/>}
       {rigEnabled && !mobileActionless && actions}
       <TreasureAnimation flight={treasureFlight}/>

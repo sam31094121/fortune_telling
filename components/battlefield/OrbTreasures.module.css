@@ -65,3 +65,6 @@
 .inventory[data-party-count="3"]{--party-columns:3}
 .inventory[data-party-count="4"]{--party-columns:4}
 .inventory:not([data-side-dock="true"]):is([data-party-count="2"],[data-party-count="3"],[data-party-count="4"]) .slots{grid-template-columns:repeat(var(--party-columns),minmax(0,var(--party-card-max,1fr)));justify-content:center}
+/* 點下即回饋：按住當下（:active）與等待伺服端結果（data-pending）都立刻亮起縮壓，只用 transform／濾鏡，不動版面。 */
+.slots button{transition:transform .06s ease-out,filter .06s ease-out}
+.slots button:active:not(:disabled),.slots button[data-pressed="true"]:not(:disabled),.slots button[data-pending="true"]{transform:scale(.9);filter:brightness(1.45) drop-shadow(0 0 6px var(--treasure-color));opacity:1}
