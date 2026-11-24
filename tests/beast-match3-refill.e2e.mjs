@@ -105,6 +105,7 @@ try {
   const drag = async route => {
     const oldRound = (await snap()).round;
     await js(`document.querySelector('[data-testid="match3-board"]').scrollIntoView({block:'center',behavior:'instant'})`); await sleep(200);
+    for (let settle = 0, last = '', polls = 0; settle < 2 && polls < 40; polls++) { const key = await js(`[...document.images].every(i=>i.complete)+JSON.stringify(document.querySelector('[data-testid="match3-board"]').getBoundingClientRect())`); settle = key === last ? settle + 1 : 0; last = key; if (settle < 2) await sleep(120); }
     const points = await js(`(${JSON.stringify(route)}).map(p=>{const e=document.querySelector('[data-testid="match3-board"] [data-r="'+p.r+'"][data-c="'+p.c+'"]'),r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})`);
     for (const p of points) assert(p.y > 0 && p.y < 844, 'Drag route must remain visible');
     let releasedAt;
@@ -410,10 +411,11 @@ try {
   if(process.env.MATCH3_REPLAY_ONLY==='1'){
     assert.equal(errors.length,0,errors.join('\n'));writeFileSync(path.join(output,'refill-result.json'),JSON.stringify({passed:true,scope:'replay-only',results,errors},null,2));console.log('PASS replay-only cases: '+results.length);
   }else{
+  const REFILL_PART=process.env.MATCH3_REFILL_PART||'';let names;
   await send('Emulation.setEmulatedMedia',{features:[]});
 
   touchInput=false;await send('Emulation.setTouchEmulationEnabled',{enabled:false});
-  for(const width of [320,390,820,1440]) {
+  for(const width of [320,390,820,1440].filter(w=>!REFILL_PART||REFILL_PART===`w${w}`)) {
     await start(0,width);
     await js('document.querySelector("[data-testid=match3-board]").scrollIntoView({block:"center",behavior:"instant"})');
     await js('window.__falls=[];window.__watch=true;function sampleFall(){const b=document.querySelector("[data-testid=match3-board]");if(b?.dataset.refilling){const cells=[...b.querySelectorAll("[data-fall-from]")];window.__falls.push({busy:b.getAttribute("aria-busy"),disabled:document.querySelector("[data-testid=open-picker]").disabled,overflow:getComputedStyle(b).overflow,cells:cells.map(c=>({r:+c.dataset.r,from:+c.dataset.fallFrom,delay:parseFloat(getComputedStyle(c).animationDelay),animation:getComputedStyle(c).animationName,transform:getComputedStyle(c).transform,opacity:getComputedStyle(c).opacity}))})}if(window.__watch)requestAnimationFrame(sampleFall)}requestAnimationFrame(sampleFall)');
@@ -433,9 +435,10 @@ try {
     assert.equal(await js('window.__gains[0].gain.value'),1,'no extra master attenuation');
     results.push({width,frames:observations.length,sample:observations.slice(0,2),after});await save('refill-settled-'+width);
   }
+  if(!REFILL_PART||REFILL_PART==='tail'){
   await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});await start(0,390);
   await js('window.__reducedNames=[];new MutationObserver(()=>{for(const a of document.getAnimations())if(a.animationName)window.__reducedNames.push(a.animationName)}).observe(document.querySelector("[data-testid=match3-board]"),{attributes:true,subtree:true})');
-  await drag(findPath((await snap()).cells,3));const names=await js('window.__reducedNames');assert(!names.some(n=>/m3RefillFall|m3SoftDrop|m3SoftClear|m3SoftWaterClear/.test(n)));
+  await drag(findPath((await snap()).cells,3));names=await js('window.__reducedNames');assert(!names.some(n=>/m3RefillFall|m3SoftDrop|m3SoftClear|m3SoftWaterClear/.test(n)));
   await click('[data-testid="match3-home"]');await wait('location.pathname==="/"');
 
   await send('Emulation.setEmulatedMedia',{features:[]});await start(0,390);
@@ -447,6 +450,7 @@ try {
   await click('[data-testid="match3-home"]');await wait('location.pathname==="/"');const leftAt=await js('performance.now()');await sleep(6000);
   assert(await js('window.__audioLog.some(e=>e.kind==="close")'));
   assert(!(await js('window.__audioLog.some(e=>e.kind==="start"&&e.t>'+leftAt+')')),'leaving during refill cancels delayed attacks and sounds');results.push({case:'leave during refill cancels pending actions'});
+  }
   assert.equal(errors.length,0,errors.join('\n'));writeFileSync(path.join(output,'refill-result.json'),JSON.stringify({passed:true,results,reduced:names,errors},null,2));console.log('PASS real refill, mobile/tablet/desktop, settle, unity gain, reduced motion, home: '+output);
   }
 }catch(error){writeFileSync(path.join(output,'refill-result.json'),JSON.stringify({passed:false,results,errors,error:String(error)},null,2));console.error(error);process.exitCode=1}
