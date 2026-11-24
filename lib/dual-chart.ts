@@ -10,6 +10,27 @@ import { buildShenShaGhost, GHOST_SEALED, sealShenShaGhost, type ShenShaGhostVie
 import { buildShenShaAsura, type ShenShaAsuraView } from './iching-shensha-asura';
 
 const sealedGhost = (view: ShenShaGhostView, reveal?: boolean): ShenShaGhostView | ShenShaGhostSealed => GHOST_SEALED && !reveal ? sealShenShaGhost(view) : view;
+
+// ── 五行分佈對比（後端運算，前端只照印）──────────────────────────────────────
+// 八字：沿用八字卡同一份 elementStatistics 百分比（含藏干與月令權重），兩處數字一致。
+// 紫微：五行局依《紫微斗數全書》（水二局、木三局、金四局、土五局、火六局，見 data/ziwei/quanshu-rules.md），
+//       排盤引擎已與古籍逐盤核對。星曜五行的分佈尚無核定的古籍對照表，不自行編造，照實標「暫時無法取得」。
+const BUREAU_ELEMENT: Record<string, string> = { 水二局: '水', 木三局: '木', 金四局: '金', 土五局: '土', 火六局: '火' };
+export interface ElementComparison {
+  elements: readonly string[];
+  bazi: { state: 'READY' | 'UNAVAILABLE'; percentages: Record<string, number>; basis: string };
+  ziwei: { state: 'READY' | 'UNAVAILABLE'; bureau: string; element: string; basis: string; distribution: { state: 'UNAVAILABLE'; note: string } };
+}
+function buildElementComparison(percentages: Record<string, number> | undefined, bureau: string): ElementComparison {
+  const elements = ['金', '木', '水', '火', '土'] as const;
+  const baziReady = !!percentages && elements.every(e => typeof percentages[e] === 'number');
+  const element = BUREAU_ELEMENT[bureau] ?? '';
+  return {
+    elements,
+    bazi: { state: baziReady ? 'READY' : 'UNAVAILABLE', percentages: baziReady ? Object.fromEntries(elements.map(e => [e, percentages![e]])) : {}, basis: '天干、地支、藏干與月令權重（與八字卡同一份統計）' },
+    ziwei: { state: element ? 'READY' : 'UNAVAILABLE', bureau: element ? bureau : '', element, basis: '依《紫微斗數全書》五行局', distribution: { state: 'UNAVAILABLE', note: '星曜五行分佈暫時無法取得（尚無核定的古籍對照表）' } },
+  };
+}
 import { verifyFourPillars } from './four-pillar-verification';
 import { getBaziTraditionalOutputGate } from './bazi-traditional-gate';
 import { buildDualChartShenSha, buildFlowYearShenSha, buildAnnualShenSha } from './dual-chart-iching-shensha';
@@ -107,6 +128,7 @@ export function calculateDualChart(body: unknown, options: { revealSealedGhost?:
     specialStars: { ...specialStars, flow, share: buildShenShaShare(specialStars.card, ichingView, flow) },
     annual: annual.map(a => ({ ...a, annualShenSha: buildAnnualShenSha(bazi, professional.professionalChart.traditionalInterpretationGate!, flowCheck, a.ganzhi) })),
     ziwei: ziweiWithPeriods,
+    elementComparison: buildElementComparison(professional.professionalChart.elementStatistics?.percentages as Record<string, number> | undefined, String(raw.fiveElementsClass ?? "")),
     periods,
     ziweiProfile,
     shenShaVisibility,  // 【新增】米其林層級穩定化

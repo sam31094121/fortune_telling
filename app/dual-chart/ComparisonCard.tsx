@@ -3,35 +3,7 @@
 import type { DualChartResult } from '@/lib/dual-chart';
 import styles from './dual-chart.module.css';
 
-const ELEMENTS = ['金', '木', '水', '火', '土'];
 const TEN_GODS = ['比肩', '劫財', '食神', '傷官', '偏財', '正財', '七殺', '正官', '偏印', '正印'];
-
-function getElementCount(stem: string, branch: string): Record<string, number> {
-  const count: Record<string, number> = { 金: 0, 木: 0, 水: 0, 火: 0, 土: 0 };
-
-  // 簡化版：根據天干地支五行分類
-  const stemElements: Record<string, string> = {
-    '甲': '木', '乙': '木',
-    '丙': '火', '丁': '火',
-    '戊': '土', '己': '土',
-    '庚': '金', '辛': '金',
-    '壬': '水', '癸': '水'
-  };
-
-  const branchElements: Record<string, string> = {
-    '子': '水', '丑': '土',
-    '寅': '木', '卯': '木',
-    '辰': '土', '巳': '火',
-    '午': '火', '未': '土',
-    '申': '金', '酉': '金',
-    '戌': '土', '亥': '水'
-  };
-
-  if (stemElements[stem]) count[stemElements[stem]]++;
-  if (branchElements[branch]) count[branchElements[branch]]++;
-
-  return count;
-}
 
 function ElementBar({ label, value, max }: { label: string; value: number; max: number }) {
   const percent = max > 0 ? (value / max) * 100 : 0;
@@ -41,38 +13,18 @@ function ElementBar({ label, value, max }: { label: string; value: number; max: 
       <div className={styles.barContainer}>
         <div className={styles.barFill} style={{ width: `${percent}%` }} data-element={label}></div>
       </div>
-      <span className={styles.barValue}>{value}</span>
+      <span className={styles.barValue}>{value}%</span>
     </div>
   );
 }
 
+// 五行分佈對比：數字全部由後端 elementComparison 算好，這裡只照印；沒有就顯示「暫時無法取得」。
 function ElementComparison({ result }: { result: DualChartResult }) {
-  // 計算八字五行
-  const baziElements: Record<string, number> = { 金: 0, 木: 0, 水: 0, 火: 0, 土: 0 };
-
-  // 簡化版：直接計算天干地支（實際應調用排盤引擎）
-  try {
-    const pc = result.bazi.professionalChart;
-    const order = ['hour', 'day', 'month', 'year'] as const;
-    order.forEach(key => {
-      const ganzhi = pc.pillarDetails[key].ganzhi;
-      if (ganzhi) {
-        const elem = getElementCount(ganzhi[0], ganzhi[1]);
-        Object.entries(elem).forEach(([k, v]) => baziElements[k] = (baziElements[k] || 0) + v);
-      }
-    });
-  } catch {
-    // fallback
-  }
-
-  // 紫微五行（簡化版：根據命宮主星）
-  const ziweiElements: Record<string, number> = { 金: 0, 木: 0, 水: 0, 火: 0, 土: 0 };
-  // 實際應根據紫微排盤的主星五行計算
-
-  const maxValue = Math.max(
-    Object.values(baziElements).reduce((a, b) => a + b, 0),
-    Object.values(ziweiElements).reduce((a, b) => a + b, 0) || 2
-  );
+  const cmp = result.elementComparison;
+  const bazi = cmp?.bazi;
+  const ziwei = cmp?.ziwei;
+  const elements = cmp?.elements ?? [];
+  const max = bazi?.state === 'READY' ? Math.max(...elements.map(e => bazi.percentages[e] ?? 0), 1) : 1;
 
   return (
     <div className={styles.comparisonSection}>
@@ -80,20 +32,19 @@ function ElementComparison({ result }: { result: DualChartResult }) {
       <div className={styles.elementComparison}>
         <div className={styles.elementColumn}>
           <h5>八字</h5>
-          {ELEMENTS.map(elem => (
-            <ElementBar key={`bazi-${elem}`} label={elem} value={baziElements[elem] || 0} max={maxValue} />
-          ))}
+          {bazi?.state === 'READY'
+            ? elements.map(elem => <ElementBar key={`bazi-${elem}`} label={elem} value={bazi.percentages[elem] ?? 0} max={max} />)
+            : <p className={styles.micro}>暫時無法取得</p>}
+          {bazi?.state === 'READY' && <p className={styles.micro}>{bazi.basis}</p>}
         </div>
         <div className={styles.elementColumn}>
           <h5>紫微</h5>
-          {ELEMENTS.map(elem => (
-            <ElementBar key={`ziwei-${elem}`} label={elem} value={ziweiElements[elem] || 0} max={maxValue} />
-          ))}
+          {ziwei?.state === 'READY'
+            ? <><p className={styles.ziweiBureau}>{ziwei.bureau}・屬{ziwei.element}</p><p className={styles.micro}>{ziwei.basis}</p></>
+            : <p className={styles.comparisonHint}>暫時無法取得</p>}
+          <p className={styles.micro}>{ziwei?.distribution.note ?? '暫時無法取得'}</p>
         </div>
       </div>
-      <p className={styles.comparisonHint}>
-        金木水火土分佈越平衡，五行生剋越流暢。缺項用神可透過取名或生活調整補強。
-      </p>
     </div>
   );
 }
