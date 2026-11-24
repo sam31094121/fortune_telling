@@ -1486,3 +1486,18 @@ details[open] > summary .moreHint::after {
 }
 .printPreview:not(.monochrome) .ziweiPrintSheet .center :is(.compactGrid,.luckGrid) th{background:#3a2a4d!important;color:#ecd9a0!important;border-color:#54426b}
 .printPreview:not(.monochrome) .ziweiPrintSheet .center :is(.compactGrid,.luckGrid) td{border-color:#ddd2b8}
+
+/* ── 畫面版（八字、紫微）稀有色質感升級（2026-11-24 修圖技能檔案）──────────────
+   與彩色列印版同一組色票：墨紫／古金／朱砂／玉青。只改顏色、漸層、細線色、陰影；
+   不改文字、字級、尺寸、排版、資料與運算；全部靜態（無動畫、無濾鏡、無混合模式），手機不增加重繪負擔。
+   列印版 .printPreview 不受影響。 */
+.page:not(.printPreview) .results>.panel{box-shadow:0 18px 50px rgba(0,0,0,.45),inset 0 0 0 1px rgba(201,169,97,.5),inset 0 0 0 6px rgba(201,169,97,.1)}
+.page:not(.printPreview) .baziReport :is(.pillarGrid,.luckGrid,.annualGrid) th{background:linear-gradient(180deg,#4b3b66,#33274a);border-bottom-color:rgba(201,169,97,.75)}
+.page:not(.printPreview) .annualGrid th small{white-space:nowrap;font-size:10.5px;letter-spacing:0}
+.page:not(.printPreview) .baziReport .largeGlyph td{color:#f3dda6;text-shadow:0 0 16px rgba(243,221,166,.26)}
+.page:not(.printPreview) .chart{background:rgba(201,169,97,.3);border-color:rgba(201,169,97,.62);box-shadow:0 14px 36px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.05)}
+.page:not(.printPreview) .cell{background:linear-gradient(180deg,#212037,#171826);box-shadow:inset 0 1px 0 rgba(201,169,97,.2)}
+.page:not(.printPreview) .cell.life{background:linear-gradient(180deg,#4c2d58,#341f40);box-shadow:inset 0 0 0 1px rgba(201,169,97,.38),inset 0 1px 0 rgba(246,227,184,.4)}
+.page:not(.printPreview) .cell.body{background:linear-gradient(180deg,#1c5249,#133a3a);box-shadow:inset 0 0 0 1px rgba(120,210,190,.3),inset 0 1px 0 rgba(190,240,225,.28)}
+.page:not(.printPreview) .cellTitle{color:#efdcae}
+.page:not(.printPreview) .center{background:radial-gradient(circle at 50% 28%,#2c2742,#151522);box-shadow:inset 0 0 0 1px rgba(201,169,97,.42),inset 0 0 44px rgba(201,169,97,.05)}
