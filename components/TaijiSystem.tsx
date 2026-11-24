@@ -145,6 +145,7 @@ interface TaijiSystemProps {
   autoPlayInterval?: number;
   onStageChange?: (stage: Stage) => void;
   onComplete?: () => void;
+  onShadersPrimed?: () => void;
 }
 
 type TaijiVisualTheme = {
@@ -1870,10 +1871,16 @@ function TaijiCore({
   useEffect(() => runWhenPageNotScrolling(() => {
     const init = (warmGl as THREE.WebGLRenderer & { initTexture?: (t: THREE.Texture) => void }).initTexture;
     if (typeof init !== 'function') return;
-    for (const texture of [ballTexture, glowTexture, raysTexture]) {
-      if (!texture) continue;
-      try { init.call(warmGl, texture); } catch { /* 上傳失敗就交回正常渲染時再上傳 */ }
-    }
+    const textures = [ballTexture, glowTexture, raysTexture].filter(Boolean) as THREE.Texture[];
+    let i = 0;
+    let cancelledUpload = false;
+    const tick = () => {
+      if (cancelledUpload || i >= textures.length) return;
+      try { init.call(warmGl, textures[i]); } catch { /* 上傳失敗就交回正常渲染時再上傳 */ }
+      i += 1;
+      if (i < textures.length) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   }), [ballTexture, glowTexture, raysTexture, warmGl]);
   useEffect(() => () => {
     taijiBallGeo.dispose();
@@ -2570,6 +2577,44 @@ function TaijiCore({
   );
 }
 
+/** 把著色器編譯拆成多幀，避免進首頁時主執行緒一次凍住約 3 秒。編譯期間 scene 隱藏，畫面仍由外層靜態太極負擔。 */
+function ShaderPrimeGate({ onDone }: { onDone: () => void }) {
+  const { gl, scene, camera } = useThree();
+  useEffect(() => {
+    let cancelled = false;
+    const meshes: THREE.Object3D[] = [];
+    scene.traverse((obj) => {
+      if ((obj as THREE.Mesh).isMesh) meshes.push(obj);
+    });
+    scene.visible = false;
+    let i = 0;
+    const tick = () => {
+      if (cancelled) return;
+      const started = performance.now();
+      while (i < meshes.length && performance.now() - started < 16) {
+        try {
+          gl.compile(meshes[i], camera);
+        } catch {
+          /* 單件編譯失敗不擋後續 */
+        }
+        i += 1;
+      }
+      if (i < meshes.length) {
+        requestAnimationFrame(tick);
+        return;
+      }
+      scene.visible = true;
+      onDone();
+    };
+    const handle = requestAnimationFrame(tick);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(handle);
+    };
+  }, [gl, scene, camera, onDone]);
+  return null;
+}
+
 /* =========================================================
    主元件
 ========================================================= */
@@ -2580,6 +2625,7 @@ export default function TaijiSystem({
   autoPlayInterval = 3000,
   onStageChange,
   onComplete,
+  onShadersPrimed,
 }: TaijiSystemProps) {
   const autoTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const soundRef = useRef<Taiji24SoundEngine | null>(null);
@@ -2628,6 +2674,8 @@ export default function TaijiSystem({
      只在暖機那幾幀（空檔觸發、約 9 幀，物件縮到 0.0001 倍，肉眼看不到）讓離屏的 frameloop 跑，
      暖機完成就恢復「離屏停 frameloop」。畫面與粒子特效不變。 */
   const [taijiWarmupRunning, setTaijiWarmupRunning] = useState(false);
+  const [shadersPrimed, setShadersPrimed] = useState(false);
+  const handleShadersPrimed = useCallback(() => { setShadersPrimed(true); onShadersPrimed?.(); }, [onShadersPrimed]);
   const handleTaijiWarmupStart = useCallback(() => setTaijiWarmupRunning(true), []);
   const handleTaijiWarmupDone = useCallback(() => setTaijiWarmupRunning(false), []);
 
@@ -2895,7 +2943,8 @@ export default function TaijiSystem({
             alpha: true,
             stencil: false,
           }}
-          onCreated={({ gl }) => {
+          onCreated={({ gl, scene }) => {
+            scene.visible = false;
             gl.domElement.dataset.engine = 'three.js r170';
             gl.domElement.dataset.taijiScene = 'ready';
             gl.domElement.dataset.taijiQuality = `${canvasQuality.maxDpr}x`;
@@ -2912,6 +2961,7 @@ export default function TaijiSystem({
           }}
           performance={{ min: 0.5 }}
         >
+          <ShaderPrimeGate onDone={handleShadersPrimed} />
           <AdaptiveEvents />
           <Level01FrameBinder controller={level01Controller} enabled={displayLayer === 1} />
           {displayLayer === 1 && level01Controller.pose.motionGameEnabled && (
@@ -2933,9 +2983,11 @@ export default function TaijiSystem({
           {/* 真實感核心（2026-08-14）：程式生成影棚環境光（IBL）——
               頂部暖色柔光箱＋側面冷色燈條＋背部輪廓光，球面反射出真實的影棚光形，
               零網路資源、frames=1 只烘焙一次不吃效能 */}
+          {shadersPrimed && (
           <Environment resolution={canvasQuality.environmentResolution} frames={1}>
             {TAIJI_STUDIO_LIGHTFORMERS}
           </Environment>
+          )}
           {/* 鏡頭只保留太極、粒子與光子：不放小行星、星雲或任何外部物件。 */}
           <ambientLight intensity={0.22} />
           {/* A bounded, in-volume scan light: it only rises during a strike,

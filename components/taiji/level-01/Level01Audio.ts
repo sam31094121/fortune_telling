@@ -1,4 +1,5 @@
 import { AUDIO_GAIN_LIMIT, LEVEL01_STRIKE_IMPACT_SECONDS } from './level01.constants';
+import { createSharedAudioContext, getSharedAudioContext } from '@/components/audio/site-bgm';
 import type { BalanceState, Level01TiltDirection } from './Level01Physics';
 import type { RotationFeedbackProfile } from './Level01SensoryFeedback';
 import type { TaijiSoundVariant } from '@/lib/taiji/experience-types';
@@ -121,7 +122,7 @@ export class Level01SoundEngine {
     if (!this.context) return;
     if (value) {
       this.stopActiveThunder();
-      void this.context.suspend().catch(() => undefined);
+      // 共用 AudioContext 不可 suspend，否則會把全站 BGM 一起停掉。
     } else if (this.enabled) {
       void this.context.resume().catch(() => undefined);
     }
@@ -146,7 +147,11 @@ export class Level01SoundEngine {
         return false;
       }
       if (!this.context) {
-        this.context = new Ctor();
+        this.context = getSharedAudioContext() ?? createSharedAudioContext();
+        if (!this.context) {
+          this.blocked = true;
+          return false;
+        }
         this.master = this.context.createGain();
         this.master.gain.value = Math.min(AUDIO_GAIN_LIMIT, .72);
         this.compressor = this.context.createDynamicsCompressor();

@@ -2,7 +2,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: #080402 url('/home-entry/nine-grid-dog-autumn-scenery-v1.png') center bottom / auto 100% no-repeat;
+  background: #080402 center bottom / auto 100% no-repeat;
 }
 .scenery::before, .scenery::after { display: none; }
 .artwork {
@@ -57,3 +57,8 @@
 
 /* 容器單位用來讓神獸寬度永遠不超過卡片，字級放大、卡片變高時不被裁切。 */
 :global(body #home-eight-card-route) a:has(.artwork) { container-type:inline-size; }
+
+.scenery.is-art-ready,
+.scenery[data-art-eager] {
+  background-image: url('/home-entry/nine-grid-dog-autumn-scenery-v1.thumb.webp');
+}

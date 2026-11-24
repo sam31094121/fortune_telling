@@ -18,7 +18,11 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: linear-gradient(180deg, #07172938 0%, #07172918 45%, #071729e8 100%), url('/home-entry/qinglong-scenery-v1.png');
+  background-image: linear-gradient(180deg, #07172938 0%, #07172918 45%, #071729e8 100%);
+}
+.scenery.is-art-ready,
+.scenery[data-art-eager] {
+  background-image: linear-gradient(180deg, #07172938 0%, #07172918 45%, #071729e8 100%), url('/home-entry/qinglong-scenery-v1.thumb.webp');
   background-size: cover;
   background-position: center;
 }

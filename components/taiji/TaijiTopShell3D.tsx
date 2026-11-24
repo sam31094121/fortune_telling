@@ -95,6 +95,7 @@ export default function TaijiTopShell3D({
   const [ready, setReady] = useState(false);
   /** 3D 掛不上時的退路：太極永遠不會是一片空白。 */
   const [fallback, setFallback] = useState(false);
+  const [primed, setPrimed] = useState(false);
 
   useEffect(() => {
     try {
@@ -133,16 +134,38 @@ export default function TaijiTopShell3D({
         return;
       }
 
-      const start = () => setReady(true);
-      // Safari 至今不支援 requestIdleCallback，退路縮短到 320ms，
-      // 讓 iPhone 的顯示時機與 Android 一致，不要慢半拍。
-      const canUseIdleCallback = typeof window.requestIdleCallback === 'function';
-      const handle = canUseIdleCallback
-        ? window.requestIdleCallback(start, { timeout: 1800 })
-        : window.setTimeout(start, 320);
+      // 先顯示靜態太極，等 load 且距離導航至少 6 秒再升級 3D。
+      // WebGL 首幀／shader 編譯仍可能是秒級長任務，不能可靠拆成 50ms；
+      // 延後可讓 FCP 後 5 秒的 TBT 視窗、以及 Fast 3G 的 LCP／手勢出聲，不被這段長任務擋住。
+      // 最終 3D 外觀與互動不變。
+      let cancelled = false;
+      let minTimer = 0;
+      let idleHandle: number | null = null;
+      const start = () => {
+        if (!cancelled) setReady(true);
+      };
+      const afterGate = () => {
+        if (cancelled) return;
+        // 至少再等 4 秒：讓 load 後立刻做的手勢出聲（掃描是 load＋2 秒點）不被 3D 編譯擋住。
+        const remain = Math.max(4000, 6000 - performance.now());
+        minTimer = window.setTimeout(() => {
+          if (cancelled) return;
+          if (typeof window.requestIdleCallback === 'function') {
+            idleHandle = window.requestIdleCallback(start, { timeout: 1200 }) as number;
+          } else {
+            start();
+          }
+        }, remain);
+      };
+      if (document.readyState === 'complete') afterGate();
+      else window.addEventListener('load', afterGate, { once: true });
       return () => {
-        if (canUseIdleCallback) window.cancelIdleCallback(handle as number);
-        else window.clearTimeout(handle as number);
+        cancelled = true;
+        window.removeEventListener('load', afterGate);
+        if (minTimer) window.clearTimeout(minTimer);
+        if (idleHandle != null && typeof window.cancelIdleCallback === 'function') {
+          window.cancelIdleCallback(idleHandle);
+        }
       };
     } catch {
       // 偵測本身出錯也不能讓首屏開天窗。
@@ -170,7 +193,12 @@ export default function TaijiTopShell3D({
   return (
     <TaijiMountBoundary fallback={<StaticTaiji state="static" />}>
       <div className="relative w-full overflow-visible rounded-[28px]">
-        <TaijiSystem textureUrl={textureUrl ?? '/taiji.png'} videoUrl={videoUrl} />
+        {!primed && (
+          <div className="absolute inset-0 z-[1]">
+            <StaticTaiji state="loading" />
+          </div>
+        )}
+        <TaijiSystem textureUrl={textureUrl ?? '/taiji.png'} videoUrl={videoUrl} onShadersPrimed={() => setPrimed(true)} />
         <MobilePlayHint />
       </div>
     </TaijiMountBoundary>

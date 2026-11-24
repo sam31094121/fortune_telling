@@ -4,7 +4,9 @@
 /* 2026-11-19：爪子副本只在按鈕浮出（懸停／按下）時才疊在按鈕上；平時不畫，避免與本體同圖疊兩層而爪子出現重影。 */
 .paws {z-index:2;object-fit:contain;filter:none!important;opacity:0!important;mask:url('/home-entry/taiji-leopard-paws.svg') center/100% 100% no-repeat;}
 .title {position:absolute!important;top:0!important;left:16px;right:16px;z-index:3;text-align:center;pointer-events:none;}
-:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {background:url('/home-entry/taiji-leopard-environment-v1.png') center/cover no-repeat!important;opacity:1!important;}
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {background:center/cover no-repeat!important;opacity:1!important;}
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry.is-art-ready,
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry[data-art-eager] {background-image:url('/home-entry/taiji-leopard-environment-v1.thumb.webp')!important;}
 :global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry :global(.home-feature-cta) {z-index:1;opacity:0!important;background:linear-gradient(#252628,#111315)!important;transition:opacity 150ms ease;}
 :global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry:is(:active,:focus-visible) :global(.home-feature-cta) {opacity:1!important;}
 @media(hover:hover){:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry:hover :global(.home-feature-cta){opacity:1!important;}}

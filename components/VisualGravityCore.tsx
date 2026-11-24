@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import type { Mesh, MeshBasicMaterial, SpriteMaterial } from "three";
+import { getSharedAudioContext } from '@/components/audio/site-bgm';
 
 const MOBILE_VISUAL_BUILD = "tablet-unified-20260707-1";
 
@@ -44,17 +45,13 @@ export default function VisualGravityCore() {
   };
 
   const getAudioContext = (): AudioContext | null => {
-    if (typeof window === 'undefined') return null;
-    if (!audioCtxRef.current) {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (AudioContextClass) {
-        audioCtxRef.current = new AudioContextClass();
-      }
+    const shared = getSharedAudioContext();
+    if (!shared) return null;
+    audioCtxRef.current = shared;
+    if (shared.state === 'suspended') {
+      void shared.resume().catch(() => {});
     }
-    if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
-      audioCtxRef.current.resume().catch(() => {});
-    }
-    return audioCtxRef.current;
+    return shared;
   };
 
   const playBowlSound = () => {
@@ -272,7 +269,6 @@ export default function VisualGravityCore() {
   useEffect(() => {
     const handleResetAudio = () => {
       if (audioCtxRef.current) {
-        audioCtxRef.current.close().catch(() => {});
         audioCtxRef.current = null;
       }
     };

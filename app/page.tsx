@@ -1,6 +1,7 @@
 'use client';
 import taijiArtwork from '@/components/TaijiBeastHomeArtwork.module.css';
-import { duckBgm } from '@/components/audio/site-bgm';
+import { duckBgm, playLimitedSfx, stopAllLimitedSfx } from '@/components/audio/site-bgm';
+import { armLazyHomeArt } from '@/components/home/lazy-home-art';
 import nineGridArtwork from '@/components/NineGridHomeArtwork.module.css';
 import nameBaziArtwork from '@/components/NameBaziHomeArtwork.module.css';
 import nameArtwork from '@/components/NameologyHomeArtwork.module.css';
@@ -1567,6 +1568,7 @@ export default function HomePage() {
     '[data-home-tools-card] button, [data-home-tools-card] [role="option"], [data-home-tools-card] a, [data-home-tools-card] [data-language-picker], [data-install-shield-panel]',
     showScrollTop,
   );
+  useEffect(() => armLazyHomeArt(), []);
   // 2026-10-17 穩定性：「易經個人成長中心」展開狀態在同一次瀏覽內記住（重新整理、返回上一頁都維持），新分頁仍從收合開始。
   useEffect(() => {
     const KEY = 'home-growth-disclosure-open-v1';
@@ -1851,85 +1853,74 @@ export default function HomePage() {
       || body.classList.contains('app-touching');
   };
 
+
   const playModalBowlSound = (type: number) => {
     if (typeof window === 'undefined' || isModalTaijiAudioReduced()) return;
     duckBgm(5, 1); // 頌缽響起時背景音壓低約 5 dB、1 秒
-    try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContextClass) return;
-      const ctx = new AudioContextClass();
+    playLimitedSfx((ctx) => {
       const gainNode = ctx.createGain();
-      gainNode.gain.setValueAtTime(0, ctx.currentTime);
-      
+      const nodes: Array<{ stop: (when?: number) => void }> = [];
+      const now = ctx.currentTime;
+      gainNode.gain.setValueAtTime(0, now);
+
+      const addOsc = (freq: number, typeName: OscillatorType = 'sine') => {
+        const osc = ctx.createOscillator();
+        osc.type = typeName;
+        osc.frequency.setValueAtTime(freq, now);
+        osc.connect(gainNode);
+        osc.start(now);
+        nodes.push(osc);
+        return osc;
+      };
+
+      let duration = 4.8;
       if (type === 1) {
-        const osc1 = ctx.createOscillator();
-        const osc2 = ctx.createOscillator();
-        osc1.frequency.setValueAtTime(292, ctx.currentTime);
-        osc2.frequency.setValueAtTime(292 * 1.52, ctx.currentTime);
-        osc1.connect(gainNode); osc2.connect(gainNode);
-        gainNode.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.05);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 4.5);
-        osc1.start(); osc2.start();
-        osc1.stop(ctx.currentTime + 4.8); osc2.stop(ctx.currentTime + 4.8);
+        addOsc(292); addOsc(292 * 1.52);
+        gainNode.gain.linearRampToValueAtTime(0.4, now + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 4.5);
+        duration = 4.8;
+        nodes.forEach((n) => n.stop(now + duration));
       } else if (type === 2) {
-        const oscLow = ctx.createOscillator();
-        const oscHigh = ctx.createOscillator();
-        oscLow.frequency.setValueAtTime(144, ctx.currentTime);
-        oscHigh.frequency.setValueAtTime(432, ctx.currentTime);
-        oscLow.connect(gainNode); oscHigh.connect(gainNode);
-        gainNode.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.05);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 5.5);
-        oscLow.start(); oscHigh.start();
-        oscLow.stop(ctx.currentTime + 5.8); oscHigh.stop(ctx.currentTime + 5.8);
+        addOsc(144); addOsc(432);
+        gainNode.gain.linearRampToValueAtTime(0.6, now + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 5.5);
+        duration = 5.8;
+        nodes.forEach((n) => n.stop(now + duration));
       } else if (type === 3) {
-        const osc1 = ctx.createOscillator();
-        const osc2 = ctx.createOscillator();
-        const osc3 = ctx.createOscillator();
-        osc1.frequency.setValueAtTime(144, ctx.currentTime);
-        osc2.frequency.setValueAtTime(292, ctx.currentTime);
-        osc3.frequency.setValueAtTime(528, ctx.currentTime);
-        osc1.connect(gainNode); osc2.connect(gainNode); osc3.connect(gainNode);
-        gainNode.gain.linearRampToValueAtTime(0.8, ctx.currentTime + 0.04);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 7.5);
-        osc1.start(); osc2.start(); osc3.start();
-        osc1.stop(ctx.currentTime + 7.8); osc2.stop(ctx.currentTime + 7.8); osc3.stop(ctx.currentTime + 7.8);
+        addOsc(144); addOsc(292); addOsc(528);
+        gainNode.gain.linearRampToValueAtTime(0.8, now + 0.04);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 7.5);
+        duration = 7.8;
+        nodes.forEach((n) => n.stop(now + duration));
       } else {
-        const frequencies = [108, 216, 432, 528, 999];
-        frequencies.forEach((freq, idx) => {
-          const osc = ctx.createOscillator();
-          osc.type = idx === 4 ? 'triangle' : 'sine';
-          osc.frequency.setValueAtTime(freq, ctx.currentTime);
-          osc.connect(gainNode);
-          osc.start();
-          osc.stop(ctx.currentTime + 10.5);
-        });
-        gainNode.gain.linearRampToValueAtTime(1.0, ctx.currentTime + 0.05);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 10.0);
+        [108, 216, 432, 528, 999].forEach((freq, idx) => addOsc(freq, idx === 4 ? 'triangle' : 'sine'));
+        gainNode.gain.linearRampToValueAtTime(1.0, now + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 10.0);
+        duration = 10.5;
+        nodes.forEach((n) => n.stop(now + duration));
       }
       gainNode.connect(ctx.destination);
-      modalAudioContextsRef.current.add(ctx);
-      const closeAfterMs = type === 1 ? 5_000 : type === 2 ? 6_000 : type === 3 ? 8_000 : 11_000;
-      const closeTimer = window.setTimeout(() => {
-        modalAudioTimersRef.current.delete(closeTimer);
-        modalAudioContextsRef.current.delete(ctx);
-        void ctx.close().catch(() => {});
-      }, closeAfterMs);
-      modalAudioTimersRef.current.add(closeTimer);
-    } catch (e) {
-      console.warn(e);
-    }
+      return {
+        durationMs: Math.ceil((duration + 0.2) * 1000),
+        stop: () => {
+          try {
+            const t = ctx.currentTime;
+            gainNode.gain.cancelScheduledValues(t);
+            gainNode.gain.setValueAtTime(0.0001, t);
+            nodes.forEach((n) => { try { n.stop(); } catch { /* 已停 */ } });
+            try { gainNode.disconnect(); } catch { /* 靜默 */ }
+          } catch { /* 靜默 */ }
+        },
+      };
+    });
   };
+
 
   const playEvolutionTone = (stage: EvolutionStage) => {
     if (typeof window === 'undefined' || stage === 'idle' || isModalTaijiAudioReduced()) return;
     duckBgm(5, 1); // 頌缽響起時背景音壓低約 5 dB、1 秒
 
-    try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContextClass) return;
-
-      const ctx = new AudioContextClass();
-      void ctx.resume?.();
+    playLimitedSfx((ctx) => {
       const gainNode = ctx.createGain();
       const filter = ctx.createBiquadFilter();
       const compressor = ctx.createDynamicsCompressor();
@@ -1943,35 +1934,38 @@ export default function HomePage() {
       };
       const duration = stage === 'taiji' ? 1.5 : stage === 'liangyi' ? 1.9 : stage === 'sixiang' ? 2.35 : 3.1;
       const peakGain = stage === 'bagua' ? 0.52 : stage === 'sixiang' ? 0.46 : 0.38;
+      const now = ctx.currentTime;
+      const nodes: Array<{ stop: (when?: number) => void }> = [];
 
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(stage === 'bagua' ? 2600 : 1600, ctx.currentTime);
-      filter.frequency.exponentialRampToValueAtTime(stage === 'bagua' ? 4200 : 2400, ctx.currentTime + duration * 0.55);
-      gainNode.gain.setValueAtTime(0, ctx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(peakGain, ctx.currentTime + 0.045);
-      gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-      delay.delayTime.setValueAtTime(stage === 'bagua' ? 0.19 : 0.13, ctx.currentTime);
-      echoGain.gain.setValueAtTime(stage === 'bagua' ? 0.22 : 0.14, ctx.currentTime);
-      compressor.threshold.setValueAtTime(-20, ctx.currentTime);
-      compressor.knee.setValueAtTime(18, ctx.currentTime);
-      compressor.ratio.setValueAtTime(8, ctx.currentTime);
-      compressor.attack.setValueAtTime(0.012, ctx.currentTime);
-      compressor.release.setValueAtTime(0.22, ctx.currentTime);
+      filter.frequency.setValueAtTime(stage === 'bagua' ? 2600 : 1600, now);
+      filter.frequency.exponentialRampToValueAtTime(stage === 'bagua' ? 4200 : 2400, now + duration * 0.55);
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(peakGain, now + 0.045);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      delay.delayTime.setValueAtTime(stage === 'bagua' ? 0.19 : 0.13, now);
+      echoGain.gain.setValueAtTime(stage === 'bagua' ? 0.22 : 0.14, now);
+      compressor.threshold.setValueAtTime(-20, now);
+      compressor.knee.setValueAtTime(18, now);
+      compressor.ratio.setValueAtTime(8, now);
+      compressor.attack.setValueAtTime(0.012, now);
+      compressor.release.setValueAtTime(0.22, now);
 
       stageFrequencies[stage].forEach((frequency, index) => {
         const osc = ctx.createOscillator();
         const partialGain = ctx.createGain();
         osc.type = index % 2 === 0 ? 'sine' : 'triangle';
-        osc.frequency.setValueAtTime(frequency, ctx.currentTime);
-        osc.detune.setValueAtTime(index % 2 === 0 ? -5 : 7, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(frequency * (stage === 'bagua' ? 1.06 : 1.035), ctx.currentTime + duration * 0.58);
-        partialGain.gain.setValueAtTime(0, ctx.currentTime);
-        partialGain.gain.linearRampToValueAtTime(1 / Math.max(2.2, stageFrequencies[stage].length), ctx.currentTime + 0.035 + index * 0.018);
-        partialGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+        osc.frequency.setValueAtTime(frequency, now);
+        osc.detune.setValueAtTime(index % 2 === 0 ? -5 : 7, now);
+        osc.frequency.exponentialRampToValueAtTime(frequency * (stage === 'bagua' ? 1.06 : 1.035), now + duration * 0.58);
+        partialGain.gain.setValueAtTime(0, now);
+        partialGain.gain.linearRampToValueAtTime(1 / Math.max(2.2, stageFrequencies[stage].length), now + 0.035 + index * 0.018);
+        partialGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
         osc.connect(partialGain);
         partialGain.connect(filter);
-        osc.start(ctx.currentTime + index * 0.022);
-        osc.stop(ctx.currentTime + duration + 0.12);
+        osc.start(now + index * 0.022);
+        osc.stop(now + duration + 0.12);
+        nodes.push(osc);
       });
 
       const shimmer = ctx.createBufferSource();
@@ -1983,12 +1977,13 @@ export default function HomePage() {
       }
       const shimmerGain = ctx.createGain();
       shimmer.buffer = shimmerBuffer;
-      shimmerGain.gain.setValueAtTime(stage === 'bagua' ? 0.22 : 0.12, ctx.currentTime);
-      shimmerGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.38);
+      shimmerGain.gain.setValueAtTime(stage === 'bagua' ? 0.22 : 0.12, now);
+      shimmerGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.38);
       shimmer.connect(shimmerGain);
       shimmerGain.connect(filter);
-      shimmer.start(ctx.currentTime + 0.02);
-      shimmer.stop(ctx.currentTime + 0.42);
+      shimmer.start(now + 0.02);
+      shimmer.stop(now + 0.42);
+      nodes.push(shimmer);
 
       filter.connect(gainNode);
       filter.connect(delay);
@@ -1996,18 +1991,20 @@ export default function HomePage() {
       echoGain.connect(gainNode);
       gainNode.connect(compressor);
       compressor.connect(ctx.destination);
-      modalAudioContextsRef.current.add(ctx);
 
-      const closeAfterMs = Math.ceil((duration + 0.35) * 1000);
-      const closeTimer = window.setTimeout(() => {
-        modalAudioTimersRef.current.delete(closeTimer);
-        modalAudioContextsRef.current.delete(ctx);
-        void ctx.close().catch(() => {});
-      }, closeAfterMs);
-      modalAudioTimersRef.current.add(closeTimer);
-    } catch (e) {
-      console.warn(e);
-    }
+      return {
+        durationMs: Math.ceil((duration + 0.35) * 1000),
+        stop: () => {
+          try {
+            const t = ctx.currentTime;
+            gainNode.gain.cancelScheduledValues(t);
+            gainNode.gain.setValueAtTime(0.0001, t);
+            nodes.forEach((n) => { try { n.stop(); } catch { /* 已停 */ } });
+            try { gainNode.disconnect(); } catch { /* 靜默 */ }
+          } catch { /* 靜默 */ }
+        },
+      };
+    });
   };
 
   const triggerModalEvolution = (config: EvolutionConfig) => {
@@ -2034,9 +2031,9 @@ export default function HomePage() {
     modalOverlayTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     modalOverlayTimersRef.current.clear();
     modalAudioTimersRef.current.forEach((timer) => window.clearTimeout(timer));
-    modalAudioContextsRef.current.forEach((context) => void context.close().catch(() => {}));
     modalAudioTimersRef.current.clear();
     modalAudioContextsRef.current.clear();
+    stopAllLimitedSfx();
   }, []);
 
   const handleModalTaiChiClick = () => {
@@ -2946,8 +2943,8 @@ export default function HomePage() {
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-            <div className={matchArtwork.scenery} aria-hidden="true" />
-            <img className={matchArtwork.artwork} src="/beast-game/front/young-04.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <div className={matchArtwork.scenery} data-lazy-art="1" aria-hidden="true" />
+            <img loading="lazy" decoding="async" className={matchArtwork.artwork} src="/beast-game/front/young-04.v2.webp" alt="" aria-hidden="true" draggable={false} />
             <span className={matchArtwork.title}><HomeTranslatedText text="易經靈魂配對" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
               <div className="min-w-0 flex-1">
@@ -2965,10 +2962,10 @@ export default function HomePage() {
 
           <Link
             href="/music"
-            className={`${musicEntryStyles.entry} home-feature-launch home-feature-violet home-feature-tier-secondary order-6 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-4 flex-wrap sm:p-6 sm:gap-6`}
+            data-lazy-art="1" className={`${musicEntryStyles.entry} home-feature-launch home-feature-violet home-feature-tier-secondary order-6 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-4 flex-wrap sm:p-6 sm:gap-6`}
           >
             <div className={`absolute ${musicEntryStyles.artwork}`} aria-hidden="true">
-              <img src="/home-entry/baihu-foreground-v1.png" alt="" draggable={false} />
+              <img loading="lazy" decoding="async" src="/home-entry/baihu-foreground-v1.thumb.webp" alt="" draggable={false} />
             </div>
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
@@ -3003,8 +3000,8 @@ export default function HomePage() {
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-            <div className={nameArtwork.scenery} aria-hidden="true" />
-            <img className={nameArtwork.artwork} src="/beast-game/front/young-15.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <div className={nameArtwork.scenery} data-lazy-art="1" aria-hidden="true" />
+            <img loading="lazy" decoding="async" className={nameArtwork.artwork} src="/beast-game/front/young-15.v2.webp" alt="" aria-hidden="true" draggable={false} />
             <span className={nameArtwork.title}><HomeTranslatedText text="易經姓名學" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
               <div className="min-w-0 flex-1">
@@ -3026,8 +3023,8 @@ export default function HomePage() {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-            <div className={nameBaziArtwork.scenery} aria-hidden="true" />
-            <img className={nameBaziArtwork.artwork} src="/beast-game/front/young-03.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <div className={nameBaziArtwork.scenery} data-lazy-art="1" aria-hidden="true" />
+            <img loading="lazy" decoding="async" className={nameBaziArtwork.artwork} src="/beast-game/front/young-03.v2.webp" alt="" aria-hidden="true" draggable={false} />
             <span className={nameBaziArtwork.title}><HomeTranslatedText text="八字姓名學" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
               <div className="min-w-0 flex-1">
@@ -3050,8 +3047,8 @@ export default function HomePage() {
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
             
-              <div className={numberArtwork.scenery} aria-hidden="true" />
-              <img className={numberArtwork.artwork} src="/home-entry/number-young-foreground-v1.png" alt="" aria-hidden="true" draggable={false} />
+              <div className={numberArtwork.scenery} data-lazy-art="1" aria-hidden="true" />
+              <img loading="lazy" decoding="async" className={numberArtwork.artwork} src="/home-entry/number-young-foreground-v1.thumb.webp" alt="" aria-hidden="true" draggable={false} />
               <span className={numberArtwork.title}><HomeTranslatedText text="易經論數字" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
 
@@ -3080,8 +3077,8 @@ export default function HomePage() {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-            <div className={ziweiArtwork.scenery} aria-hidden="true" />
-            <img className={ziweiArtwork.artwork} src="/home-entry/ziwei-young-foreground-v1.png" alt="" aria-hidden="true" draggable={false} />
+            <div className={ziweiArtwork.scenery} data-lazy-art="1" aria-hidden="true" />
+            <img loading="lazy" decoding="async" className={ziweiArtwork.artwork} src="/home-entry/ziwei-young-foreground-v1.thumb.webp" alt="" aria-hidden="true" draggable={false} />
             <span className={ziweiArtwork.title}><HomeTranslatedText text="易經紫微斗數" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
               <div className="min-w-0 flex-1">
@@ -3103,8 +3100,8 @@ export default function HomePage() {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-            <div className={baziArtwork.scenery} aria-hidden="true" />
-            <span className={baziArtwork.foreground} aria-hidden="true"><img className={baziArtwork.artwork} src="/beast-game/front/young-23.v2.webp" alt="" aria-hidden="true" draggable={false} /></span>
+            <div className={baziArtwork.scenery} data-lazy-art="1" aria-hidden="true" />
+            <span className={baziArtwork.foreground} aria-hidden="true"><img loading="lazy" decoding="async" className={baziArtwork.artwork} src="/beast-game/front/young-23.v2.webp" alt="" aria-hidden="true" draggable={false} /></span>
             <span className={baziArtwork.title}><HomeTranslatedText text="易經八字命盤" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
               <div className="min-w-0 flex-1">
@@ -3127,11 +3124,11 @@ export default function HomePage() {
           <Link href="/dual-chart" lang={readingLanguage} aria-label={readingCopy.enter} className={`${dualChartEntryStyles.entry} home-feature-launch home-feature-violet home-feature-tier-primary order-[13] w-full mb-3 relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 sm:p-6 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex flex-wrap items-center justify-between gap-5 sm:gap-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300`}>
             <span className={dualChartEntryStyles.title}>{readingCopy.dual}</span>
             <div className={`absolute ${dualChartEntryStyles.phoenixArtwork}`} aria-hidden="true">
-              <img src="/home-entry/zhuque-tail-repaired-ai-v1.png" alt="" draggable={false} />
+              <img loading="lazy" decoding="async" src="/home-entry/zhuque-tail-repaired-ai-v1.thumb.webp" alt="" draggable={false} />
             </div>
             <svg width="0" height="0" aria-hidden="true" style={{ position: "absolute", pointerEvents: "none" }}><defs><filter id="shensha-tail-detail" colorInterpolationFilters="sRGB" x="0" y="0" width="100%" height="100%"><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  24 -24 0 0 -0.12" /></filter></defs></svg>
             <div className={`absolute ${dualChartEntryStyles.phoenixTail}`} aria-hidden="true">
-              <img src="/home-entry/zhuque-tail-repaired-ai-v1.png" alt="" draggable={false} />
+              <img loading="lazy" decoding="async" src="/home-entry/zhuque-tail-repaired-ai-v1.thumb.webp" alt="" draggable={false} />
             </div>
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -3159,8 +3156,8 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(217,70,239,0.22),transparent_34%),radial-gradient(circle_at_78%_30%,rgba(34,211,238,0.16),transparent_28%)] pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-fuchsia-400/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-            <div className={zodiacArtwork.scenery} aria-hidden="true" />
-            <img className={zodiacArtwork.artwork} src="/beast-game/front/young-26.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <div className={zodiacArtwork.scenery} data-lazy-art="1" aria-hidden="true" />
+            <img loading="lazy" decoding="async" className={zodiacArtwork.artwork} src="/beast-game/front/young-26.v2.webp" alt="" aria-hidden="true" draggable={false} />
             <span className={zodiacArtwork.title}><HomeTranslatedText text="易經西洋星座" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
               <div className="min-w-0 flex-1">
@@ -3200,12 +3197,13 @@ export default function HomePage() {
           ) : (
             <Link
               href="/red-luan-heartbeat"
-              className={`${redLuanEntryStyles.entry} home-feature-launch home-feature-tier-primary order-1 w-full relative group overflow-hidden rounded-3xl border border-rose-300/35 bg-[radial-gradient(circle_at_14%_20%,rgba(251,113,133,0.24),transparent_34%),radial-gradient(circle_at_84%_22%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(115deg,rgba(51,8,30,0.98),rgba(26,12,42,0.96)_58%,rgba(15,23,42,0.98))] p-6 text-left shadow-[0_0_34px_rgba(244,63,94,0.18)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-200/75 hover:shadow-[0_0_54px_rgba(244,63,94,0.30)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap`}
+              data-lazy-art="1" data-art-eager="1" className={`${redLuanEntryStyles.entry} home-feature-launch home-feature-tier-primary order-1 w-full relative group overflow-hidden rounded-3xl border border-rose-300/35 bg-[radial-gradient(circle_at_14%_20%,rgba(251,113,133,0.24),transparent_34%),radial-gradient(circle_at_84%_22%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(115deg,rgba(51,8,30,0.98),rgba(26,12,42,0.96)_58%,rgba(15,23,42,0.98))] p-6 text-left shadow-[0_0_34px_rgba(244,63,94,0.18)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-200/75 hover:shadow-[0_0_54px_rgba(244,63,94,0.30)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap`}
               aria-label="算出下一次紅鸞心動的月份與對象類型"
             >
+              <img className={redLuanEntryStyles.lcpScene} src="/home-entry/xinyuehu-environment-ai-v1.thumb.webp" alt="" fetchPriority="high" decoding="async" aria-hidden="true" draggable={false} />
               <div className={`absolute ${redLuanEntryStyles.artwork}`} aria-hidden="true">
-                <div className={redLuanEntryStyles.scenery} />
-                <img src="/home-entry/xinyuehu-foreground-v1.png" alt="" draggable={false} />
+                <div className={redLuanEntryStyles.scenery} data-lazy-art="1" data-art-eager="1" />
+                <img loading="lazy" decoding="async" src="/home-entry/xinyuehu-foreground-v1.thumb.webp" alt="" draggable={false} />
               </div>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-100/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
               <div className={`${redLuanEntryStyles.heading} relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5`}>
@@ -3223,9 +3221,9 @@ export default function HomePage() {
           <TarotEntryCard />
           {/* 2026-09-25 star-beast i18n toggle: card extracted to a client component with 中｜EN switch; href="/star-beasts" */}
           <StarBeastHomeCard />
-          <Link href="/3D" className={`home-feature-launch home-feature-tier-explore order-[15] w-full relative group overflow-hidden rounded-3xl border border-violet-300/30 bg-[radial-gradient(circle_at_82%_22%,rgba(167,139,250,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(45,28,74,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(167,139,250,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-200/70 hover:shadow-[0_0_50px_rgba(167,139,250,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap ${taijiArtwork.entry}`}>
-            <div className={taijiArtwork.scene} aria-hidden="true"><img src="/beast-game/front/young-07.v2.webp?v=3a52d716c24d" alt="" draggable={false} /></div>
-            <img className={taijiArtwork.paws} src="/beast-game/front/young-07.v2.webp?v=3a52d716c24d" alt="" aria-hidden="true" draggable={false} />
+          <Link href="/3D" data-lazy-art="1" className={`home-feature-launch home-feature-tier-explore order-[15] w-full relative group overflow-hidden rounded-3xl border border-violet-300/30 bg-[radial-gradient(circle_at_82%_22%,rgba(167,139,250,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(45,28,74,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(167,139,250,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-200/70 hover:shadow-[0_0_50px_rgba(167,139,250,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap ${taijiArtwork.entry}`}>
+            <div className={taijiArtwork.scene} aria-hidden="true"><img loading="lazy" decoding="async" src="/beast-game/front/young-07.v2.webp?v=3a52d716c24d" alt="" draggable={false} /></div>
+            <img loading="lazy" decoding="async" className={taijiArtwork.paws} src="/beast-game/front/young-07.v2.webp?v=3a52d716c24d" alt="" aria-hidden="true" draggable={false} />
             <h2 className={taijiArtwork.title}><HomeTranslatedText text="立體太極模型" /></h2>
             <p className="sr-only"><HomeTranslatedText text="空心太極包方形核心，方圓緊貼，進入四維。" /></p>
             <HomeTrustEvidence items={["免費體驗", "可旋轉", "非付費牆"]} />
@@ -3238,8 +3236,8 @@ export default function HomePage() {
             href="/nine-grid"
             className="home-feature-launch home-feature-amber home-feature-tier-explore order-[16] w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
-            <div className={nineGridArtwork.scenery} aria-hidden="true" />
-            <span className={nineGridArtwork.foreground} aria-hidden="true"><img className={nineGridArtwork.artwork} src="/beast-game/front/young-16.v2.webp?v=f1d9cd914205" alt="" aria-hidden="true" draggable={false} /></span>
+            <div className={nineGridArtwork.scenery} data-lazy-art="1" aria-hidden="true" />
+            <span className={nineGridArtwork.foreground} aria-hidden="true"><img loading="lazy" decoding="async" className={nineGridArtwork.artwork} src="/beast-game/front/young-16.v2.webp?v=f1d9cd914205" alt="" aria-hidden="true" draggable={false} /></span>
             <span className={nineGridArtwork.title}><HomeTranslatedText text="九宮格靈動數字" /></span>
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />

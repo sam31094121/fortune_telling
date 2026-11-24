@@ -1,4 +1,6 @@
-.scenery { position: absolute; inset: 0; pointer-events: none; background: url('/home-entry/zodiac-young-scenery-v1.png') center bottom / 145% 115% no-repeat; }
+.scenery { position: absolute; inset: 0; pointer-events: none; background: center bottom / 145% 115% no-repeat; }
+.scenery.is-art-ready,
+.scenery[data-art-eager] { background-image: url('/home-entry/zodiac-young-scenery-v1.thumb.webp'); }
 .artwork { position: absolute; pointer-events: none; }
 .title { position: absolute; top: 12px; left: 16px; right: 16px; text-align: center; white-space: nowrap; font-size: 16px; font-weight: 900; color: #e0e7ff; text-shadow: 0 2px 5px #000; pointer-events: none; z-index: 3; }
 :global(body #home-eight-card-route) a:has(.artwork) { opacity: 1 !important; }

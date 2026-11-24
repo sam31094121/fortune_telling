@@ -5,7 +5,9 @@
  * - home：首頁背景循環（迷霧開場，120 s 無縫）。
  * - asura：阿修羅戰鼓新版（180 s 無縫）。
  *
- * 共用一個 AudioContext；同一時間只播一首（換曲時舊的立刻淡出），不會兩首疊在一起。
+ * 全站共用 window.__siteAudioCtx 這一個 AudioContext（其他音效也要從 getSharedAudioContext 取用，禁止再 new）。
+ * 解碼後的 AudioBuffer 依曲目快取，切頁只換 BufferSource，不再重新抓檔／解碼。
+ * 第一次手勢（含 layout 先掛的腳本）同步 resume，並立刻開始 fetch，不等 window.load。
  * 用 fetch＋decodeAudioData 解碼成 AudioBuffer，AudioBufferSourceNode loop＋loopStart／loopEnd 無縫循環（不用 <audio loop>）。
  * 瀏覽器不允許有聲自動播放：進頁先嘗試播放，被擋就等使用者第一次點擊／觸碰／按鍵再開始。
  * 分頁隱藏時淡出暫停，回到分頁再淡入；所有擁有者都放開（離開頁面、卸載）就停止。
@@ -34,6 +36,15 @@ const FADE_OUT_S = 0.15;
 const SITE_MUTE_KEYS = ['site-sound-muted', 'sound-muted'] as const;
 
 type Ctor = typeof AudioContext;
+
+declare global {
+  interface Window {
+    __siteAudioCtx?: AudioContext;
+    __siteAudioFetch?: Record<string, Promise<ArrayBuffer>>;
+    __bowlVoices?: { live: number; max: number; cap: number };
+    webkitAudioContext?: typeof AudioContext;
+  }
+}
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
@@ -73,20 +84,77 @@ function preferPlaybackSession(): void {
   }
 }
 
-function ensureContext(): AudioContext | null {
-  if (ctx) return ctx;
+function attachMaster(context: AudioContext): void {
+  if (master && master.context === context) return;
+  try {
+    master = context.createGain();
+    master.gain.value = 1;
+    master.connect(context.destination);
+  } catch {
+    master = null;
+  }
+}
+
+/** 全站唯一 AudioContext：只重用第一次手勢裡建立的那個，此函式不再 new。 */
+export function getSharedAudioContext(): AudioContext | null {
+  if (typeof window === 'undefined') return null;
+  if (ctx && ctx.state !== 'closed') return ctx;
+  const existing = window.__siteAudioCtx;
+  if (existing && existing.state !== 'closed') {
+    ctx = existing;
+    attachMaster(ctx);
+    return ctx;
+  }
+  return null;
+}
+
+/** 只准在第一次使用者手勢裡呼叫（與 boot script 同步 resume）。 */
+export function createSharedAudioContext(): AudioContext | null {
+  const existing = getSharedAudioContext();
+  if (existing) return existing;
   const C = ctorOf();
-  if (!C) return null;
+  if (!C || typeof window === 'undefined') return null;
   try {
     ctx = new C();
-    master = ctx.createGain();
-    master.gain.value = 1;
-    master.connect(ctx.destination);
+    window.__siteAudioCtx = ctx;
+    attachMaster(ctx);
   } catch {
     ctx = null;
     master = null;
   }
   return ctx;
+}
+
+function ensureContext(): AudioContext | null {
+  return getSharedAudioContext();
+}
+
+function prefetchSrc(src: string): Promise<ArrayBuffer | null> {
+  if (typeof window === 'undefined') return Promise.resolve(null);
+  const bag = (window.__siteAudioFetch ??= {});
+  if (!bag[src]) {
+    const init: RequestInit & { priority?: string } = { priority: 'high' };
+    bag[src] = fetch(src, init).then((r) => {
+      if (!r.ok) throw new Error('bgm fetch failed');
+      return r.arrayBuffer();
+    });
+  }
+  return bag[src].then((buf) => buf, () => {
+    delete bag[src];
+    return null;
+  });
+}
+
+/** 第一次手勢務必同步呼叫：resume 共用 context，並立刻開始抓 BGM。 */
+export function resumeSharedAudioAndPrefetch(track?: BgmTrackId): void {
+  if (typeof window === 'undefined') return;
+  preferPlaybackSession();
+  const context = createSharedAudioContext();
+  if (context && context.state !== 'running') {
+    void context.resume();
+  }
+  const id = track ?? active ?? (location.pathname.startsWith('/ghost-asura') ? 'asura' : null);
+  if (id) void prefetchSrc(TRACKS[id].src);
 }
 
 function decodeWith(context: BaseAudioContext, data: ArrayBuffer): Promise<AudioBuffer | null> {
@@ -107,22 +175,17 @@ function load(track: BgmTrackId): Promise<AudioBuffer | null> {
   if (pending) return pending;
   const job = (async () => {
     try {
-      const res = await fetch(TRACKS[track].src);
-      if (!res.ok) return null;
-      const data = await res.arrayBuffer();
-      let target: BaseAudioContext | null = ctx;
+      const data = await prefetchSrc(TRACKS[track].src);
+      if (!data) return null;
+      let target: BaseAudioContext | null = getSharedAudioContext();
       if (!target) {
         const w = window as unknown as { OfflineAudioContext?: typeof OfflineAudioContext; webkitOfflineAudioContext?: typeof OfflineAudioContext };
         const Offline = w.OfflineAudioContext ?? w.webkitOfflineAudioContext;
         if (Offline) target = new Offline(2, 1, 44100);
       }
       if (!target) return null;
-      const buf = await decodeWith(target, data);
-      if (buf) {
-        // 只留目前要播的那首在記憶體（長音檔解碼後很大，手機省記憶體）
-        for (const k of [...buffers.keys()]) if (k !== track) buffers.delete(k);
-        buffers.set(track, buf);
-      }
+      const buf = await decodeWith(target, data.slice(0));
+      if (buf) buffers.set(track, buf);
       return buf;
     } catch {
       return null;
@@ -134,7 +197,6 @@ function load(track: BgmTrackId): Promise<AudioBuffer | null> {
   return job;
 }
 
-/** 解碼後若殘留 mp3 前置靜音（部分瀏覽器不裁掉），把循環起點往後移，維持名目長度。 */
 function loopPoints(buf: AudioBuffer, seconds: number): { start: number; end: number } {
   let lead = 0;
   try {
@@ -201,18 +263,21 @@ function armGesture(): void {
   gestureArmed = true;
   const events = ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'] as const;
   const onGesture = () => {
-    if (!ctx || ctx.state === 'running') {
+    resumeSharedAudioAndPrefetch(active ?? undefined);
+    const context = getSharedAudioContext();
+    if (context && context.state === 'running') {
       disarm();
       kick();
       return;
     }
-    preferPlaybackSession();
-    void ctx.resume().then(() => {
-      if (ctx && ctx.state === 'running') {
-        disarm();
-        kick();
-      }
-    }, () => {});
+    if (context) {
+      void context.resume().then(() => {
+        if (context.state === 'running') {
+          disarm();
+          kick();
+        }
+      }, () => {});
+    }
   };
   const disarm = () => {
     gestureArmed = false;
@@ -260,10 +325,14 @@ function kick(): void {
   }
   if (TRACKS[track].respectSiteMute && siteMuted()) return;
   if (playing?.track === track) return; // 已在播，不重來、不疊放
-  const context = ensureContext();
-  if (!context) return;
+  const context = getSharedAudioContext();
+  if (!context) {
+    armGesture();
+    return;
+  }
   if (playing) stopPlaying(FADE_OUT_S); // 換曲：舊的淡出
   const my = ++token;
+  void prefetchSrc(TRACKS[track].src);
   if (context.state !== 'running') {
     void context.resume().catch(() => {});
     armGesture();
@@ -295,7 +364,12 @@ export function acquireBgm(track: BgmTrackId, owner: string): void {
     for (const [k, s] of owners) if (k !== track) s.clear();
     active = track;
     preferPlaybackSession();
-    kick();
+    armGesture();
+    // 尚未有第一次手勢時，不預抓 1.9MB、不建立 AudioContext；等手勢同步 resume＋fetch。
+    if (getSharedAudioContext()) {
+      void prefetchSrc(TRACKS[track].src);
+      kick();
+    }
   } catch {
     /* 靜默 */
   }
@@ -339,4 +413,70 @@ export function duckBgm(db = 5, holdS = 1): void {
   } catch {
     /* 靜默 */
   }
+}
+
+const MAX_CONCURRENT_SFX = 2;
+
+type SfxVoice = { stop: () => void };
+
+const sfxVoices: SfxVoice[] = [];
+
+function publishBowlVoices(): void {
+  if (typeof window === 'undefined') return;
+  const prev = window.__bowlVoices;
+  const live = sfxVoices.length;
+  window.__bowlVoices = {
+    live,
+    max: Math.max(prev?.max ?? 0, live),
+    cap: MAX_CONCURRENT_SFX,
+  };
+}
+
+function stopSfxVoice(voice: SfxVoice | undefined): void {
+  if (!voice) return;
+  try {
+    voice.stop();
+  } catch {
+    /* 靜默 */
+  }
+}
+
+/**
+ * 太極頌缽／演化音：共用同一個 AudioContext，同時最多 2 組發聲。
+ * 第 3 組響起時先停掉最舊的那組。不可 close 共用 context。
+ */
+export function playLimitedSfx(build: (ctx: AudioContext) => { stop: () => void; durationMs: number }): void {
+  try {
+    const context = getSharedAudioContext();
+    if (!context) return;
+    if (context.state !== 'running') void context.resume().catch(() => {});
+    while (sfxVoices.length >= MAX_CONCURRENT_SFX) {
+      stopSfxVoice(sfxVoices.shift());
+    }
+    publishBowlVoices();
+    const voice = build(context);
+    sfxVoices.push(voice);
+    publishBowlVoices();
+    const timer = window.setTimeout(() => {
+      const i = sfxVoices.indexOf(voice);
+      if (i >= 0) sfxVoices.splice(i, 1);
+      stopSfxVoice(voice);
+      publishBowlVoices();
+    }, Math.max(200, voice.durationMs));
+    const prev = voice.stop;
+    voice.stop = () => {
+      window.clearTimeout(timer);
+      prev();
+      const i = sfxVoices.indexOf(voice);
+      if (i >= 0) sfxVoices.splice(i, 1);
+      publishBowlVoices();
+    };
+  } catch {
+    /* 靜默 */
+  }
+}
+
+export function stopAllLimitedSfx(): void {
+  while (sfxVoices.length) stopSfxVoice(sfxVoices.shift());
+  publishBowlVoices();
 }

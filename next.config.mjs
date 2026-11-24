@@ -87,6 +87,10 @@ const nextConfig = {
         headers: versionedAssetHeaders,
       },
       {
+        source: '/home-entry/:file(.*\\.webp)',
+        headers: versionedAssetHeaders,
+      },
+      {
         source: '/fonts/asura-brand/:file(.*\\.woff2)',
         headers: versionedAssetHeaders,
       },

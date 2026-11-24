@@ -50,10 +50,26 @@
   mask-repeat: no-repeat;
 }
 
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .lcpScene,
+.lcpScene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .scenery {
   position: absolute;
   inset: 0;
-  background: url('/home-entry/xinyuehu-environment-ai-v1.png') center / cover no-repeat;
+  background: center / cover no-repeat;
+}
+.scenery.is-art-ready,
+.scenery[data-art-eager] {
+  background-image: url('/home-entry/xinyuehu-environment-ai-v1.thumb.webp');
   mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
     linear-gradient(to bottom, transparent, #000 7%, #000 94%, transparent);
   mask-composite: intersect;
@@ -62,7 +78,11 @@
 /* Approved scoped refinement: retain the official fox and entry behavior. */
 :global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {
  opacity:1 !important;
- background:linear-gradient(180deg, rgb(16 18 29 / 12%), transparent 45%, rgb(16 18 29 / 10%)),url('/home-entry/xinyuehu-environment-ai-v1.png') center / cover no-repeat !important;
+ background:linear-gradient(180deg, rgb(16 18 29 / 12%), transparent 45%, rgb(16 18 29 / 10%)) center / cover no-repeat !important;
+}
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry.is-art-ready,
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry[data-art-eager] {
+ background-image:linear-gradient(180deg, rgb(16 18 29 / 12%), transparent 45%, rgb(16 18 29 / 10%)),url('/home-entry/xinyuehu-environment-ai-v1.thumb.webp') !important;
 }
 :global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .artwork { inset:48px 12px 52px; z-index:2; }
 :global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .artwork img { filter:none !important; opacity:1 !important; }

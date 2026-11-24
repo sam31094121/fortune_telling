@@ -11,6 +11,36 @@
  * 5. 手機 Safari / Chrome 優先：AudioContext 由第一次使用者觸控啟動。
  */
 
+import { getSharedAudioContext } from '@/components/audio/site-bgm';
+
+const taiji24ImpulseCache = new Map<number, AudioBuffer>();
+const taiji24ImpulseData = new Map<number, [Float32Array, Float32Array]>();
+let taiji24ImpulseBuild: Promise<void> | null = null;
+
+/** 把 26 萬點殘響計算拆成短切片，避免一次凍住主執行緒約 3 秒。 */
+function buildTaiji24ImpulseData(sampleRate: number, duration: number, decay: number): Promise<void> {
+  if (taiji24ImpulseData.has(sampleRate)) return Promise.resolve();
+  if (taiji24ImpulseBuild) return taiji24ImpulseBuild;
+  taiji24ImpulseBuild = (async () => {
+    const length = Math.floor(sampleRate * duration);
+    const ch0 = new Float32Array(length);
+    const ch1 = new Float32Array(length);
+    const chunk = 6000;
+    for (const data of [ch0, ch1]) {
+      for (let i = 0; i < length; ) {
+        const end = Math.min(length, i + chunk);
+        for (; i < end; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+        }
+        await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      }
+    }
+    taiji24ImpulseData.set(sampleRate, [ch0, ch1]);
+    taiji24ImpulseBuild = null;
+  })();
+  return taiji24ImpulseBuild;
+}
+
 export interface Taiji24State {
   step: number;
   progress: number;
@@ -110,7 +140,10 @@ export class Taiji24SoundEngine {
       console.warn('[Taiji24] Web Audio API 不支援');
       return;
     }
-    this.audioContext = new Ctor();
+    // 全站只重用同一個 AudioContext；尚未第一次手勢時只先算殘響資料、不 new。
+    const shared = getSharedAudioContext();
+    if (!shared) return;
+    this.audioContext = shared;
 
     // Compressor 防爆音
     this.compressor = this.audioContext.createDynamicsCompressor();
@@ -140,15 +173,22 @@ export class Taiji24SoundEngine {
   }
 
   private createImpulseResponse(context: AudioContext, duration: number, decay: number): AudioBuffer {
+    const cached = taiji24ImpulseCache.get(context.sampleRate);
+    if (cached) return cached;
     const sampleRate = context.sampleRate;
     const length = Math.floor(sampleRate * duration);
     const impulse = context.createBuffer(2, length, sampleRate);
+    const prepared = taiji24ImpulseData.get(sampleRate);
     for (let channel = 0; channel < 2; channel++) {
       const data = impulse.getChannelData(channel);
-      for (let i = 0; i < length; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+      if (prepared) data.set(prepared[channel]);
+      else {
+        for (let i = 0; i < length; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+        }
       }
     }
+    taiji24ImpulseCache.set(sampleRate, impulse);
     return impulse;
   }
 
@@ -159,6 +199,7 @@ export class Taiji24SoundEngine {
    * 這裡不會發出任何聲音，也不強迫 resume；瀏覽器的自動播放政策照舊由第一次點擊解鎖。
    */
   async prewarm(): Promise<void> {
+    await buildTaiji24ImpulseData(44100, 2.8, 2.6);
     await this.init();
   }
 

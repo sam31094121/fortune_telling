@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerE
 import TaijiCoreVisual from '@/components/taiji/TaijiCoreVisual';
 import { buildTaijiCoreSnapshot, type TaijiVisualStage } from '@/lib/taiji-core-engine';
 import styles from './UnifiedTaijiCore.module.css';
+import { getSharedAudioContext } from '@/components/audio/site-bgm';
 
 const MAX_STEP = 24;
 
@@ -87,16 +88,13 @@ export default function UnifiedTaijiCore({
   } as CSSProperties;
 
   const createAudioContext = () => {
-    if (typeof window === 'undefined') return null;
-    const AudioContextClass = window.AudioContext || (window as typeof window & {
-      webkitAudioContext?: typeof AudioContext;
-    }).webkitAudioContext;
-    if (!AudioContextClass) return null;
-    if (!audioContextRef.current) audioContextRef.current = new AudioContextClass();
-    if (audioContextRef.current.state === 'suspended') {
-      void audioContextRef.current.resume().catch(() => {});
+    const shared = getSharedAudioContext();
+    if (!shared) return null;
+    audioContextRef.current = shared;
+    if (shared.state === 'suspended') {
+      void shared.resume().catch(() => {});
     }
-    return audioContextRef.current;
+    return shared;
   };
 
   const playFinalUnlock = (ctx: AudioContext, startTime: number) => {
