@@ -154,6 +154,7 @@
 .birthBand{display:grid;grid-template-columns:1fr auto;border:1px solid #97879f;margin-bottom:12px;padding:10px;gap:4px 12px;overflow-wrap:anywhere}
 .birthBand>b{font-size:17px}.birthBand>span:nth-last-child(-n+2){grid-column:1/-1}
 .baziColumns{display:grid;grid-template-columns:34% minmax(0,1fr);gap:14px}.baziSidebar,.baziMain{min-width:0}
+.pillarElement{font-size:12px;font-weight:400;margin-left:4px}
 .pillarGrid,.luckGrid,.annualGrid{border-collapse:collapse;width:100%;table-layout:fixed;text-align:center}
 .pillarGrid th,.pillarGrid td,.luckGrid th,.luckGrid td,.annualGrid th,.annualGrid td{border:1px solid #a697ad;padding:6px 3px;overflow-wrap:anywhere}
 .pillarGrid th,.luckGrid th,.annualGrid th{background:#493b55;font-weight:700}
@@ -1424,3 +1425,6 @@ details[open] > summary .moreHint::after {
 .printPreview .baziSidebar .summaryGrid.elementReading>div{padding:3px 4px}
 .printPreview .baziSidebar .elementReading+.subheading{margin:8px 0 4px}
 .printPreview .baziSidebar .elementSummary .micro{margin:2px 0}
+.annualGrid td.annualShensha{font-size:13px;font-weight:700;color:#e8d9a8;padding:5px 2px;line-height:1.4}
+.printPreview .annualGrid td.annualShensha{color:#593962!important;font-size:12.5px}
+.printPreview.monochrome .annualGrid td.annualShensha{color:#000!important}

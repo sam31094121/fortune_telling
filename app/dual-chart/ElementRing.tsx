@@ -12,7 +12,7 @@ function sectorPath(start: number, share: number) {
   return `M${point(74, start)} A74 74 0 0 1 ${point(74, mid)} A74 74 0 0 1 ${point(74, end)} L${point(50, end)} A50 50 0 0 0 ${point(50, mid)} A50 50 0 0 0 ${point(50, start)} Z`;
 }
 
-export default function ElementRing({ percentages, monochrome = false }: { percentages: Record<typeof elements[number], number>; monochrome?: boolean }) {
+export default function ElementRing({ percentages, monochrome = false, hideCircle = false }: { percentages: Record<typeof elements[number], number>; monochrome?: boolean; hideCircle?: boolean }) {
   const id = useId().replace(/:/g, '');
   const total = elements.reduce((sum, el) => sum + percentages[el], 0);
   let accumulated = 0;
@@ -23,7 +23,7 @@ export default function ElementRing({ percentages, monochrome = false }: { perce
     return { element, index, share, start, pattern: `url(#${id}-texture-${index})` };
   });
   return <section className={styles.elementSummary} aria-label="五行加權比例">
-    <svg className={styles.elementRingSvg} viewBox="0 0 160 160" role="img" aria-label={elements.map(el => `${el} ${percentages[el]}%`).join('、')}>
+    <svg className={hideCircle ? undefined : styles.elementRingSvg} style={hideCircle ? { position: 'absolute', width: 0, height: 0, overflow: 'hidden' } : undefined} aria-hidden={hideCircle || undefined} viewBox="0 0 160 160" role={hideCircle ? undefined : 'img'} aria-label={hideCircle ? undefined : elements.map(el => `${el} ${percentages[el]}%`).join('、')}>
       <defs>{elements.map((el, index) => <pattern key={el} id={`${id}-texture-${index}`} patternUnits="userSpaceOnUse" width="6" height="6"><rect width="6" height="6" fill="white" />
         {index === 0 && <path d="M-1 1L1-1M0 6L6 0M5 7L7 5" stroke="#222" strokeWidth="1" />}
         {index === 1 && <circle cx="3" cy="3" r="1.15" fill="#222" />}

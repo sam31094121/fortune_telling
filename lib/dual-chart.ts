@@ -12,7 +12,7 @@ import { buildShenShaAsura, type ShenShaAsuraView } from './iching-shensha-asura
 const sealedGhost = (view: ShenShaGhostView, reveal?: boolean): ShenShaGhostView | ShenShaGhostSealed => GHOST_SEALED && !reveal ? sealShenShaGhost(view) : view;
 import { verifyFourPillars } from './four-pillar-verification';
 import { getBaziTraditionalOutputGate } from './bazi-traditional-gate';
-import { buildDualChartShenSha, buildFlowYearShenSha } from './dual-chart-iching-shensha';
+import { buildDualChartShenSha, buildFlowYearShenSha, buildAnnualShenSha } from './dual-chart-iching-shensha';
 import { buildShenShaFlow } from './iching-shensha-flow-year';
 import { buildShenShaShare } from './iching-shensha-share';
 import { buildShenShaVisibility } from './dual-chart-shensha-visibility';
@@ -105,7 +105,7 @@ export function calculateDualChart(body: unknown, options: { revealSealedGhost?:
     bazi: { input: professional.input, professionalChart: dualProfessionalChart, luckCycles: professional.luckCycles },
     core: dualCore,
     specialStars: { ...specialStars, flow, share: buildShenShaShare(specialStars.card, ichingView, flow) },
-    annual,
+    annual: annual.map(a => ({ ...a, annualShenSha: buildAnnualShenSha(bazi, professional.professionalChart.traditionalInterpretationGate!, flowCheck, a.ganzhi) })),
     ziwei: ziweiWithPeriods,
     periods,
     ziweiProfile,

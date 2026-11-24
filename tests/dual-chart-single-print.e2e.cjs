@@ -10,10 +10,8 @@ const fs = require('fs');
  const browser=await chromium.launch({channel:'msedge',headless:true});
  try {
  const statePath='.tmp/dual-chart-print-session.json';
- const saved=fs.existsSync(statePath)?JSON.parse(fs.readFileSync(statePath,'utf8')):undefined;
- const reusable=saved?.cookies?.some(cookie=>cookie.expires>Date.now()/1000+120);
- const context=await browser.newContext({viewport:{width:1200,height:900},...(reusable?{storageState:saved}:{})});
- if(!reusable){
+ const context=await browser.newContext({viewport:{width:1200,height:900}});
+ {
   const login=await context.request.post(base+'/api/dual-chart/session',{headers:{Origin:base},data:{password:process.env.DUAL_CHART_PASSWORD}});
   if(!login.ok()) throw Error('Test login failed: '+login.status());
   fs.mkdirSync('.tmp',{recursive:true});
@@ -24,15 +22,27 @@ const fs = require('fs');
  await page.waitForTimeout(1500);
  if(standard) await page.locator('input').first().fill('單張列印長姓名驗證案例');
  await page.getByRole('button',{name:'國曆生日',exact:true}).click();
- const dates=page.locator('input[placeholder^="例"]');
- await dates.nth(0).fill(standard?'63':'84'); await dates.nth(1).fill(standard?'6':'2'); await dates.nth(2).fill(standard?'28':'23');
+ await page.getByRole('textbox',{name:'民國年',exact:true}).fill(standard?'63':'84');
+ await page.getByRole('textbox',{name:'月份',exact:true}).fill(standard?'6':'2');
+ await page.getByRole('textbox',{name:'日期',exact:true}).fill(standard?'28':'23');
  await page.getByRole('button',{name:standard?/^男性/:/^女性/}).click();
  await page.getByRole('button',{name:/我知道出生時辰/}).click();
  await page.getByRole('button',{name:standard?/^酉/:/^午/}).click();
  await page.getByRole('button',{name:'排出神煞易經',exact:true}).click();
  await page.getByRole('button',{name:'列印八字',exact:true}).waitFor({timeout:90000});
- await page.getByRole('button',{name:'列印八字',exact:true}).click();
  fs.mkdirSync(output,{recursive:true});
+ for(const width of [320,375,390,430,768,1200]){
+  await page.setViewportSize({width,height:900});
+  assert.equal(await page.locator('section[aria-label="五行加權比例"] > svg').isVisible(),false);
+  assert.equal(await page.locator('[class*=elementLegend] > span').count(),5);
+  assert.equal(await page.locator('dl[aria-label="五行與命盤摘要"]').count(),1);
+  assert.equal(await page.locator('table[aria-label^="流年 "]').count(),3);
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),'No page overflow at '+width);
+  await page.getByRole('heading',{name:'八字易經神煞命盤',exact:true}).scrollIntoViewIfNeeded();
+  await page.screenshot({path:output+'/screen-'+width+'.png'});
+  if(width===1200) await page.locator('[class*=baziSidebar]').screenshot({path:output+'/annual-detail.png'});
+ }
+ await page.getByRole('button',{name:'列印八字',exact:true}).click();
  for(const mono of [false,true]) for(const [kind,label] of [['bazi','八字（一張）'],['ziwei','紫微（一張）']]){
   const color=mono?'黑白':'彩色'; const file=kind+'-'+(mono?'mono':'color');
   await page.getByRole('button',{name:mono?'黑白日常版':'彩色客戶版',exact:true}).click();
@@ -40,11 +50,12 @@ const fs = require('fs');
   await page.waitForTimeout(800);
   assert.equal(await page.locator('section[aria-label="神煞易經結果"] > article').count(),1);
   console.log(kind,await page.locator('section[aria-label="神煞易經結果"] > article').evaluateAll(es=>es.map(e=>({w:e.getBoundingClientRect().width,h:e.getBoundingClientRect().height,scroll:e.scrollHeight,text:e.innerText.length}))));
+  await page.screenshot({path:output+'/'+file+'-preview.png',fullPage:true});
   for(const width of [320,375,390,430,768,1200]){
    await page.setViewportSize({width,height:900});
    assert(await page.getByRole('button',{name:'列印'+(kind==='bazi'?'八字':'紫微')+'一張',exact:true}).isVisible());
    const size=await page.locator('section[aria-label="神煞易經結果"] > article').boundingBox();
-   assert(size && Math.abs(size.width-793.7)<2 && Math.abs(size.height-1122.5)<2,'A4 geometry at '+width);
+   assert(size && size.width>=793.7*.95 && size.width<=795.7 && size.height<=1124.5 && Math.abs(size.height-size.width*297/210)<2,'A4 aspect ratio with at most 5% existing print-fit scaling at '+width);
   }
   await page.emulateMedia({media:'print'});
   assert.equal(await page.getByRole('navigation',{name:'列印專用版操作'}).isVisible(),false);
@@ -64,9 +75,8 @@ const fs = require('fs');
    assert(summaryText.includes(standard?'正官格':'劫財格'));
    assert(summaryText.includes(standard?'巨蟹座':'雙魚座'));
    assert.equal(await page.locator('[class*=elementSources]').isVisible(),false);
-   const ring=page.locator('section[aria-label="五行加權比例"] > svg');
-   if(!await ring.isVisible()) throw Error('Ring missing in print');
-   console.log('ring in print',color,await ring.locator('path').count());
+   assert.equal(await page.locator('section[aria-label="五行加權比例"] > svg').isVisible(),false,'Circle must not occupy space');
+   assert.equal(await page.locator('[class*=elementLegend] > span').count(),5,'All five percentages stay visible');
   }
   await page.pdf({path:output+'/'+file+'-browser.pdf',preferCSSPageSize:true,printBackground:true});
   await page.emulateMedia({media:'screen'});

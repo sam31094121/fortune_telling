@@ -32,8 +32,8 @@ export function PillarGrid({ result, compact = false, language = 'zh', shenshaCa
     <thead><tr>{order.map(key => <th key={key} scope="col">{labels[key]}柱</th>)}<th>項目</th></tr></thead>
     <tbody>
       {row('主星', key => pc.pillarDetails[key].stemTenGod)}
-      {row('天干', key => pc.pillarDetails[key].ganzhi[0], styles.largeGlyph)}
-      {row('地支', key => pc.pillarDetails[key].ganzhi[1], styles.largeGlyph)}
+      {row('天干', key => <>{pc.pillarDetails[key].ganzhi[0]}{shenshaCards && core.pillars[key] !== 'UNKNOWN' && <small className={styles.pillarElement}>{core.pillars[key].element}</small>}</>, styles.largeGlyph)}
+      {row('地支', key => <>{pc.pillarDetails[key].ganzhi[1]}{shenshaCards && core.pillars[key] !== 'UNKNOWN' && <small className={styles.pillarElement}>{core.pillars[key].branchElement}</small>}</>, styles.largeGlyph)}
       {row('藏干', key => pc.hiddenStemStructure[key].map(h => h.stem).join('　'))}
       {row('副星', key => pc.hiddenStemStructure[key].map(h => <span className={styles.stack} key={h.stem}>{h.tenGod}</span>))}
       {row('十二運', key => core.twelveStages[key])}
@@ -449,14 +449,15 @@ export default function BaziChart({ result, monochrome = false, language = 'zh',
     <div className={styles.birthBand}><b>{bazi.input.name || '命主'}</b><span>{bazi.input.gender === 'male' ? '男' : '女'} · {core.pillars.year.yinYang}年</span><span>國曆 {bazi.input.birthDate}　{bazi.input.birthTime}</span><span>農曆 {core.calendar.lunarDate}</span></div>
     <div className={styles.baziColumns}>
       <aside className={styles.baziSidebar}>
-        <ElementRing percentages={pc.elementStatistics.percentages} monochrome={monochrome} />
+        <ElementRing percentages={pc.elementStatistics.percentages} monochrome={monochrome} hideCircle />
         <BaziElementReading chart={pc} core={core} tianYun={result.tianYun} zodiac={result.zodiac} />
         <h3 className={styles.subheading}>流年 · {annual[0].year}–{annual.at(-1)?.year}</h3>
         {[0, 5, 10].map(start => <table key={start} className={styles.annualGrid} aria-label={`流年 ${annual[start].year} 年起`}><tbody>
           <tr>{annual.slice(start, start + 5).reverse().map(a => <th key={a.year}>{a.year}<small>{a.age}虛歲</small></th>)}</tr>
           <tr>{annual.slice(start, start + 5).reverse().map(a => <td key={a.year}><b>{a.ganzhi}</b><span>{a.stemGod}</span><span>{a.branchGod}</span></td>)}</tr>
+          <tr>{annual.slice(start, start + 5).reverse().map(a => <td key={a.year} className={styles.annualShensha} title={a.annualShenSha?.rule}>{a.annualShenSha?.name ?? "暫時無法取得"}</td>)}</tr>
         </tbody></table>)}
-        <p className={styles.micro}>上列依次為干支、干十神、支主氣十神；立春換年。流年神煞未提供。</p>
+        <p className={styles.micro}>上列依次為干支、干十神、支主氣十神、流年神煞；立春換年。流年神煞以流年地支起太歲順排十二位，看本命年支落位；名稱依《命理探原》《星學大成》，原掃描頁待逐頁核對。</p>
       </aside>
       <section className={styles.baziMain}>
         <PillarGrid result={result} language={language} shenshaCards />
