@@ -25,7 +25,7 @@ interface TrackSpec {
 }
 
 const TRACKS: Record<BgmTrackId, TrackSpec> = {
-  home: { src: '/sfx/home-bgm-v1.mp3', loopSeconds: 120, volume: 0.6, fadeInS: 2, respectSiteMute: true },
+  home: { src: '/sfx/home-bgm-v1.mp3', loopSeconds: 120, volume: 0.45, fadeInS: 3, respectSiteMute: true },
   // 阿修羅：依技能檔「互動音效」，不看網站靜音設定。
   asura: { src: '/sfx/asura-wardrum-v2-3min.mp3', loopSeconds: 180, volume: 0.6, fadeInS: 0.6, respectSiteMute: false },
 };
