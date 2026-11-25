@@ -70,6 +70,7 @@ export const RESERVED_PORTS = [3010, 3092, 3227, 8888, 9333];
 export const DISK = {
   minFreeGbForBuild: 6,
   minFreeGbForRun: 0.3,
+  minFreeMemGbForBuild: 2, // next build 在這個 repo 常吃 2G 以上；不足就拒建，避免把同機其他 bot 擠到 OOM
 };
 
 // 本機伺服器常缺正式後端設定（Supabase 等），這些 API 回 503 只代表「本機環境沒接後端」，
