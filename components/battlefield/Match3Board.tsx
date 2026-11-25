@@ -6,7 +6,7 @@ import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 import type { resolveOrbTurn } from '@/lib/beast-game/match3/resolve-turn';
 import OrbTreasures, { TreasureAnimation, type TreasureFlight } from './OrbTreasures';
 import { isKeluWeapon, advanceKeluCombo, emptyKeluCombo } from '@/lib/beast-game/match3/kelu-combo';
-import { canAcceptTreasurePress, decrementTreasureCatalog, upsertTreasureFlight, removeTreasureFlight, deathWarmTargets, treasureRunDecision, anyFoeAlive, optimisticTreasureDelays, deathWarmIdleWait, DEATH_WARM_IDLE_MS } from '@/lib/beast-game/match3/treasure-rapid-fire';
+import { canAcceptTreasurePress, decrementTreasureCatalog, upsertTreasureFlight, removeTreasureFlight, deathWarmTargets } from '@/lib/beast-game/match3/treasure-rapid-fire';
 import OrbDropAnimation from './OrbDropAnimation';
 import type { TreasureBook, TreasureUse, treasureCatalog } from '@/lib/beast-game/match3/treasures';
 import Match3ReplayLines from './Match3ReplayLines';
@@ -378,11 +378,6 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const [warmResume, setWarmResume] = useState(true);
   const warmHeld = useRef<readonly string[] | null>(null);
   const warmIdle = useRef(0);
-  /** B 案：擊倒後等「手指放開＋無動畫／輸入 ≥1 秒」才開始預熱下一隻（避免 ~120ms 預熱長任務擠在操作或動畫中）。 */
-  const warmWait = useRef(0);
-  const warmPointerDown = useRef(false);
-  const warmLastInput = useRef(0);
-  const warmQuietSince = useRef<number | null>(0);
   const deathWarmAllRef = useRef<{ foeId: string; foeIndex: number }[]>([]);
   const queueKnockouts = (before: readonly Foe[], serverAfter: readonly Foe[], actionId: string, source: KnockoutSource, delayMs: number) => {
     const ko = deriveServerKnockouts(before, serverAfter, { actionId, source, isFinalBoss: isFinalBoss ?? reservedGuardianBossRule(rigEnabled ? stage.wins + 1 : 0) });
@@ -403,19 +398,9 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       else window.clearTimeout(warmIdle.current);
       warmIdle.current = 0;
     }
-    if (warmWait.current) { window.clearTimeout(warmWait.current); warmWait.current = 0; }
     const kick = () => { warmIdle.current = 0; setWarmResume(true); };
-    const startIdle = () => {
-      warmWait.current = 0;
-      if (typeof requestIdleCallback === 'function') warmIdle.current = requestIdleCallback(kick, { timeout: 200 });
-      else warmIdle.current = window.setTimeout(kick, 0);
-    };
-    const check = () => {
-      const wait = deathWarmIdleWait({ now: performance.now(), pointerDown: warmPointerDown.current, lastInputAt: warmLastInput.current, quietSince: warmQuietSince.current });
-      if (wait <= 0) startIdle();
-      else warmWait.current = window.setTimeout(check, wait);
-    };
-    warmWait.current = window.setTimeout(check, DEATH_WARM_IDLE_MS);
+    if (typeof requestIdleCallback === 'function') warmIdle.current = requestIdleCallback(kick, { timeout: 200 });
+    else warmIdle.current = window.setTimeout(kick, 0);
   };
   const settleDeath = (ev: KnockoutEvent) => setDeathHold(h => { if (!h.has(ev.foeId)) return h; const n = new Set(h); n.delete(ev.foeId); return n; });
   const projectileKey = useRef(0);
@@ -567,8 +552,6 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const keluUnlockAt = useRef(0);
   const boardTurn = useRef(false);
   const fireGen = useRef(0);
-  /** 寶器排隊世代：某一發失敗時只取消「還沒送出」的排隊項，不影響已確認那一發的扣血與收動畫。 */
-  const treasureQueueGen = useRef(0);
   const syncedFoes = useRef(foes);
   const syncedTeam = useRef(team);
   const viewRef = useRef({ board, magic, wins, ti: 0, moves, attackBoost, treasureGuard, chosen, rule });
@@ -593,22 +576,6 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       syncedTeam.current = team;
     }
   }, [foes, team]);
-  useEffect(() => {
-    const down = () => { warmPointerDown.current = true; warmLastInput.current = performance.now(); };
-    const up = () => { warmPointerDown.current = false; warmLastInput.current = performance.now(); };
-    const opts = { capture: true, passive: true } as const;
-    window.addEventListener('pointerdown', down, opts);
-    window.addEventListener('pointerup', up, opts);
-    window.addEventListener('pointercancel', up, opts);
-    return () => {
-      window.removeEventListener('pointerdown', down, opts);
-      window.removeEventListener('pointerup', up, opts);
-      window.removeEventListener('pointercancel', up, opts);
-      if (warmWait.current) { window.clearTimeout(warmWait.current); warmWait.current = 0; }
-    };
-  }, []);
-  const warmQuiet = !busy && treasureVisuals === 0 && deathPending.size === 0;
-  useEffect(() => { warmQuietSince.current = warmQuiet ? performance.now() : null; }, [warmQuiet]);
   const [shortMsg, setShortMsg] = useState('');
   const [matchFrame, setMatchFrame] = useState<OrbReplayFrame | null>(null);
   const [refillEpoch, setRefillEpoch] = useState(0);
@@ -1122,12 +1089,12 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     const slot = treasures.find(x => x.element === element && x.variant === variant);
     const modeAllowed = !!(treasurePractice || (init.owner && campaignEnabled));
     if (!canAcceptTreasurePress({
-      over: !!over, hasTarget: ti >= 0 && anyFoeAlive(syncedFoes.current.length ? syncedFoes.current : foes), modeAllowed, boardActionLocked: boardTurn.current,
+      over: !!over, hasTarget: ti >= 0, modeAllowed, boardActionLocked: boardTurn.current,
       isKelu: kelu, now: pressedAt, keluUnlockAt: keluUnlockAt.current,
       count: slot?.count ?? 0, available: !!slot?.available,
     })) return;
     // 點下即回饋：蓄力音與按鈕亮起不等伺服端往返；傷害、庫存與飛行動畫仍只吃伺服端結果。
-    // 斷風輪與一般寶器都在送出前先起飛（意圖動畫），傷害仍等伺服端確認後以同一個 actionId 補上。一般寶器可在動畫尚未結束時再按，請求依序排隊。
+    // 斷風輪另外在送出前先起飛（意圖動畫），傷害仍等伺服端確認後才套用。一般寶器可在動畫尚未結束時再按，請求依序排隊。
     cue('charge');
     const pendingKey = element + ':' + variant;
     pendingCounts.current.set(pendingKey, (pendingCounts.current.get(pendingKey) ?? 0) + 1);
@@ -1135,7 +1102,6 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     catalogRevision.current++;
     const localRev = catalogRevision.current;
     const gen = fireGen.current;
-    const queueGen = treasureQueueGen.current;
     setTreasures(cur => decrementTreasureCatalog(cur, element, variant));
     battleId.current ||= crypto.randomUUID();
     const actionId = battleId.current + ':treasure:' + (++treasureAction.current);
@@ -1145,7 +1111,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     if (kelu && timing) keluUnlockAt.current = pressedAt + timing.clearAt;
     bumpTreasureVisuals(1);
     setLastHealing([]);
-    if (root.current && slot && (!kelu || timing)) {
+    if (kelu && timing && root.current) {
       const bounds = root.current.getBoundingClientRect();
       const sourceEl = root.current.querySelector('[data-treasure="'+element+'"][data-variant="'+variant+'"]');
       const targetEl = root.current.querySelector('[data-testid="match3-enemy"][data-id="'+(syncedFoes.current[ti]?.id ?? foes[ti]?.id ?? '')+'"]') ?? root.current.querySelector('[data-testid="match3-enemy"]');
@@ -1153,37 +1119,18 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         const source = sourceEl.getBoundingClientRect();
         const target = targetEl.getBoundingClientRect();
         const ownerId = slot?.ownerId ?? '';
-        const intent: TreasureFlight = kelu && timing ? {
+        const intent: TreasureFlight = {
           effect: { id: actionId, element, variant, role: 'pierce', tier: 5, ownerId, name: '斷風輪', targetId: (syncedFoes.current[ti]?.id ?? foes[ti]?.id ?? ''), damage: 0, shieldBroken: 0, hits: [], healing: [], energyBefore: 0, energyAfter: 0, description: '斷風輪' },
           x1: source.left+source.width/2-bounds.left, y1: source.top+source.height/2-bounds.top,
           x2: target.left+target.width/2-bounds.left, y2: target.top+target.height/2-bounds.top,
           chain: timing.chain, intent: true, flightMs: timing.flightMs,
-        } : {
-          effect: { id: actionId, element, variant, role: slot.role, tier: slot.tier, ownerId, name: slot.name, targetId: (syncedFoes.current[ti]?.id ?? foes[ti]?.id ?? ''), damage: 0, shieldBroken: 0, hits: [], healing: [], energyBefore: 0, energyAfter: 0, description: slot.name },
-          x1: source.left+source.width/2-bounds.left, y1: source.top+source.height/2-bounds.top,
-          x2: target.left+target.width/2-bounds.left, y2: target.top+target.height/2-bounds.top,
-          intent: true,
         };
         setTreasureFlights(cur => upsertTreasureFlight(cur, intent));
       }
     }
     const restoreCount = () => setTreasures(cur => cur.map(x => x.element === element && x.variant === variant ? { ...x, count: x.count + 1 } : x));
-    const releasePending = () => {
-      const left = (pendingCounts.current.get(pendingKey) ?? 1) - 1;
-      if (left <= 0) pendingCounts.current.delete(pendingKey);
-      else pendingCounts.current.set(pendingKey, left);
-      setPendingTreasure(cur => left <= 0 && cur === pendingKey ? null : cur);
-    };
     const run = async () => {
-      // 輪到這一發：整局已重置／前一發失敗（只取消還沒送出的）／敵人已被前一發全倒 → 退庫存、收起飛動畫，不報錯。
-      const decision = treasureRunDecision({ pressGen: gen, fireGen: fireGen.current, pressQueueGen: queueGen, queueGen: treasureQueueGen.current, foes: syncedFoes.current, preferred: viewRef.current.ti });
-      if (decision.kind !== 'fire') {
-        setTreasureFlights(cur => removeTreasureFlight(cur, actionId));
-        restoreCount();
-        bumpTreasureVisuals(-1);
-        releasePending();
-        return;
-      }
+      if (gen !== fireGen.current) { restoreCount(); bumpTreasureVisuals(-1); return; }
       const controller = new AbortController();
       turnRequest.current = controller;
       const timeout = window.setTimeout(() => controller.abort(), 15000);
@@ -1191,7 +1138,9 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         const snapshot = viewRef.current;
         const liveFoes = syncedFoes.current;
         const liveTeam = syncedTeam.current;
-        const target = decision.target;
+        let target = snapshot.ti;
+        if (!liveFoes[target] || liveFoes[target].hp <= 0) target = liveFoes.findIndex(f => f.hp > 0);
+        if (target < 0) throw new Error('目前不能使用寶器');
         const result = await treasureTransaction(async book => {
           const r = await postOrbTurn(JSON.stringify({ guestBattleToken:guestState.current.token, sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, board:snapshot.board,magic:snapshot.magic,path:[],team:liveTeam,foes:liveFoes,mode:cfg.id,wins:snapshot.wins,target,seed:init.seed,move:snapshot.moves,chosen:snapshot.chosen,rule:snapshot.rule,attackBoost:snapshot.attackBoost,treasureGuard:snapshot.treasureGuard,treasures:book,action:'treasure',treasureElement:element,treasureVariant:variant,actionId }), {'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, controller.signal);
           if (!r.ok) throw new Error('暫時無法使用寶器，請重試。');
@@ -1212,15 +1161,12 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         const source = (sourceEl ?? root.current)!.getBoundingClientRect();
         const targetNode = root.current!.querySelector('[data-testid="match3-enemy"][data-id="'+result.effect.targetId+'"]') ?? root.current!.querySelector('[data-testid="match3-enemy"]');
         const targetBox = (targetNode ?? root.current)!.getBoundingClientRect();
-        // 一般寶器：訪客模式伺服端會改寫 effect.id（guest:…），這裡固定用本機 actionId，才能接上按下時的起飛動畫並在收尾時移除（不重開、不殘留）。
-        const confirmed: TreasureFlight = {effect:kelu ? result.effect : { ...result.effect, id: actionId },x1:source.left+source.width/2-bounds.left,y1:source.top+source.height/2-bounds.top,x2:targetBox.left+targetBox.width/2-bounds.left,y2:targetBox.top+targetBox.height/2-bounds.top, chain: timing?.chain, intent: false, flightMs: timing?.flightMs};
+        const confirmed: TreasureFlight = {effect:result.effect,x1:source.left+source.width/2-bounds.left,y1:source.top+source.height/2-bounds.top,x2:targetBox.left+targetBox.width/2-bounds.left,y2:targetBox.top+targetBox.height/2-bounds.top, chain: timing?.chain, intent: false, flightMs: timing?.flightMs};
         // 斷風輪若已先起飛，只補上傷害數字、不重開動畫，避免接上伺服端結果時重播造成卡頓。
         setTreasureFlights(cur => upsertTreasureFlight(cur, confirmed));
         const elapsed = performance.now() - pressedAt;
-        // 一般寶器已在按下時起飛：傷害／收動畫時間改從按下起算（不再從伺服端回應才重算 950／1900ms）。
-        const { damageDelay, clearDelay } = timing
-          ? { damageDelay: Math.max(0, timing.damageAt - elapsed), clearDelay: Math.max(0, timing.clearAt - elapsed) }
-          : optimisticTreasureDelays(elapsed);
+        const damageDelay = timing ? Math.max(0, timing.damageAt - elapsed) : 950;
+        const clearDelay = timing ? Math.max(0, timing.clearAt - elapsed) : 1900;
         later(() => {
           if (gen !== fireGen.current) return;
           queueKnockouts(liveFoes, result.foes, actionId, 'server-treasure', 0); setTeam(result.team); setFoes(result.foes); setConfirmedOutcome(result.outcome); setTreasureGuard(result.guardScale); setLastDmg(result.effect.damage); setTotalDmg(d=>d===null?null:d+result.effect.damage); setLog(result.effect.description); setSupportText([result.effect.description,result.comebackText].filter(Boolean).join('；')); cue('impact');
@@ -1230,8 +1176,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           setTreasureFlights(cur => removeTreasureFlight(cur, actionId)); bumpTreasureVisuals(-1);
         }, clearDelay);
       } catch (e) {
-        // 只取消排在後面、還沒送出的寶器；已確認那一發的扣血／收動畫照常（P0：以前 fireGen++ 會連帶取消，盤面永久鎖住）。
-        treasureQueueGen.current += 1;
+        fireGen.current += 1;
         if (kelu) { keluCombo.current = emptyKeluCombo(); keluUnlockAt.current = 0; }
         setTreasureFlights(cur => removeTreasureFlight(cur, actionId));
         restoreCount();
@@ -1240,7 +1185,10 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         else setLog(e instanceof Error ? e.message : '寶器未保存，請重試。');
       } finally {
         window.clearTimeout(timeout);
-        releasePending();
+        const left = (pendingCounts.current.get(pendingKey) ?? 1) - 1;
+        if (left <= 0) pendingCounts.current.delete(pendingKey);
+        else pendingCounts.current.set(pendingKey, left);
+        setPendingTreasure(cur => left <= 0 && cur === pendingKey ? null : cur);
         if (turnRequest.current === controller) turnRequest.current = null;
       }
     };
