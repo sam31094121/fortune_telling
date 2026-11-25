@@ -33,6 +33,15 @@ h=setup([['WATER','FIRE','FIRE','FIRE','FIRE']]);h.render(true);h.downXY(12,5);h
 h=setup([['FIRE','WATER','FIRE','FIRE','FIRE']]);h.render(true);h.downXY(26,5);h.move([0,3]);h.move([0,4]);h.up();assert.deepEqual(h.released,[[{r:0,c:2},{r:0,c:3},{r:0,c:4}]],'same-colour candidate only');
 // 4) 途中仍用碰撞圓：空隙不會被當成格子
 h=setup(row);h.render(true);h.down([0,0]);h.up();assert.deepEqual(h.released[0],[{r:0,c:0}]);
+// 5) 早按：演出中按住第 0 格不動，解鎖後一動就從第 0 格連
+h=setup(row);h.render(false);h.down([0,0]);h.render(true);h.move([0,1]);h.move([0,2]);h.up();
+assert.deepEqual(h.released[0],[{r:0,c:0},{r:0,c:1},{r:0,c:2}],'early hold starts on unlock');
+// 6) 早按但演出中手指已離開起點格 → 作廢，不替玩家起路線
+h=setup(row);h.render(false);h.down([0,0]);h.move([0,1]);h.render(true);h.move([0,2]);h.move([0,3]);h.up();assert.equal(h.released.length,0,'moved while locked: dropped on purpose');
+// 7) 早按但那一格的珠子在演出中換了 → 作廢
+h=setup(row);h.render(false);h.down([0,0]);h.render(true,[['WATER','FIRE','FIRE','FIRE','FIRE']]);h.move([0,1]);h.up();assert.equal(h.released.length,0,'orb changed under finger: dropped');
+// 8) 早按後在演出中就放開 → 解鎖後的移動不會自己起線
+h=setup(row);h.render(false);h.down([0,0]);h.up();h.render(true);h.move([0,1]);h.move([0,2]);h.up();assert.equal(h.released.length,0,'released while locked');
 // 9) 一般情況不變：解鎖狀態正常拖
 h=setup(row);h.render(true);h.down([0,1]);h.move([0,2]);h.move([0,3]);h.up();assert.deepEqual(h.released[0],[{r:0,c:1},{r:0,c:2},{r:0,c:3}]);
-console.log('PASS drag start tolerance: gap/padding start ≤8px decided on first orb entered (no guess, tap sends nothing), far ignored, normal drag unchanged');
+console.log('PASS drag start tolerance: gap/padding start ≤8px decided on first orb entered (no guess, tap sends nothing), far ignored, early hold same-cell only, moved/changed/released early dropped, normal drag unchanged');

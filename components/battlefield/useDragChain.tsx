@@ -91,9 +91,17 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
   const commit = (next: Cell[], pts: DragPoint[]) => { pathRef.current = next; store.set(next, pts); if (reactive) { setPath(next); setPoints(pts); } };
   const ptsRef = useRef<DragPoint[]>([]);
 
+  /** 早按：演出還沒結束（enabled=false）就先按住起點的那一筆。放開前只要手指沒離開那一格、那一格的珠子也沒變，
+   *  解鎖後手指一動就從那一格開始連；離開過、珠子換過或放開，就作廢（不會替玩家起一條他沒看到的路線）。 */
+  const early = useRef<{ id: number; r: number; c: number; el: unknown; mp: number; ok: boolean } | null>(null);
   const onPointerDown = (e: RPointerEvent<HTMLDivElement>) => {
-    if (!enabled || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    gapStart.current = null;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (!enabled) {
+      measureCells(); const hit = cellAt(e.clientX, e.clientY, false);
+      early.current = hit ? { id: e.pointerId, r: hit.cell.r, c: hit.cell.c, el: board[hit.cell.r]?.[hit.cell.c], mp: magic?.[hit.cell.r]?.[hit.cell.c] ?? 0, ok: true } : null;
+      return;
+    }
+    early.current = null; gapStart.current = null;
     measureCells();
     const hit = cellAt(e.clientX, e.clientY, false);
     if (!hit) {
@@ -107,6 +115,22 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
     ptsRef.current = [hit.pt]; commit([hit.cell], ptsRef.current);
   };
   const onPointerMove = (e: Pick<RPointerEvent<HTMLDivElement>, 'clientX' | 'clientY' | 'nativeEvent'>) => {
+    const held = early.current;
+    if (held && !pathRef.current.length) {
+      const id = (e.nativeEvent as PointerEvent).pointerId;
+      if (id !== undefined && id !== held.id) return;
+      if (!enabled) {
+        // 還在演出：只追蹤手指有沒有離開起點格（用按下時量好的格子位置，移動中不重排）。
+        const hit = cellAt(e.clientX, e.clientY, false);
+        if (!hit || hit.cell.r !== held.r || hit.cell.c !== held.c) held.ok = false;
+        return;
+      }
+      early.current = null;
+      if (!held.ok || board[held.r]?.[held.c] !== held.el || (magic?.[held.r]?.[held.c] ?? 0) !== held.mp) return;
+      const g = measureCells(); const q = g?.cells.find(x => x.r === held.r && x.c === held.c); if (!q) return;
+      try { if (id !== undefined) ref.current?.setPointerCapture(id); } catch { /* 指標已放開 */ }
+      ptsRef.current = [{ x: q.x + q.w / 2, y: q.y + q.h / 2 }]; commit([{ r: held.r, c: held.c }], ptsRef.current);
+    }
     let cur = pathRef.current; if (!cur.length && !gapStart.current) return;
     let pts = ptsRef.current;
     // Busy browsers batch pointer samples. Validate every recorded point, never
@@ -142,12 +166,12 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
   }, []);
 
   const end = () => {
-    gapStart.current = null;
+    early.current = null; gapStart.current = null;
     releaseGeometry();
     const done = pathRef.current; ptsRef.current = []; commit([], []);
     if (done.length) onRelease(done);
   };
-  const cancel = () => { gapStart.current = null; releaseGeometry(); ptsRef.current = []; commit([], []); };
+  const cancel = () => { early.current = null; gapStart.current = null; releaseGeometry(); ptsRef.current = []; commit([], []); };
 
   return { ref, path, points, store: store as DragStore, handlers: { onPointerDown, onPointerUp: end, onPointerCancel: cancel } };
 }
