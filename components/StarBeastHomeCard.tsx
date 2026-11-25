@@ -5,7 +5,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import HomeTranslatedText from '@/components/HomeTranslatedText';
 import styles from './StarBeastHomeCard.module.css';
 import Match3ElementGlyph from './battlefield/Match3ElementGlyph';
-import orbStyles from './battlefield/Match3Board.module.css';
+import orbStyles from './battlefield/HomeBattleOrbs.module.css';
+
+const QINGLONG_POUNCE_SRC = '/beast-game/rig/qinglong/pounce-open.v2.webp';
 
 type CardLang = 'zh' | 'en';
 
@@ -68,6 +70,27 @@ export default function StarBeastHomeCard() {
     }, FADE_MS);
   }, [lang]);
 
+  const artRef = useRef<HTMLDivElement>(null);
+  const [dragonSrc, setDragonSrc] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    const el = artRef.current;
+    if (!el) return;
+    const load = () => setDragonSrc(QINGLONG_POUNCE_SRC);
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        load();
+        io.disconnect();
+      }
+    }, { rootMargin: '200px 0px' });
+    io.observe(el);
+    const box = el.getBoundingClientRect();
+    if (box.bottom > -200 && box.top < (window.innerHeight || 0) + 200) {
+      load();
+      io.disconnect();
+    }
+    return () => io.disconnect();
+  }, []);
+
   const t = COPY[lang];
   const isZh = lang === 'zh';
   // zh keeps HomeTranslatedText so the site-wide interface language keeps working exactly as before.
@@ -86,9 +109,9 @@ export default function StarBeastHomeCard() {
         <div className={styles.scenery} data-lazy-art="1" aria-hidden="true" />
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-        <div className={styles.dragonArtwork} aria-hidden="true">
-          <img className={`${styles.dragon} ${styles.contactShadow}`} src="/beast-game/rig/qinglong/pounce-open.v2.webp" alt="" draggable={false} />
-          <img className={styles.dragon} src="/beast-game/rig/qinglong/pounce-open.v2.webp" alt="" draggable={false} />
+        <div ref={artRef} className={styles.dragonArtwork} aria-hidden="true">
+          <img className={`${styles.dragon} ${styles.contactShadow}`} src={dragonSrc} alt="" draggable={false} loading="lazy" decoding="async" />
+          <img className={styles.dragon} src={dragonSrc} alt="" draggable={false} loading="lazy" decoding="async" />
         </div>
 
         {/* 【月柱】名稱已併入上層與圖示同一排；標籤小字隱藏 */}

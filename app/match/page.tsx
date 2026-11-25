@@ -3,7 +3,8 @@
 import { useCallback, useMemo, useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
 import { APPROVED_PHRASES, FRONTEND_COPY } from '@/lib/credibility-phrases';
 import Link from 'next/link';
-import HomeTranslatedText, { useDisplayText } from '@/components/HomeTranslatedText';
+import HomeTranslatedText from '@/components/HomeTranslatedText';
+import { useDisplayText } from '@/components/useDisplayText';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import NextStepGuide from '@/components/NextStepGuide';

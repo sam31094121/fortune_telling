@@ -9,7 +9,8 @@ function load(file) {
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
   }).outputText, { module: target, exports: target.exports, require(id) {
-    if (id === '@/components/HomeTranslatedText') return { __esModule: true, default: ({text}) => text, useDisplayText: () => x => x };
+    if (id === '@/components/HomeTranslatedText') return { __esModule: true, default: ({text}) => text };
+    if (id === '@/components/useDisplayText') return { useDisplayText: () => x => x };
     if (id === '@/components/LunarBirthdayInput') return () => null;
     if (id === '@/lib/shichen-engine') return { SHICHEN_LIST: [] };
     if (id.startsWith('@/lib/')) return {};

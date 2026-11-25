@@ -6,7 +6,15 @@ import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { normalizeCalendarInput, solarToLunarParts } from '@/lib/lunar-calendar';
 import { useInterfaceLanguage } from '@/components/InterfaceLanguage';
 import { birthdayEnglishCopy } from '@/lib/birthday-english-copy';
-import { koreanCopy } from '@/lib/korean-copy';
+import { birthdayKoreanCopy } from '@/lib/korean-copy/birthday';
+import { formKoreanCopy } from '@/lib/korean-copy/form';
+import { homeKoreanCopy } from '@/lib/korean-copy/home';
+
+const koreanBirthdayCopy: Record<string, string> = {
+  ...homeKoreanCopy,
+  ...formKoreanCopy,
+  ...birthdayKoreanCopy,
+};
 
 interface LunarBirthdayInputProps {
   value: string;
@@ -41,7 +49,7 @@ function LunarBirthdayInput({
   const { language } = useInterfaceLanguage();
   const english = language === 'en';
   const korean = language === 'ko';
-  const display = (text: string) => english ? birthdayEnglishCopy[text] ?? text : korean ? koreanCopy[text] ?? text : text;
+  const display = (text: string) => english ? birthdayEnglishCopy[text] ?? text : korean ? koreanBirthdayCopy[text] ?? text : text;
   const [mode, setMode] = useState<'solar' | 'lunar'>('solar');
   const [rocYear, setRocYear] = useState('');
   const [month, setMonth] = useState('');

@@ -49,7 +49,7 @@ import HomeToolsCard from '@/components/HomeToolsCard';
 import HomeInstallCard from '@/components/HomeInstallCard';
 import HomeGuestbook from '@/components/HomeGuestbook';
 import StarBeastHomeCard from '@/components/StarBeastHomeCard';
-import GhostAsuraHomeEntry from '@/components/GhostAsuraHomeEntry';
+import GhostAsuraHomeEntryLazy from '@/components/GhostAsuraHomeEntryLazy';
 import { markPendingRoute, recoverFromChunkError } from '@/lib/chunk-recovery';
 import { useFloatingAvoid } from '@/lib/use-floating-avoid';
 import { safeJsonFetch } from '@/lib/safe-fetch';
@@ -3064,7 +3064,7 @@ export default function HomePage() {
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
-          <GhostAsuraHomeEntry />
+          <GhostAsuraHomeEntryLazy />
           <Link
             href={ZIWEI_ROUTE}
             prefetch

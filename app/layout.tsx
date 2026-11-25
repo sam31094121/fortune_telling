@@ -106,10 +106,26 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: FORCE_PHONE_LAYOUT_INIT_SCRIPT }} />
         {/* 第一次手勢同步 resume 共用 AudioContext，並開始抓 BGM，不等 window.load。 */}
         <script dangerouslySetInnerHTML={{ __html: SITE_AUDIO_BOOT_SCRIPT }} />
-        {/* 古老符咒毛筆字體：只用來畫魔珠封印上的「封」字，營造邪氣靈異的神秘感。 */}
+        {/* 古老符咒毛筆字體：只用來畫魔珠封印上的「封」字，營造邪氣靈異的神秘感。
+            改為非阻塞載入（preload + media=print，載入後切回 all），字型來源與 display=swap 不變。 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" />
+        <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" />
+        <link
+          id="ma-shan-zheng-font"
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap"
+          media="print"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){var l=document.getElementById('ma-shan-zheng-font');if(!l)return;var go=function(){l.media='all'};if(l.addEventListener)l.addEventListener('load',go);l.onload=go;if(l.sheet)go();})();",
+          }}
+        />
+        <noscript>
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" />
+        </noscript>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

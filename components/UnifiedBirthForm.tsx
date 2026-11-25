@@ -1,7 +1,8 @@
 ﻿'use client';
 
 import { useEffect, useId, useRef, type ReactNode } from 'react';
-import HomeTranslatedText, { useDisplayText } from '@/components/HomeTranslatedText';
+import HomeTranslatedText from '@/components/HomeTranslatedText';
+import { useDisplayText } from '@/components/useDisplayText';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import { getAnalysisIdentityTarget, IDENTITY_TARGET_UPDATED_EVENT, type AnalysisIdentityTarget } from '@/lib/identity-split-client';
 import { readSelfBirthProfile, saveSelfBirthProfile } from '@/lib/self-profile-client';

@@ -1,0 +1,61 @@
+/* Homepage battle-card preview orbs only. Visual rules copied from
+   Match3Board.module.css hard-mode gem look; no board layout, fonts, or animations.
+   StarBeastHomeCard already disables animation on .previewOrb. */
+.wrap { position: relative; color: #e8e1d3; }
+.orb { position: relative; aspect-ratio: 1; min-width: 44px; min-height: 44px; border-radius: 10px;
+  display: grid; place-items: center; -webkit-tap-highlight-color: transparent;
+  background: radial-gradient(ellipse 34% 7% at 50% 94%, rgba(12,11,16,.78), rgba(12,11,16,0) 72%); }
+.gem { position: absolute; inset: 7%;
+  background: linear-gradient(140deg, #d8c6a2 0%, #b4a181 34%, #c7c4bd 50%, #ad9672 70%, #887351 100%);
+  box-shadow: none; filter: none; }
+.gem::before { content: ''; position: absolute; inset: 2px; border-radius: inherit; clip-path: inherit; pointer-events: none;
+  --spec: radial-gradient(ellipse 42% 32% at 34% 28%, rgba(255,255,255,.27), var(--lt) 48%, rgba(255,255,255,0) 100%),
+    radial-gradient(ellipse 42% 28% at 65% 76%, var(--lt), rgba(255,255,255,0) 95%),
+    linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,0) 70%);
+  filter: saturate(.78) brightness(1.12) contrast(.92);
+  box-shadow: inset 0 1px 1px var(--ring), inset 0 -1px 1px rgba(12,11,16,.28), inset 0 -3px 8px var(--deep); }
+.air { --c: #2f9e7e; } .air .gem { border-radius: 50%; }
+.space { --c: #8d6fd1; } .space .gem { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); inset: 2%; }
+.water { --c: #2c74d0; } .water .gem { border-radius: 50% 22% 50% 50%; transform: rotate(-45deg) scale(.86); }
+.fire { --c: #e0532c; } .fire .gem { clip-path: polygon(50% 3%, 97% 92%, 3% 92%); inset: 2%; }
+.earth { --c: #c39324; } .earth .gem { border-radius: 28%; inset: 12%; }
+.space .gem::before { inset: 3px; --ring: rgba(238,233,255,.38); --lt: rgba(223,216,255,.16); --deep: rgba(18,10,28,.6);
+  background: var(--spec),
+  repeating-conic-gradient(from -1.5deg at 50% 50%, rgba(223,216,255,.26) 0 3deg, rgba(0,0,0,0) 3deg 90deg),
+  repeating-conic-gradient(from 43.5deg at 50% 50%, rgba(180,162,255,.1) 0 3deg, rgba(0,0,0,0) 3deg 90deg),
+  radial-gradient(circle at 50% 50%, rgba(223,216,255,.22) 0 4%, rgba(0,0,0,0) 10%),
+  radial-gradient(circle at 50% 50%, #443087 0%, #443087 28%, #5b2a86 58%, #120a1c 100%); }
+.air .gem::before { --ring: rgba(198,255,225,.32); --lt: rgba(141,255,205,.13); --deep: rgba(4,18,12,.6);
+  background: var(--spec),
+  linear-gradient(45deg, rgba(0,0,0,0) 44%, rgba(141,255,205,.16) 47%, rgba(0,0,0,0) 50%),
+  linear-gradient(45deg, rgba(0,0,0,0) 54%, rgba(0,245,160,.12) 56.5%, rgba(0,0,0,0) 59%),
+  linear-gradient(45deg, rgba(0,0,0,0) 34%, rgba(141,255,205,.08) 36%, rgba(0,0,0,0) 38%),
+  radial-gradient(circle at 56% 56%, #006f4d 0%, #006f4d 30%, #1f6b4a 60%, #04120c 100%); }
+.water .gem::before { --ring: rgba(194,251,255,.34); --lt: rgba(96,237,255,.13); --deep: rgba(4,20,26,.62);
+  filter: saturate(.76) brightness(1.08) contrast(.92);
+  background: var(--spec),
+  linear-gradient(135deg, rgba(0,0,0,0) 36%, rgba(96,237,255,.16) 42%, rgba(0,0,0,0) 48%),
+  repeating-linear-gradient(135deg, rgba(194,251,255,.05) 0 1px, rgba(0,0,0,0) 1px 4px),
+  linear-gradient(225deg, rgba(0,0,0,0) 55%, rgba(96,237,255,.14) 92%),
+  radial-gradient(circle at 40% 36%, #006ee6 0%, #006ee6 22%, #0d6b62 64%, #04141a 100%); }
+.fire .gem::before { inset: 3px; --ring: rgba(255,210,231,.34); --lt: rgba(255,159,197,.14); --deep: rgba(26,4,16,.6);
+  background: var(--spec),
+  radial-gradient(circle at 54% 14%, rgba(255,210,231,.5) 0 .9%, rgba(0,0,0,0) 2%),
+  radial-gradient(circle at 48% 32%, rgba(255,159,197,.4) 0 1.2%, rgba(0,0,0,0) 2.4%),
+  radial-gradient(circle at 60% 50%, rgba(255,210,231,.3) 0 1.4%, rgba(0,0,0,0) 2.7%),
+  radial-gradient(circle at 40% 66%, rgba(255,159,197,.26) 0 1.6%, rgba(0,0,0,0) 3%),
+  radial-gradient(ellipse 44% 22% at 50% 88%, rgba(255,18,100,.22), rgba(0,0,0,0) 75%),
+  linear-gradient(0deg, rgba(0,0,0,0) 30%, rgba(255,159,197,.07) 100%),
+  radial-gradient(circle at 50% 62%, #a40039 0%, #a40039 30%, #7a0f3a 62%, #1a0410 100%); }
+.earth .gem::before { --ring: rgba(255,235,176,.34); --lt: rgba(255,225,152,.14); --deep: rgba(20,13,4,.6);
+  background: var(--spec),
+  radial-gradient(circle at 30% 84%, rgba(255,173,18,.5) 0 1.6%, rgba(0,0,0,0) 2.8%),
+  radial-gradient(circle at 58% 88%, rgba(255,225,152,.45) 0 1.3%, rgba(0,0,0,0) 2.5%),
+  radial-gradient(circle at 76% 80%, rgba(255,173,18,.38) 0 1.1%, rgba(0,0,0,0) 2.2%),
+  radial-gradient(circle at 46% 76%, rgba(255,225,152,.3) 0 .9%, rgba(0,0,0,0) 2%),
+  repeating-linear-gradient(0deg, rgba(255,225,152,.05) 0 1px, rgba(0,0,0,0) 1px 4px),
+  linear-gradient(180deg, rgba(255,255,255,.07) 0%, rgba(0,0,0,0) 40%, rgba(20,13,4,.25) 100%),
+  radial-gradient(circle at 48% 50%, #9b4b00 0%, #9b4b00 32%, #5c3d0f 66%, #140d04 100%); }
+.elementGlyph { position: relative; width: 58%; height: 58%; color: #faf4e8; pointer-events: none;
+  filter: drop-shadow(0 1px 1px rgba(12,11,16,.45)); }
+.fire .elementGlyph { top: 7%; width: 53%; height: 53%; }
