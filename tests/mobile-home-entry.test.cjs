@@ -1,15 +1,20 @@
-const {test}=require('node:test');
-const assert=require('node:assert/strict');
-const fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
-function run(mobile=true,hash='',extra={}) {
- const events=new Map(),timers=[],calls=[];let cleanup;
- const window={matchMedia:()=>({matches:mobile}),location:{hash},history:{scrollRestoration:'auto'},addEventListener:(k,f)=>events.set(k,f),removeEventListener:k=>events.delete(k),requestAnimationFrame:f=>{timers.push(f);return 1},cancelAnimationFrame(){},setTimeout:f=>{timers.push(f);return 2},...extra};
- const mod={exports:{}};
- vm.runInNewContext(ts.transpileModule(fs.readFileSync('components/useMobileHomeEntry.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{window,clearTimeout(){},module:mod,exports:mod.exports,require(){return {useLayoutEffect:fn=>{cleanup=fn()}}}});
- mod.exports.useMobileHomeEntry({current:{scrollIntoView:options=>calls.push(options)}});
- return {window,events,timers,calls,cleanup};
-}
-test('phone entry aligns tools immediately and finishes bounded settling',()=>{const r=run();assert.equal(r.calls.length,1);r.timers.forEach(f=>f());assert.equal(r.calls.length,4);assert.equal(r.window.history.scrollRestoration,'manual');r.cleanup();assert.equal(r.window.history.scrollRestoration,'auto');assert.equal(r.events.size,0)});
-test('a user touch cancels further alignment instead of fighting their scroll',()=>{const r=run();r.events.get('touchstart')();r.timers.forEach(f=>f());assert.equal(r.calls.length,1);r.cleanup()});
-test('desktop and explicit deep links keep their own entry behavior',()=>{for(const r of [run(false),run(true,'#home-trust-strip')]){assert.equal(r.calls.length,0);assert.equal(r.window.history.scrollRestoration,'auto')}});
-test('a swipe made before hydration on a fresh load keeps the customer place',()=>{const performance={now:()=>500,getEntriesByType:()=>[{type:'navigate'}]};const r=run(true,'',{performance,scrollY:2400});r.timers.forEach(f=>f());assert.equal(r.calls.length,0);assert.equal(r.window.history.scrollRestoration,'auto');const top=run(true,'',{performance,scrollY:0});assert.equal(top.calls.length,1);const back=run(true,'',{performance:{now:()=>500,getEntriesByType:()=>[{type:'back_forward'}]},scrollY:2400});assert.equal(back.calls.length,1)});
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+
+test('HomeToolsCard keeps language and font-size controls, and does not force a load scroll', () => {
+  const src = fs.readFileSync('components/HomeToolsCard.tsx', 'utf8');
+  assert.match(src, /data-home-tools-card/);
+  assert.match(src, /data-text-size-switch/);
+  assert.match(src, /data-text-size-option/);
+  assert.match(src, /data-home-tools-language/);
+  assert.equal(/from ['"]@\/components\/useMobileHomeEntry['"]/.test(src), false);
+  assert.equal(/useMobileHomeEntry\s*\(/.test(src), false);
+  assert.equal(/scrollIntoView\s*\(/.test(src), false);
+  assert.equal(/useLayoutEffect\s*\(/.test(src), false);
+});
+
+test('the mobile load-alignment hook is gone, so a fresh visit cannot snap to the tools card', () => {
+  assert.equal(fs.existsSync('components/useMobileHomeEntry.ts'), false);
+  assert.equal(fs.existsSync('components/useMobileHomeEntry.tsx'), false);
+});

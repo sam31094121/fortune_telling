@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useMobileHomeEntry } from '@/components/useMobileHomeEntry';
+import { useEffect, useState } from 'react';
 import HomeTranslatedText from '@/components/HomeTranslatedText';
 import { InterfaceLanguagePicker } from '@/components/InterfaceLanguage';
 import {
@@ -24,10 +23,14 @@ import styles from './HomeToolsCard.module.css';
  *  - data-install-panel-slot：卡片正下方、整條寬度的安裝說明
  * 掛好後發出 tdh:install-slots 通知盾牌元件來認領；找不到這兩個位置的頁面，盾牌維持原本位置。
  * 字體選擇存在這支手機裡，下次回來、換頁都沿用；只改字級，不動內容。
+ *
+ * 不要在進頁時把手機畫面捲到這張工具卡。2026-11-08 ca91bf63（訊息僅「1111」）
+ * 加入 useMobileHomeEntry，註解寫「Mobile entry starts at language/tools」，
+ * 會在 ≤767px 且沒有 hash 時對此卡 scrollIntoView 最多四次，進站太極主視覺會被捲走。
+ * 2026-11-21 946c3a31 只避開「水合前就已捲過」的情況，全新進入仍會被強制對齊。
+ * 有 hash 的深層連結交給瀏覽器；點字體大小只改字級，不捲動。
  */
 export default function HomeToolsCard() {
-  const entryRef = useRef<HTMLDivElement>(null);
-  useMobileHomeEntry(entryRef);
   const [current, setCurrent] = useState<TextSizeId>(TEXT_SIZE_DEFAULT);
 
   useEffect(() => {
@@ -45,7 +48,7 @@ export default function HomeToolsCard() {
   };
 
   return (
-    <div ref={entryRef} className={styles.wrap} data-text-size-switch data-home-tools-card>
+    <div className={styles.wrap} data-text-size-switch data-home-tools-card>
       <div className={styles.card}>
         <div className={styles.langRow} data-home-tools-language>
           <InterfaceLanguagePicker variant="card" />
