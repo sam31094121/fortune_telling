@@ -904,6 +904,21 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     else if (!busy) setLastAllySettled(true);
   }, [lastAllyReady, busy]);
   const lastAllyLive = lastAllyReady && lastAllySettled;
+  // 開戰第一幀：等版面定案（單隻主角的放大版面、側邊武器列量測完成）且敵我卡圖載入（最多 1.5 s）才顯示，
+  // 避免先出現空卡框、棋盤與武器列再跳位（手機 390 CLS≈0.30）。只影響顯示時機，不改任何戰鬥數值或流程。
+  const [revealed, setRevealed] = useState(false);
+  useEffect(() => {
+    if (revealed || (lastAllyReady && !lastAllySettled)) return;
+    let cancelled = false, raf1 = 0, raf2 = 0;
+    const images = Array.from(root.current?.querySelectorAll<HTMLImageElement>('[data-testid="match3-enemy"] img, [data-testid="match3-ally"] img') ?? []);
+    const loaded = (image: HTMLImageElement) => image.complete ? Promise.resolve() : new Promise<void>(done => { image.addEventListener('load', () => done(), { once: true }); image.addEventListener('error', () => done(), { once: true }); });
+    const cap = new Promise<void>(done => window.setTimeout(done, 1500));
+    void Promise.race([Promise.all(images.map(loaded)), cap]).then(() => {
+      if (cancelled) return;
+      raf1 = requestAnimationFrame(() => { raf2 = requestAnimationFrame(() => { if (!cancelled) setRevealed(true); }); });
+    });
+    return () => { cancelled = true; cancelAnimationFrame(raf1); cancelAnimationFrame(raf2); };
+  }, [revealed, lastAllyReady, lastAllySettled]);
   // 米其林 11/14：分出勝負那一刻（擊倒最後一隻、魔王開始爆炸）沿用前一刻的放大狀態與留在場上的卡，撐到下一局；
   // 不因 !over 讓我方放大卡縮回一排、敵方大卡退回小卡或從列中消失（版面位移 ≤2px）。
   const liveLayout = useRef<HeldBattleLayout>({ guardianDuel: false, lastFoe: false, lastAlly: false, lastAllyId: null, foeIds: [] });
@@ -1488,7 +1503,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
 
   if (cfg.id === 'hard45' && (confirmedOutcome === 'unavailable' || lossMismatch)) return <section className={styles.wrap} role="alert">暫時無法確認本局勝負，尚未發放獎勵。<button type="button" onClick={onRepick}>返回我的卡片</button></section>;
   return (
-    <section ref={root} className={styles.wrap} aria-busy={busy} data-match3-scroll-lock={scrollLocked && !help && !resultShown ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !resultShown ? "true" : undefined} data-last-ally-stage={cfg.id==='hard45'&&lastAllyBig?'true':undefined} data-hold-top={lastAllyBig && holdTopReady.current ? 'true' : undefined} data-mobile-actions={mobileActionless ? 'off' : 'on'} data-manual-link-ready={mobileActionless && readyLinkIds.length >= LINK_MIN_CARDS && !busy && !over && ti >= 0 ? 'true' : undefined} onPointerDownCapture={(e) => { audio.current?.unlock(); setIntro(false); if (mobileActionless && link.length && !(e.target instanceof Element && e.target.closest('[data-testid="match3-ally"]'))) { setLink([]); setLinkMode(false); } }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
+    <section ref={root} className={styles.wrap} aria-busy={busy} data-match3-scroll-lock={scrollLocked && !help && !resultShown ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !resultShown ? "true" : undefined} data-last-ally-stage={cfg.id==='hard45'&&lastAllyBig?'true':undefined} data-hold-top={lastAllyBig && holdTopReady.current ? 'true' : undefined} data-mobile-actions={mobileActionless ? 'off' : 'on'} data-manual-link-ready={mobileActionless && readyLinkIds.length >= LINK_MIN_CARDS && !busy && !over && ti >= 0 ? 'true' : undefined} onPointerDownCapture={(e) => { audio.current?.unlock(); setIntro(false); if (mobileActionless && link.length && !(e.target instanceof Element && e.target.closest('[data-testid="match3-ally"]'))) { setLink([]); setLinkMode(false); } }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent, ...(revealed ? null : { visibility: 'hidden' as const }) }} data-battle-revealed={revealed ? 'true' : undefined} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
       {orbFocus && <div key={orbFocus.key} className={styles.orbAttackFocus} data-testid="orb-attack-focus" data-target-id={orbFocus.presentation.targetId} aria-hidden="true">{orbFocus.presentation.groups.map(group=><div className={styles.orbAttackFocusItem} key={group.attackerId} data-source-id={group.attackerId} data-element={group.element} data-damage={group.amount}><ElementTreasureOrb element={getProductOrbFromBrand(group.element.toLowerCase() as 'space'|'air'|'water'|'fire'|'earth')} released preview animated={false} visualScale={0.8}/></div>)}</div>}
       {rigEnabled && <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: 'absolute', pointerEvents: 'none' }}>
         <defs>
