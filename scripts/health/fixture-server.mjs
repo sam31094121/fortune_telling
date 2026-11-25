@@ -20,8 +20,9 @@ export const FIXTURE_CARDS = {
   ],
 };
 
-export function startFixture({ deadPort } = {}) {
-  if (!deadPort) throw new Error('startFixture 需要一個沒有人在聽的 deadPort');
+// 「真的連線失敗」用 /drop：伺服器直接切斷連線（net::ERR_EMPTY_RESPONSE），Linux／Windows 都會立刻失敗。
+// （連到沒開的埠在 Windows 要等約 2 秒才 ECONNREFUSED，會超過測試的觀察時間。）
+export function startFixture() {
   const homeLinks = FIXTURE_CARDS.cards.map((c) => `<a class="home-feature-launch" href="${c.href}" style="display:block">${c.name}</a>`).join('');
   const routes = {
     '/': () => page(`<h1>假首頁</h1>${homeLinks}`),
@@ -33,14 +34,15 @@ export function startFixture({ deadPort } = {}) {
       style: 'html,body{overflow-x:hidden} .wide{white-space:nowrap;width:max-content} .scroller{overflow-x:auto;width:100%} .track{white-space:nowrap;display:inline-block}' }),
     '/writes-only': () => page('<h1>只有被攔的寫入</h1><p>進頁會送一筆統計 POST。</p>', {
       script: `fetch('/api/view',{method:'POST'}).catch((e)=>console.error('view failed', String(e)));` }),
-    '/writes-and-fail': () => page('<h1>被攔寫入＋真的連線失敗</h1><p>統計 POST 會被唯讀模式攔下；另一個 GET 連到沒開的埠，是真的失敗。</p>', {
+    '/writes-and-fail': () => page('<h1>被攔寫入＋真的連線失敗</h1><p>統計 POST 會被唯讀模式攔下；另一個 GET 被伺服器切斷連線，是真的失敗。</p>', {
       script: `fetch('/api/view',{method:'POST'}).catch((e)=>console.error('view failed', String(e)));
-setTimeout(()=>fetch('http://127.0.0.1:${deadPort}/data').catch((e)=>console.error('data failed', String(e))), 150);` }),
+setTimeout(()=>fetch('/drop').catch((e)=>console.error('data failed', String(e))), 150);` }),
     '/bad-img': () => page('<h1>壞圖</h1><p>一張 200 但內容不是圖片的檔案，一張正常小圖。</p><img src="/garbage.png" width="40" height="40" alt="壞"><img src="/ok.png" width="40" height="40" alt="好">'),
   };
   const server = http.createServer((req, res) => {
     const u = new URL(req.url, 'http://x');
     if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(200, { 'content-type': 'application/json' }); return res.end('{"wrote":true}'); }
+    if (u.pathname === '/drop') { req.socket.destroy(); return; }
     if (u.pathname === '/err500') { res.writeHead(500, { 'content-type': 'text/html' }); return res.end('<html><body><h1>oops</h1><p>伺服器壞了</p></body></html>'); }
     if (u.pathname === '/garbage.png') { res.writeHead(200, { 'content-type': 'image/png' }); return res.end('not really a png'); }
     if (u.pathname === '/ok.png') { res.writeHead(200, { 'content-type': 'image/png' }); return res.end(PNG_1PX); }

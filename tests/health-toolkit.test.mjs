@@ -7,8 +7,8 @@ import path from 'node:path';
 import http from 'node:http';
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
-import { parseColor, blendOver, contrastRatio, isLargeText, gradientStops, contrastRange, clsFromEntries, michelin, coverage, overallStatus, acquireLock, releaseLock, lockVerdict, pruneOwnRuns, compareRuns, renderMarkdown, diskGuard, pickPort, startServer, findNextConflicts, listProcesses, GROUP_META } from '../scripts/health/lib.mjs';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parseColor, blendOver, contrastRatio, isLargeText, gradientStops, contrastRange, clsFromEntries, michelin, coverage, overallStatus, acquireLock, releaseLock, lockVerdict, procStartToken, lockPath, pruneOwnRuns, compareRuns, renderMarkdown, diskGuard, pickPort, startServer, findNextConflicts, listProcesses, GROUP_META } from '../scripts/health/lib.mjs';
 import { judge, judgeEarlySwipe, filterBlockedConsole, DOM_KEYS } from '../scripts/health/judge.mjs';
 import { CARDS, THRESHOLDS, MICHELIN_TARGETS, VIEWPORTS, LOCAL_ENV_GAP_APIS } from '../scripts/health/config.mjs';
 import { metricsScript, INIT_SCRIPT } from '../scripts/health/probe.mjs';
@@ -168,6 +168,11 @@ await t('#8 parseArgs / selectCards validation', () => {
 
 // ---------- 第 9 項：鎖 ----------
 await t('#9 lock basics / pid reuse / heartbeat', () => {
+  // 行程身分：本平台（Linux /proc、Windows PowerShell、其他 ps）拿得到，且兩次一致
+  const tok = procStartToken(process.pid);
+  assert.ok(tok, `procStartToken 在 ${process.platform} 拿不到`); assert.equal(procStartToken(process.pid), tok);
+  assert.equal(procStartToken(2 ** 30), null, '不存在的 pid 回 null');
+  if (!process.env.HC_LOCK_FILE) assert.equal(path.dirname(lockPath()), os.tmpdir());
   const lf = path.join(tmp, 'l.lock');
   assert.equal(acquireLock({}, { file: lf }).ok, true);
   assert.equal(acquireLock({}, { file: lf }).ok, false); // 同一 pid 仍活著且身分相同 → 不可重入
@@ -189,10 +194,11 @@ await t('#9 lock basics / pid reuse / heartbeat', () => {
 await t('#9 concurrent reclaim of a stale lock → exactly one winner', async () => {
   const lf = path.join(tmp, 'race.lock');
   fs.writeFileSync(lf, JSON.stringify({ pid: 999999, host: os.hostname(), procStart: 'lx:1', startedAt: new Date().toISOString() }));
-  const lib = path.join(REPO, 'scripts/health/lib.mjs');
+  const lib = pathToFileURL(path.join(REPO, 'scripts/health/lib.mjs')).href; // Windows 上 import 需要 file:// 網址
   const code = `import { acquireLock } from ${JSON.stringify(lib)}; const go = Date.now() + 600; while (Date.now() < go); const r = acquireLock({}, { file: ${JSON.stringify(lf)} }); console.log(r.ok ? 'WIN' : 'LOSE'); setTimeout(() => {}, 1500);`;
-  const outs = await Promise.all(Array.from({ length: 8 }, () => new Promise((res) => { const p = spawn(process.execPath, ['--input-type=module', '-e', code]); let o = ''; p.stdout.on('data', (d) => (o += d)); p.on('exit', () => res(o.trim())); })));
+  const outs = await Promise.all(Array.from({ length: 8 }, () => new Promise((res) => { const p = spawn(process.execPath, ['--input-type=module', '-e', code]); let o = '', er = ''; p.stdout.on('data', (d) => (o += d)); p.stderr.on('data', (d) => (er += d)); p.on('exit', () => res(o.trim() || `ERR ${er.trim().split('\n').slice(-2).join(' ')}`)); })));
   assert.equal(outs.filter((x) => x === 'WIN').length, 1, outs.join(','));
+  assert.equal(outs.filter((x) => x === 'LOSE').length, 7, outs.join(','));
   fs.rmSync(lf, { force: true });
 });
 
@@ -237,6 +243,7 @@ await t('#10 next build / same-repo server detection', () => {
   assert.deepEqual(c.sameRepoServers.map((p) => p.pid), [11]);
   assert.deepEqual(findNextConflicts(procs, repo, 14).builds.map((p) => p.pid).sort(), [10, 15], '不把自己算進去');
   const live = listProcesses();
+  assert.ok(Array.isArray(live), `listProcesses 在 ${process.platform} 失敗`);
   if (process.platform === 'linux') assert.ok(live.some((p) => p.pid === process.pid), 'listProcesses 應包含本行程');
 });
 
@@ -275,8 +282,7 @@ if (findPlaywright()) {
     assert.equal(r.code, 2, r.out); assert.match(r.out, /不認得的卡/); assert.equal(fs.existsSync(out), false);
   });
   await t('e2e fixture site (#1 #3 #4 #5 #6)', async () => {
-    const deadPort = await pickPort(39300, 39399);
-    const f = await startFixture({ deadPort });
+    const f = await startFixture();
     try {
       const cf = path.join(tmp, 'fixture-cards.json'); fs.writeFileSync(cf, JSON.stringify(FIXTURE_CARDS));
       const out = path.join(tmp, 'e2e-out');
