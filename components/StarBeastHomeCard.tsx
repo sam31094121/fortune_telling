@@ -7,7 +7,7 @@ import styles from './StarBeastHomeCard.module.css';
 import Match3ElementGlyph from './battlefield/Match3ElementGlyph';
 import orbStyles from './battlefield/HomeBattleOrbs.module.css';
 
-const QINGLONG_POUNCE_SRC = '/beast-game/rig/qinglong/pounce-open.v2.webp';
+const QINGLONG_POUNCE_SRC = '/beast-game/rig/qinglong/pounce-open.home.webp';
 
 type CardLang = 'zh' | 'en';
 

@@ -3089,7 +3089,7 @@ export default function HomePage() {
 
             <HomeTrustEvidence items={["需生辰","看長期方向","免登入"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-indigo-500/40 bg-indigo-950/30 px-5 py-3 text-xs font-bold text-indigo-200 transition group-hover:bg-indigo-500/25">
-              <span>{ziweiOpening ? '正在開啟紫微…' : <HomeTranslatedText text="請點我開啟" />}</span>
+              <span>{ziweiOpening ? <HomeTranslatedText text="正在開啟紫微…" /> : <HomeTranslatedText text="請點我開啟" />}</span>
               <span className={`transition-transform ${ziweiOpening ? 'animate-pulse' : 'group-hover:translate-x-1.5'}`}>→</span>
             </div>
           </Link>
@@ -3950,12 +3950,11 @@ export default function HomePage() {
         {false && <HomeInstallCard />}
 
         <div className="flex justify-center pb-2" aria-hidden="true">
-          <Image
-            src="/scroll-top-080-shield.png"
+          <img
+            src="/scroll-top-080-shield.sm.webp"
             alt=""
             width={44}
             height={44}
-            sizes="44px"
             className="h-11 w-11 object-contain"
             draggable={false}
           />
