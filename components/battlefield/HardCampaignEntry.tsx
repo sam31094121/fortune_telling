@@ -183,7 +183,8 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const home = <Link href="/" className={styles.homeLink} data-testid="match3-home">回到首頁</Link>;
   if (!owner || !profile) return <section className={styles.picker} data-testid="match3-player-choice" aria-label="選擇遊玩身分">
     {home}<h1>寶珠戰</h1>
-    {!entryReady && <p role="status">正在準備寶珠戰…</p>}
+    {/* 準備完成後只隱藏文字、保留這一行高度，「我自己／親朋好友」不再往上跳（開頁 CLS）。 */}
+    <p role="status" aria-hidden={entryReady || undefined} style={entryReady ? { visibility: 'hidden' } : undefined}>正在準備寶珠戰…</p>
     <div className={picker.playerChoices}>
       <button type="button" data-testid="play-self" disabled={!entryReady || saving} onClick={() => load('self')}><strong>我自己</strong></button>
       <button type="button" data-testid="play-guest" disabled={!entryReady || saving} onClick={() => load('guest', false, true)}><strong>親朋好友</strong></button>
