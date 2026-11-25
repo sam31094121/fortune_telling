@@ -454,6 +454,18 @@ function runCmd(cmd, args, { timeoutMs = 15 * 60e3, cwd = REPO } = {}) {
     p.on('exit', (code) => { clearTimeout(timer); done({ code, out, err }); });
   });
 }
+// npm test 的結果：exit 0 但有「已知失敗」（scripts/run-tests.mjs 最後一行 known=N）→ WARN，不算 PASS
+export function gateVerdict(g, r) {
+  const label = `npm ${g === 'test' ? 'test' : 'run ' + g}`;
+  if (r.timedOut) return { status: 'FAIL', summary: `${label} 逾時` };
+  if (r.code !== 0) return { status: 'FAIL', summary: `${label} exit ${r.code}` };
+  const m = g === 'test' ? /npm-test-summary: pass=(\d+) fail=(\d+) known=(\d+) env-only=(\d+) total=(\d+)/.exec(r.out || '') : null;
+  if (!m) return { status: 'PASS', summary: `${label} 通過` };
+  const [pass, fail, known, envOnly, total] = m.slice(1).map(Number);
+  const counts = { pass, fail, known, envOnly, total };
+  if (known > 0) return { status: 'WARN', summary: `${label} 通過 ${pass}／${total}，另有 ${known} 組主線既有的已知失敗（未修，見 scripts/run-tests.mjs KNOWN_FAILING）；${envOnly} 組要外部環境不在此跑`, counts };
+  return { status: 'PASS', summary: `${label} 通過 ${pass}／${total}；${envOnly} 組要外部環境不在此跑`, counts };
+}
 async function runGates(gates, log, { serve }) {
   const res = [];
   const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
@@ -478,8 +490,9 @@ async function runGates(gates, log, { serve }) {
       continue;
     }
     if (!scripts[g]) { push('SKIP', g === 'test' ? 'package.json 沒有 test 腳本（npm test 不存在），未判定' : `package.json 沒有「${g}」腳本，未判定`); continue; }
-    const r = await runCmd(npm, g === 'test' ? ['test', '-s'] : ['run', '-s', g]);
-    push(r.code === 0 ? 'PASS' : 'FAIL', r.code === 0 ? `npm ${g === 'test' ? 'test' : 'run ' + g} 通過` : r.timedOut ? '逾時（15 分）' : `exit ${r.code}`, { tail: r.code === 0 ? '' : (r.out + r.err).slice(-600) });
+    const r = await runCmd(npm, g === 'test' ? ['test', '-s'] : ['run', '-s', g], { timeoutMs: g === 'test' ? 25 * 60e3 : 15 * 60e3 });
+    const v = gateVerdict(g, r);
+    push(v.status, v.summary, { tail: v.status === 'PASS' ? '' : (r.out + r.err).slice(-600), ...(v.counts ? { counts: v.counts } : {}) });
   }
   return res;
 }

@@ -12,7 +12,8 @@ import { mergeMobileRows, colorTokens, parseColor, blendOver, contrastRatio, isL
 import { judge, judgeEarlySwipe, filterBlockedConsole, DOM_KEYS, judgeFont, judgeTap, judgeTbt, tbtFrom, judgeOneLang, judgeI18n, langMatches } from '../scripts/health/judge.mjs';
 import { CARDS, THRESHOLDS, MICHELIN_TARGETS, VIEWPORTS, LOCAL_ENV_GAP_APIS } from '../scripts/health/config.mjs';
 import { metricsScript, INIT_SCRIPT } from '../scripts/health/probe.mjs';
-import { parseArgs, selectCards, UsageError, childEnv, GATE_ALL, distBusy, beadSize, EXTRAS_ALL, snapshotFiles, isCrash, deployIdOf, BUILD_IRRELEVANT } from '../scripts/health/run.mjs';
+import { parseArgs, selectCards, UsageError, childEnv, GATE_ALL, distBusy, beadSize, EXTRAS_ALL, snapshotFiles, isCrash, deployIdOf, BUILD_IRRELEVANT, gateVerdict } from '../scripts/health/run.mjs';
+import { planTests, ENV_ONLY, KNOWN_FAILING } from '../scripts/run-tests.mjs';
 import { startFixture, FIXTURE_CARDS, EXTRA_CARDS } from '../scripts/health/fixture-server.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -223,6 +224,24 @@ await t('#2 michelin names / incomplete / overall', () => {
 function round1(x) { return Math.round(x * 10) / 10; }
 
 // ---------- gates：npm audit 判讀、gate 名稱對應、--gates all ----------
+await t('gates: npm test 已知失敗判 WARN、正常判 PASS、失敗判 FAIL；npm test 腳本存在且清單合理', () => {
+  const line = (k) => `PASS  test:jest (1s)\n\nnpm-test-summary: pass=100 fail=0 known=${k} env-only=14 total=${100 + k}\n`;
+  assert.equal(gateVerdict('test', { code: 0, out: line(0) }).status, 'PASS');
+  const w = gateVerdict('test', { code: 0, out: line(4) });
+  assert.equal(w.status, 'WARN'); assert.equal(w.counts.known, 4); assert.match(w.summary, /已知失敗/);
+  assert.equal(gateVerdict('test', { code: 1, out: 'npm-test-summary: pass=99 fail=1 known=0 env-only=14 total=100' }).status, 'FAIL');
+  assert.equal(gateVerdict('test', { code: null, timedOut: true, out: '' }).status, 'FAIL');
+  assert.equal(gateVerdict('test', { code: 0, out: 'no summary' }).status, 'PASS', '沒有摘要行（舊式 npm test）只看 exit code');
+  assert.equal(gateVerdict('lint', { code: 0, out: 'npm-test-summary: pass=1 fail=0 known=3 env-only=0 total=4' }).status, 'PASS', '只有 test gate 解析摘要');
+  const pkg = JSON.parse(fs.readFileSync(path.join(REPO, 'package.json'), 'utf8'));
+  assert.equal(pkg.scripts.test, 'node scripts/run-tests.mjs', 'package.json 要有 npm test');
+  const plan = planTests(pkg.scripts);
+  assert.deepEqual(plan.run.slice(0, 2), ['test:jest', 'test:health-toolkit'], 'Jest 與工具測試先跑');
+  for (const k of [...Object.keys(ENV_ONLY), ...Object.keys(KNOWN_FAILING)]) assert.ok(pkg.scripts[k], `清單裡的 ${k} 要真的存在`);
+  for (const k of Object.keys(KNOWN_FAILING)) assert.ok(plan.run.includes(k), `已知失敗 ${k} 仍要照跑`);
+  assert.ok(!plan.run.some((k) => ENV_ONLY[k]));
+  assert.ok(!plan.run.includes('test'), 'npm test 不可遞迴跑自己');
+});
 await t('gates: audit verdict / gateKind / --gates all', () => {
   const mk = (v, vulns = {}) => JSON.stringify({ metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0, ...v } }, vulnerabilities: vulns });
   assert.equal(auditVerdict(mk({})).status, 'PASS');
