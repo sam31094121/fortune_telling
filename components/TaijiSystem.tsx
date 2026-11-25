@@ -42,6 +42,7 @@ import {
   progressFromDepth,
   setJourneyTarget,
   sixiangPresence,
+  smoothstep,
   stageFromDepth,
   type TaijiJourneyRef,
   type TaijiMacroStage,
@@ -304,6 +305,10 @@ const TAIJI_BENCHMARK_THEME: TaijiVisualTheme = {
   glow: 'rgba(245, 215, 138, 0.3)',
 };
 
+/* 【視覺｜2026-11-25 黑白色階】陰球本體：原本直接用墨底 #050712，經 ACES 色調映射後球心大面積壓成 RGB 0（死黑、看不出球體）。
+   只把陰球本體抬到黑曜石 #0b0e1a（仍是近黑墨靛，L* 約 4.5），只把陰球本體與陽球上的墨眼抬到黑曜石 #0f1220（仍是近黑墨靛，L* 約 5.6），讓暗部保有層次；其他用墨處不變。 */
+const TAIJI_OBSIDIAN_BODY = '#0f1220';
+
 const TAIJI_24_THEMES: TaijiVisualTheme[] = Array.from({ length: 24 }, (_, i) => {
   /* 金的溫度旅程：色相在 36°(琥珀)～52°(香檳) 之間呼吸，
      第 8、16 響短暫轉入月銀（低飽和冷光，換氣），其餘全程暖金家族 */
@@ -324,6 +329,21 @@ const TAIJI_24_THEMES: TaijiVisualTheme[] = Array.from({ length: 24 }, (_, i) =>
     glow: colorWithAlpha(primary, 0.3),
   };
 });
+
+/* 【轉場｜2026-11-25 接縫】24 響主題色原本跟著 displayLayer（四捨五入後的整數層）整段切換，
+   燈色、光暈、八卦軌道在 x.5 那一幀直接跳色（第 8、16 響的月銀換氣最明顯）。
+   改成依連續深度在相鄰兩響之間線性混色：停在整數層時與原本逐位元相同，只有過場中間變成溶接。 */
+const TAIJI_24_THEME_COLORS = TAIJI_24_THEMES.map((theme) => ({
+  primary: new THREE.Color(theme.primary),
+  secondary: new THREE.Color(theme.secondary),
+  accent: new THREE.Color(theme.accent),
+}));
+function blendJourneyThemeColor(depth: number, key: 'primary' | 'secondary' | 'accent', target: THREE.Color) {
+  const index = Math.min(23, Math.max(0, (Number.isFinite(depth) ? depth : 1) - 1));
+  const fromIndex = Math.floor(index);
+  const toIndex = Math.min(23, fromIndex + 1);
+  return target.copy(TAIJI_24_THEME_COLORS[fromIndex][key]).lerp(TAIJI_24_THEME_COLORS[toIndex][key], index - fromIndex);
+}
 
 function hexToRgb(hex: string) {
   const normalized = hex.replace('#', '');
@@ -576,18 +596,34 @@ function createTaijiSphereTexture(theme: TaijiVisualTheme, detailWidth = 2048) {
   if (!ctx) return null;
 
   // 全球底色：左墨右月（經度分界），球背面也有正確的陰陽延續
+  /* 【視覺｜2026-11-25 黑白色階】墨：黑曜石多階（不是一片死黑）——近黑藍墨 → 墨靛 → 煙墨，
+     最深處從 #050712 抬到 #0b0e1a（色調映射後不再大片壓成 RGB 0），每階只差 2～4 個色階；端點沿用原本的鎏金收邊。
+     月：珍珠／象牙多階——月瓷 → 冷珍珠 → 珍珠白 → 象牙 → 原本的鎏金端；最亮一階不超過原本的 #f8f2df，避免高光死白。 */
   const inkGrad = ctx.createLinearGradient(0, 0, w / 2, 0);
-  inkGrad.addColorStop(0, theme.ink);
-  inkGrad.addColorStop(0.55, '#05070f');
+  inkGrad.addColorStop(0, '#0b0e1a');
+  inkGrad.addColorStop(0.22, '#0a0d19');
+  inkGrad.addColorStop(0.42, '#0d1020');
+  inkGrad.addColorStop(0.55, '#0a0c18');
+  inkGrad.addColorStop(0.78, '#100f16');
   inkGrad.addColorStop(1, colorWithAlpha(theme.accent, 0.34));
   ctx.fillStyle = inkGrad;
   ctx.fillRect(0, 0, w / 2, h);
   const moonGrad = ctx.createLinearGradient(w / 2, 0, w, 0);
   moonGrad.addColorStop(0, theme.moon);
+  moonGrad.addColorStop(0.2, '#f3ecdc');
+  moonGrad.addColorStop(0.4, '#f6f0e2');
   moonGrad.addColorStop(0.58, '#f8f2df');
+  moonGrad.addColorStop(0.8, '#f3e6c4');
   moonGrad.addColorStop(1, theme.primary);
   ctx.fillStyle = moonGrad;
   ctx.fillRect(w / 2, 0, w / 2, h);
+  /* 緯度向體積：上緣（受光）月面略亮、下緣（背光）墨面略沉，各只動 2～3%，球體更有份量。 */
+  const latitude = ctx.createLinearGradient(0, 0, 0, h);
+  latitude.addColorStop(0, 'rgba(255, 250, 236, 0.035)');
+  latitude.addColorStop(0.5, 'rgba(255, 250, 236, 0)');
+  latitude.addColorStop(1, 'rgba(2, 3, 10, 0.05)');
+  ctx.fillStyle = latitude;
+  ctx.fillRect(0, 0, w, h);
 
   // 正面太極（貼圖中央）：S 弧 + 雙魚眼
   const cx = w / 2;
@@ -599,11 +635,21 @@ function createTaijiSphereTexture(theme: TaijiVisualTheme, detailWidth = 2048) {
   ctx.clip();
   // 墨半（左）已由底色提供；畫 S 弧：上墨圓、下月圓（橫向略放大補償球面壓縮）
   const stretch = 1.25;
-  ctx.fillStyle = theme.ink;
+  /* 【視覺｜2026-11-25】S 弧兩圓由平塗改成同色系極淺徑向漸層：
+     墨魚中心是深墨靛、往外沉到原墨色；月魚中心珍珠白、往外落回原月瓷——形狀、位置完全不變。 */
+  const inkFish = ctx.createRadialGradient(cx - R * 0.08, cy - R / 2 - R * 0.1, R * 0.02, cx, cy - R / 2, (R / 2) * stretch);
+  inkFish.addColorStop(0, '#121628');
+  inkFish.addColorStop(0.55, '#0d1020');
+  inkFish.addColorStop(1, '#0b0e1a');
+  ctx.fillStyle = inkFish;
   ctx.beginPath();
   ctx.ellipse(cx, cy - R / 2, (R / 2) * stretch, R / 2, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = theme.moon;
+  const moonFish = ctx.createRadialGradient(cx - R * 0.08, cy + R / 2 - R * 0.1, R * 0.02, cx, cy + R / 2, (R / 2) * stretch);
+  moonFish.addColorStop(0, '#f6f1e5');
+  moonFish.addColorStop(0.6, '#f4eddb');
+  moonFish.addColorStop(1, theme.moon);
+  ctx.fillStyle = moonFish;
   ctx.beginPath();
   ctx.ellipse(cx, cy + R / 2, (R / 2) * stretch, R / 2, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -613,7 +659,7 @@ function createTaijiSphereTexture(theme: TaijiVisualTheme, detailWidth = 2048) {
   ctx.beginPath();
   ctx.ellipse(cx, cy - R / 2, eyeR * stretch, eyeR, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = theme.ink;
+  ctx.fillStyle = '#0b0e1a'; // 【視覺｜2026-11-25】墨眼與墨底同一階黑曜石，不再壓成死黑
   ctx.beginPath();
   ctx.ellipse(cx, cy + R / 2, eyeR * stretch, eyeR, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -635,6 +681,32 @@ function createTaijiSphereTexture(theme: TaijiVisualTheme, detailWidth = 2048) {
   ctx.ellipse(cx, cy + R / 2, (R / 2) * stretch, R / 2, 0, Math.PI * 1.5, Math.PI * 0.5, false);
   ctx.stroke();
   ctx.restore();
+
+  /* 【視覺｜2026-11-25 防色帶】8-bit 貼圖上的長漸層會出現階梯色帶（尤其暗部）。
+     疊一張 128² 固定種子雜訊、透明度 1.2%（約 ±1.5 個色階）做抖色：肉眼看不到顆粒，色帶被打散。
+     用 pattern 填滿，不逐像素回讀，4096 寬也只是一次合成。 */
+  const ditherCanvas = document.createElement('canvas');
+  ditherCanvas.width = 128;
+  ditherCanvas.height = 128;
+  const dctx = ditherCanvas.getContext('2d');
+  if (dctx) {
+    const img = dctx.createImageData(128, 128);
+    let dseed = 2463534242;
+    for (let i = 0; i < img.data.length; i += 4) {
+      dseed ^= dseed << 13; dseed ^= dseed >>> 17; dseed ^= dseed << 5;
+      const v = (dseed >>> 0) & 255;
+      img.data[i] = v; img.data[i + 1] = v; img.data[i + 2] = v; img.data[i + 3] = 255;
+    }
+    dctx.putImageData(img, 0, 0);
+    const pattern = ctx.createPattern(ditherCanvas, 'repeat');
+    if (pattern) {
+      ctx.save();
+      ctx.globalAlpha = 0.012;
+      ctx.fillStyle = pattern;
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+    }
+  }
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -1404,15 +1476,30 @@ function Level01AccumulatedLightningWeb({ strikes, flashStrikeId, lowPower = fal
 }
 
 /** 光線科技③：黃金時刻掃光——主光緩慢繞行，球面高光如夕陽流動（人類最愛的 golden hour） */
-function KeyLightSweep({ theme, progress24 }: { theme: TaijiVisualTheme; progress24: number }) {
+function KeyLightSweep({ theme, progress24, journeyRef }: { theme: TaijiVisualTheme; progress24: number; journeyRef?: TaijiJourneyRef }) {
   const lightRef = useRef<THREE.DirectionalLight>(null);
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     if (!lightRef.current) return;
     lightRef.current.position.x = Math.sin(t * 0.12) * 5.2;
     lightRef.current.position.z = 3.2 + Math.cos(t * 0.12) * 1.8;
+    /* 【轉場｜2026-11-25】主燈色溫與亮度跟連續深度走，不在半層處跳一格。 */
+    if (journeyRef) {
+      const depth = journeyRef.current.current;
+      blendJourneyThemeColor(depth, 'primary', lightRef.current.color);
+      lightRef.current.intensity = 1.35 + progressFromDepth(depth) * 0.45;
+    }
   });
   return <directionalLight ref={lightRef} position={[4.5, 5.5, 4]} intensity={1.35 + progress24 * 0.45} color={theme.primary} />;
+}
+
+/** 背光（輪廓光）：同一盞燈，色溫依連續深度混色。 */
+function JourneyAccentBackLight({ theme, journeyRef }: { theme: TaijiVisualTheme; journeyRef: TaijiJourneyRef }) {
+  const lightRef = useRef<THREE.PointLight>(null);
+  useFrame(() => {
+    if (lightRef.current) blendJourneyThemeColor(journeyRef.current.current, 'accent', lightRef.current.color);
+  });
+  return <pointLight ref={lightRef} position={[0, 2.2, -4.5]} intensity={1.15} color={theme.accent} />;
 }
 
 /* ============================================================
@@ -1713,6 +1800,11 @@ function TaijiCore({
   /* 顯微鏡（2026-08-17）：宏觀外殼群組與量子層群組 */
   const macroGroupRef = useRef<THREE.Group>(null);
   const sixiangGroupRef = useRef<THREE.Group>(null);
+  /* 【轉場｜2026-11-25】兩儀互照燈、八卦軌道、四象石發光：改由每幀依連續深度設定（燈數與材質數不變）。 */
+  const moonBounceRef = useRef<THREE.PointLight>(null);
+  const inkBounceRef = useRef<THREE.PointLight>(null);
+  const baguaRingMatRefs = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
+  const sixiangStoneMatRefs = useRef<(THREE.MeshPhysicalMaterial | null)[]>([]);
   const quantumGroupRef = useRef<THREE.Group>(null);
   const deepGroupRef = useRef<THREE.Group>(null);
   const cellularGroupRef = useRef<THREE.Group>(null);
@@ -2057,7 +2149,9 @@ function TaijiCore({
       groupRef.current.position.set(0, 0, 0);
       groupRef.current.scale.setScalar(1);
       const livingSpeed = 0.12 + progress24 * 0.026;
-      groupRef.current.rotation.y += frameDelta * livingSpeed;
+      /* 【轉場｜2026-11-25】分儀瞬間自轉從 0 直接跳到 livingSpeed（角速度斷點）；
+         改成隨分儀量 0.04→0.6 緩起，分儀完成後（第 2 層起）速度與原本相同。 */
+      groupRef.current.rotation.y += frameDelta * livingSpeed * smoothstep(0.04, 0.6, split);
       groupRef.current.rotation.x += (Math.sin(t * 0.09) * 0.032 - groupRef.current.rotation.x) * settleSoft;
       groupRef.current.rotation.z += (Math.cos(t * 0.075) * 0.015 - groupRef.current.rotation.z) * settleSoft;
     } else {
@@ -2153,14 +2247,19 @@ function TaijiCore({
     if (outerShellRef.current) outerShellRef.current.visible = haloVisible;
 
     const showLiangyi = split > 0.04 && shellFade > 0.02;
+    /* 【轉場｜2026-11-25】陰陽兩球原本在分儀量 0.04 那一幀以近滿尺寸「冒出來」；
+       改成從球心長出（0.04→0.6 緩起；第 2 層分儀量約 0.86，尺寸與原本相同）。退場（第 4→5 層淡出）時同一條曲線讓兩球縮回球心，不再一幀消失。 */
+    const liangyiEmerge = smoothstep(0.04, 0.6, split);
     if (yinRef.current) {
       yinRef.current.visible = showLiangyi || warming;
-      yinRef.current.scale.setScalar(showLiangyi ? scale : warmScale);
+      yinRef.current.scale.setScalar(showLiangyi ? Math.max(0.0001, scale * liangyiEmerge) : warmScale);
     }
     if (yangRef.current) {
       yangRef.current.visible = showLiangyi || warming;
-      yangRef.current.scale.setScalar(showLiangyi ? scale : warmScale);
+      yangRef.current.scale.setScalar(showLiangyi ? Math.max(0.0001, scale * liangyiEmerge) : warmScale);
     }
+    if (moonBounceRef.current) moonBounceRef.current.intensity = 0.22 * liangyiEmerge;
+    if (inkBounceRef.current) inkBounceRef.current.intensity = 0.08 * liangyiEmerge;
     const showSixiang = sixiangPresence(depth) > 0.04 && macroVisible;
     if (sixiangGroupRef.current) {
       sixiangGroupRef.current.visible = showSixiang || warming;
@@ -2192,7 +2291,16 @@ function TaijiCore({
         ballMat.clearcoatRoughness = 0.1 + surfaceD * 0.16 - level01SurfaceEnergy * 0.025;
         ballMat.envMapIntensity = 1.46 + level01SurfaceEnergy * 0.2;
       }
-      ballMat.emissiveIntensity = (separate ? 0.035 : 0.052) + level01SurfaceEnergy * 0.018;
+      /* 【轉場｜2026-11-25】上面兩組釉原本在深度 1.5 那一幀整組切換（反射亮度 0.94→1.46 一次跳）。
+         只在過場窗（深度 1.0～1.9 之間）把兩組交叉溶接；深度停在 1 時＝第 1 層原值、≥1.9＝演化原值，兩端不變。 */
+      const glazeMix = smoothstep(1, 1.9, depth);
+      if (glazeMix > 0 && glazeMix < 1) {
+        ballMat.clearcoat = lerpNumber(0.72 + level01SurfaceEnergy * 0.06, 1, glazeMix);
+        ballMat.roughness = lerpNumber(0.34 + surfaceD * 0.14 - level01SurfaceEnergy * 0.03, 0.28 + surfaceD * 0.22 - level01SurfaceEnergy * 0.055, glazeMix);
+        ballMat.clearcoatRoughness = lerpNumber(0.18 + surfaceD * 0.1 - level01SurfaceEnergy * 0.012, 0.1 + surfaceD * 0.16 - level01SurfaceEnergy * 0.025, glazeMix);
+        ballMat.envMapIntensity = lerpNumber(0.94 + level01SurfaceEnergy * 0.08, 1.46 + level01SurfaceEnergy * 0.2, glazeMix);
+      }
+      ballMat.emissiveIntensity = lerpNumber(0.052, 0.035, smoothstep(0, 0.3, split)) + level01SurfaceEnergy * 0.018;
       diskRef.current.visible = opacity > 0.004;
       if (opacity > 0.004 && diskRef.current.scale.lengthSq() < 0.0001) {
         diskRef.current.scale.setScalar(1);
@@ -2232,21 +2340,37 @@ function TaijiCore({
       }
     }
 
+    /* 【轉場｜2026-11-25】雲隙光／光暈原本在分儀量 0.04 時直接 visible=false（加法光一幀消失）；
+       改成在分儀量 0→0.3 之間淡到 0 才關，關掉那一幀畫面不變。第 1 層（分儀量 0）與第 2 層起（已關）都不變。 */
+    const preSplitFade = 1 - smoothstep(0, 0.3, split);
     if (raysRef.current) {
       raysRef.current.material.rotation += frameDelta * (0.007 + progress24 * 0.008) * raySpinDir;
-      raysRef.current.material.opacity = Math.min(0.09, 0.032 + progress24 * 0.018 + Math.sin(t * 0.28) * 0.003 + pulse * 0.025) * macroFade;
+      raysRef.current.material.opacity = Math.min(0.09, 0.032 + progress24 * 0.018 + Math.sin(t * 0.28) * 0.003 + pulse * 0.025) * macroFade * preSplitFade;
       const rayScale = 4.55 * (1 + progress24 * 0.01 + Math.sin(t * 0.28) * 0.003 + pulse * 0.012);
       raysRef.current.scale.set(rayScale, rayScale, 1);
-      raysRef.current.visible = (!separate && macroVisible) || warming;
-      raysRef.current.material.color.set(activeTheme.primary);
+      raysRef.current.visible = (preSplitFade > 0.001 && macroVisible) || warming;
+      blendJourneyThemeColor(depth, 'primary', raysRef.current.material.color);
     }
     if (glowRef.current) {
-      glowRef.current.material.opacity = Math.min(0.13, 0.078 + progress24 * 0.018 + Math.sin(t * 0.46) * 0.003 + pulse * 0.022) * macroFade;
+      glowRef.current.material.opacity = Math.min(0.13, 0.078 + progress24 * 0.018 + Math.sin(t * 0.46) * 0.003 + pulse * 0.022) * macroFade * preSplitFade;
       const glowScale = 3.65 * (1 + progress24 * 0.01 + Math.sin(t * 0.46) * 0.003 + pulse * 0.012);
       glowRef.current.scale.set(glowScale, glowScale, 1);
-      glowRef.current.visible = (!separate && macroVisible) || warming;
-      glowRef.current.material.color.set(activeTheme.primary);
+      glowRef.current.visible = (preSplitFade > 0.001 && macroVisible) || warming;
+      blendJourneyThemeColor(depth, 'primary', glowRef.current.material.color);
     }
+    const ringKeys = ['primary', 'secondary', 'accent'] as const;
+    const ringBase = [0.09, 0.04, 0.035];
+    const ringGain = [0.018, 0.012, 0.01];
+    baguaRingMatRefs.current.forEach((mat, i) => {
+      if (!mat) return;
+      blendJourneyThemeColor(depth, ringKeys[i], mat.color);
+      mat.opacity = ringBase[i] + progress24 * ringGain[i];
+    });
+    sixiangStoneMatRefs.current.forEach((mat) => {
+      if (!mat) return;
+      blendJourneyThemeColor(depth, 'accent', mat.emissive);
+      mat.emissiveIntensity = 0.18 + progress24 * 0.1;
+    });
 
     sepRef.current += (offset - sepRef.current) * Math.min(1, frameDelta * 1.05);
     const sep = sepRef.current;
@@ -2434,8 +2558,8 @@ function TaijiCore({
           【穩定性關鍵｜2026-08-17】這兩盞燈永遠掛著，用亮度 0 來「關」，絕對不能條件掛載——
           燈的數量是 three.js 著色器快取鍵的一部分，多一盞燈＝畫面上每一個材質全部重新編譯，
           在 ANGLE 上就是一次數百毫秒的凍結。實測就是點擊卡頓的元凶之一。 */}
-      <pointLight position={[-0.45, 0, 1.0]} intensity={separate ? 0.22 : 0} distance={2.6} decay={2} color={TAIJI_BENCHMARK_THEME.moon} />
-      <pointLight position={[0.45, 0, 1.0]} intensity={separate ? 0.08 : 0} distance={2.2} decay={2} color="#3a4358" />
+      <pointLight ref={moonBounceRef} position={[-0.45, 0, 1.0]} intensity={separate ? 0.22 : 0} distance={2.6} decay={2} color={TAIJI_BENCHMARK_THEME.moon} />
+      <pointLight ref={inkBounceRef} position={[0.45, 0, 1.0]} intensity={separate ? 0.08 : 0} distance={2.2} decay={2} color="#3a4358" />
 
       {/* 兩儀之後：陰球（墨玉——高光澤深黑，如拋光黑曜石），獨立旋轉。
           【穩定性｜2026-08-17】所有階段的物件一律「永遠掛載、用 visible 開關」，不再條件掛載——
@@ -2444,7 +2568,7 @@ function TaijiCore({
       {(
         <group ref={yinRef} position={[0, 0.08, 0]} visible={false}>
           <mesh geometry={mainGeo}>
-            <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.ink} metalness={0.34} roughness={0.18} clearcoat={1} clearcoatRoughness={0.09} envMapIntensity={1.48} emissive={TAIJI_BENCHMARK_THEME.accent} emissiveIntensity={0.028 + progress24 * 0.025} bumpMap={surfaceNoise ?? undefined} bumpScale={0.012} iridescence={0.16} iridescenceIOR={1.28} />
+            <meshPhysicalMaterial color={TAIJI_OBSIDIAN_BODY} metalness={0.34} roughness={0.18} clearcoat={1} clearcoatRoughness={0.09} envMapIntensity={1.48} emissive={TAIJI_BENCHMARK_THEME.accent} emissiveIntensity={0.028 + progress24 * 0.025} bumpMap={surfaceNoise ?? undefined} bumpScale={0.012} iridescence={0.16} iridescenceIOR={1.28} sheen={0.22} sheenColor="#3b4766" sheenRoughness={0.55} />
           </mesh>
           <mesh geometry={dotGeo} position={[0, 0.4, 0.72]}>
             <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.moon} clearcoat={0.95} clearcoatRoughness={0.12} roughness={0.28} metalness={0.04} emissive={TAIJI_BENCHMARK_THEME.primary} emissiveIntensity={0.07 + progress24 * 0.03} />
@@ -2459,7 +2583,7 @@ function TaijiCore({
             <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.moon} metalness={0.04} roughness={0.3} clearcoat={0.94} clearcoatRoughness={0.14} envMapIntensity={1.24} emissive={TAIJI_BENCHMARK_THEME.primary} emissiveIntensity={0.024 + progress24 * 0.025} bumpMap={surfaceNoise ?? undefined} bumpScale={0.016} sheen={0.28} sheenColor={TAIJI_BENCHMARK_THEME.primary} sheenRoughness={0.68} />
           </mesh>
           <mesh geometry={dotGeo} position={[0, -0.4, 0.72]}>
-            <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.ink} metalness={0.32} roughness={0.18} clearcoat={1} clearcoatRoughness={0.09} envMapIntensity={1.36} />
+            <meshPhysicalMaterial color={TAIJI_OBSIDIAN_BODY} metalness={0.32} roughness={0.18} clearcoat={1} clearcoatRoughness={0.09} envMapIntensity={1.36} />
           </mesh>
         </group>
       )}
@@ -2476,7 +2600,7 @@ function TaijiCore({
             <Float key={index} speed={1.5 + index * 0.12} rotationIntensity={0.28} floatIntensity={0.36 + (index % 2) * 0.06}>
               <group position={[item.pos[0], item.pos[1], item.pos[2]]}>
                 <mesh geometry={smallGeo}>
-                  <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.ink} metalness={0.5} roughness={0.2} clearcoat={0.8} clearcoatRoughness={0.12} emissive={activeTheme.accent} emissiveIntensity={0.18 + progress24 * 0.1} />
+                  <meshPhysicalMaterial ref={(mat) => { sixiangStoneMatRefs.current[index] = mat; }} color={TAIJI_BENCHMARK_THEME.ink} metalness={0.5} roughness={0.2} clearcoat={0.8} clearcoatRoughness={0.12} emissive={activeTheme.accent} emissiveIntensity={0.18 + progress24 * 0.1} />
                 </mesh>
                 <GlyphSprite symbol={item.symbol} scale={0.5} />
               </group>
@@ -2489,13 +2613,13 @@ function TaijiCore({
       {(
         <group ref={baguaOrbitRef} rotation={[0.04, 0, 0]} visible={false}>
           <mesh geometry={baguaOrbitGeo} rotation={[Math.PI / 2, 0, 0]}>
-            <meshBasicMaterial color={activeTheme.primary} transparent opacity={0.09 + progress24 * 0.018} depthWrite={false} />
+            <meshBasicMaterial ref={(mat) => { baguaRingMatRefs.current[0] = mat; }} color={activeTheme.primary} transparent opacity={0.09 + progress24 * 0.018} depthWrite={false} />
           </mesh>
           <mesh geometry={baguaOuterOrbitGeo} rotation={[Math.PI / 2.16, 0, Math.PI / 8]}>
-            <meshBasicMaterial color={activeTheme.secondary} transparent opacity={0.04 + progress24 * 0.012} depthWrite={false} />
+            <meshBasicMaterial ref={(mat) => { baguaRingMatRefs.current[1] = mat; }} color={activeTheme.secondary} transparent opacity={0.04 + progress24 * 0.012} depthWrite={false} />
           </mesh>
           <mesh geometry={baguaInnerOrbitGeo} rotation={[Math.PI / 1.92, 0, -Math.PI / 9]}>
-            <meshBasicMaterial color={activeTheme.accent} transparent opacity={0.035 + progress24 * 0.01} depthWrite={false} />
+            <meshBasicMaterial ref={(mat) => { baguaRingMatRefs.current[2] = mat; }} color={activeTheme.accent} transparent opacity={0.035 + progress24 * 0.01} depthWrite={false} />
           </mesh>
           {BAGUA.map((item, index) => {
             const rad = ((item.angle - 90) * Math.PI) / 180;
@@ -2994,9 +3118,9 @@ export default function TaijiSystem({
               reads through the ceramic as a brief technological core pulse,
               then leaves the charcoal/ember scars as the dominant residue. */}
           {displayLayer === 1 && <pointLight position={[0, 0, 0.18]} color="#67e8f9" intensity={touchActive ? 1.15 : 0} distance={2.1} decay={2} />}
-          <KeyLightSweep theme={journeyTheme} progress24={progressFromDepth(displayLayer)} />
+          <KeyLightSweep theme={journeyTheme} progress24={progressFromDepth(displayLayer)} journeyRef={journeyRef} />
           <pointLight position={[-4, -2.5, 2.5]} intensity={0.3} color="#6fa8c0" />
-          <pointLight position={[0, 2.2, -4.5]} intensity={1.15} color={journeyTheme.accent} />
+          <JourneyAccentBackLight theme={journeyTheme} journeyRef={journeyRef} />
           <TaijiCore
             attractTick={attractTick}
             theme={journeyTheme}
