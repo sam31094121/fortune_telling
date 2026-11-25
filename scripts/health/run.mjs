@@ -92,7 +92,7 @@ function loadPlaywright() {
 const sh = (cmd, args) => execFileSync(cmd, args, { cwd: REPO, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const gitSha = () => { try { return sh('git', ['rev-parse', '--short=8', 'HEAD']); } catch { return null; } };
 // 影響建置的檔案：除了報告／文件／測試輸出之外都算（舊版只看 app、components、lib，漏掉 features、cards、data、public…）。
-const BUILD_IRRELEVANT = /^(reports|docs|logs|tests|\.tmp|tmp|_tmp_[^/]*)\/|\.(md|txt|log)$/i;
+export const BUILD_IRRELEVANT = /^(reports|docs|logs|tests|\.tmp|tmp|_tmp_[^/]*)\/|\.(md|txt|log)$/i;
 const gitDirty = () => {
   try { return sh('git', ['status', '--porcelain', '--untracked-files=normal']).split('\n').filter(Boolean).map((l) => l.slice(3).replace(/^"|"$/g, '')).filter((f) => !BUILD_IRRELEVANT.test(f)).length > 0; }
   catch { return true; }
@@ -188,7 +188,9 @@ async function ensureServer(a, log) {
 }
 
 const EMPTY_METRICS = (w) => ({ tap: { total: 0, small: 0, under24: 0, samples: [] }, font: { chars: 0, smallChars: 0, share: 0, minPx: null, tinyRuns: [], tinyCount: 0, sizes: {} }, contrast: { checked: 0, unknown: 0, low: 0, samples: [] }, overflow: { vw: w, scrollWidth: w, samples: [], clipped: 0 }, images: { total: 0, broken: 0, samples: [] }, media: 0, visibleError: null, hc: null });
-const isCrash = (e) => /crash|has been closed|Target closed|Target page|browser has disconnected/i.test(String(e?.message || e));
+// 正式站每個 chunk 網址都帶 Vercel 部署 id（?dpl=dpl_xxx）
+export const deployIdOf = (url) => (/[?&]dpl=(dpl_[A-Za-z0-9]+)/.exec(String(url)) || [])[1] || null;
+export const isCrash = (e) => /crash|has been closed|Target closed|Target page|browser has disconnected/i.test(String(e?.message || e));
 const SAFE = new Set(['GET', 'HEAD', 'OPTIONS']);
 const T = C.THRESHOLDS;
 
@@ -593,7 +595,7 @@ async function main() {
       const newCtx = async () => {
         const ctx = await H.browser.newContext(ctxOpts);
         await ctx.addInitScript(INIT_SCRIPT);
-        ctx.on('request', (r) => { const mm = /[?&]dpl=(dpl_[A-Za-z0-9]+)/.exec(r.url()); if (mm) deployIds.add(mm[1]); });
+        ctx.on('request', (r) => { const d = deployIdOf(r.url()); if (d) deployIds.add(d); });
         return ctx;
       };
       // 瀏覽器崩潰（多半是機器記憶體不足）→ 重開一次再測；連兩次都崩就標 SKIP 並寫明，不算 PASS 也不冒充產品故障。
@@ -641,6 +643,7 @@ async function main() {
     if (ro) blockedWrites.push(...ro.blocked.map((b) => ({ ...b, card: b.card || '?' })));
     if (stopping) await HALT();
     await H.browser.close().catch(() => {}); // 先關瀏覽器再跑 gates，避免 tsc＋Chromium 同時吃記憶體
+    if (a.gates.length) log('瀏覽器已關閉，開始跑 gates');
     const gates = [
       ...(target === 'local-start' ? [{ name: 'build', status: 'PASS', summary: build.startsWith('built') ? `next build 成功（${build}），並以 next start 啟動、身分核對通過` : `沿用同 HEAD（${gitSha()}）先前成功的建置，未重建`, ms: 0 }] : []),
       ...(await runGates(a.gates.filter((g) => !(g === 'build' && target === 'local-start')), log, { serve: target === 'local-start' })),

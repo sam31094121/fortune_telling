@@ -12,7 +12,7 @@ import { mergeMobileRows, colorTokens, parseColor, blendOver, contrastRatio, isL
 import { judge, judgeEarlySwipe, filterBlockedConsole, DOM_KEYS, judgeFont, judgeTap, judgeTbt, tbtFrom, judgeOneLang, judgeI18n, langMatches } from '../scripts/health/judge.mjs';
 import { CARDS, THRESHOLDS, MICHELIN_TARGETS, VIEWPORTS, LOCAL_ENV_GAP_APIS } from '../scripts/health/config.mjs';
 import { metricsScript, INIT_SCRIPT } from '../scripts/health/probe.mjs';
-import { parseArgs, selectCards, UsageError, childEnv, GATE_ALL, distBusy, beadSize, EXTRAS_ALL, snapshotFiles } from '../scripts/health/run.mjs';
+import { parseArgs, selectCards, UsageError, childEnv, GATE_ALL, distBusy, beadSize, EXTRAS_ALL, snapshotFiles, isCrash, deployIdOf, BUILD_IRRELEVANT } from '../scripts/health/run.mjs';
 import { startFixture, FIXTURE_CARDS, EXTRA_CARDS } from '../scripts/health/fixture-server.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -130,7 +130,7 @@ await t('#M17 color-mix／oklch 斷詞', () => {
   assert.deepEqual(colorTokens('linear-gradient(90deg, color-mix(in srgb, red 50%, blue) 0%, oklch(0.5 0.1 200 / 0.5) 100%)'), ['color-mix(in srgb, red 50%, blue)', 'oklch(0.5 0.1 200 / 0.5)']);
   assert.equal(parseColor('rgb(1, 2, 3) junk'), null, '不完整比對不可誤判');
 });
-await t('#O2 TBT 代理值、#O1 單一語言判定', () => {
+await t('#O1 TBT 代理值、五語單一語言判定', () => {
   const lt = [{ t: 100, d: 120 }, { t: 900, d: 300 }, { t: 5000, d: 900 }];
   assert.equal(tbtFrom(lt, 0, 2000), 70 + 250);
   assert.equal(judgeTbt(320, THRESHOLDS, 3000).status, 'WARN'); assert.equal(judgeTbt(100, THRESHOLDS, 3000).status, 'PASS'); assert.equal(judgeTbt(900, THRESHOLDS, 3000).status, 'FAIL');
@@ -145,7 +145,7 @@ await t('#M15 主控台的「Failed to load resource … status of 404」與 HTT
   const r = judge(m(), { ...noErr(), http: [{ status: 404, url: 'http://x/a.png', type: 'image' }], console: ['Failed to load resource: the server responded with a status of 404 (Not Found)'] }, okNav, THRESHOLDS, open);
   assert.match(r.errors.summary, /console\.error 0、/); assert.match(r.errors.summary, /HTTP≥400 1/);
 });
-await t('#M7 next build 自動改寫 tsconfig.json／next-env.d.ts 要原樣還原（MSI 實跑發現）', () => {
+await t('#B1 next build 自動改寫 tsconfig.json／next-env.d.ts 要原樣還原（MSI 實跑發現）', () => {
   const d = fs.mkdtempSync(path.join(tmp, 'snap-'));
   fs.writeFileSync(path.join(d, 'tsconfig.json'), '{"include":[".next/types/**/*.ts"]}\n');
   const restore = snapshotFiles(d);
@@ -155,6 +155,20 @@ await t('#M7 next build 自動改寫 tsconfig.json／next-env.d.ts 要原樣還�
   assert.equal(fs.readFileSync(path.join(d, 'tsconfig.json'), 'utf8'), '{"include":[".next/types/**/*.ts"]}\n');
   assert.equal(fs.existsSync(path.join(d, 'next-env.d.ts')), false, '原本沒有的檔案要刪回去');
   assert.deepEqual(snapshotFiles(d)(), [], '沒改就不動');
+});
+await t('#M4 #M5 瀏覽器崩潰往上丟給重試、工具錯誤標 SKIP；兩種情況頁面都會關', async () => {
+  assert.ok(isCrash(new Error('Target page, context or browser has been closed'))); assert.ok(isCrash('Browser has disconnected')); assert.ok(!isCrash(new Error('net::ERR_NAME_NOT_RESOLVED')));
+  const mk = (msg) => { const pg = { closed: 0, goto: async () => { throw new Error(msg); }, $$eval: async () => [], waitForTimeout: async () => {}, close: async () => { pg.closed++; } }; return { pg, ctx: { newPage: async () => pg } }; };
+  const a = mk('Target closed');
+  await assert.rejects(beadSize(a.ctx, 'http://x', { cellSelector: '.c', href: '/b' }, { readOnly: false }), /Target closed/); assert.equal(a.pg.closed, 1);
+  const b = mk('net::ERR_TIMED_OUT');
+  const r = await beadSize(b.ctx, 'http://x', { cellSelector: '.c', href: '/b' }, { readOnly: false });
+  assert.equal(r.status, 'SKIP'); assert.match(r.summary, /工具端錯誤/); assert.equal(b.pg.closed, 1);
+});
+await t('#M8 部署 id 取自 chunk 網址；#M11 建置判斷只排除報告／文件', () => {
+  assert.equal(deployIdOf('https://h.vercel.app/_next/static/chunks/a.js?dpl=dpl_AbC123'), 'dpl_AbC123'); assert.equal(deployIdOf('https://h/x.js'), null);
+  for (const f of ['features/a.ts', 'cards/x.json', 'data/y.json', 'public/i.png', 'tailwind.config.ts', 'postcss.config.mjs', 'app/page.tsx']) assert.ok(!BUILD_IRRELEVANT.test(f), f + ' 要算改動');
+  for (const f of ['reports/r.json', 'docs/a.md', 'logs/x.log', 'tests/t.mjs', 'NOTE.md']) assert.ok(BUILD_IRRELEVANT.test(f), f + ' 不影響建置');
 });
 // 第 5 項：被攔的寫入只抵銷該筆
 await t('#5 blocked writes absorb only their own messages', () => {
@@ -464,6 +478,8 @@ await t('#8 e2e: --only typo exits 2 without creating a run', async () => {
       const only = ['--base', f.base, '--cards', cf, '--only', 'ok', '--widths', '390', '--settle-ms', '300', '--no-early-swipe', '--shots', 'none', '--out', out, '--keep', '1', '--compare', 'auto'];
       const o1 = await runTool(only); assert.equal(o1.code, 0, o1.out); assert.match(o1.out, /找不到同範圍的上次報告/);
       const o2 = await runTool([...only, '--gates', 'build,no-such-script-x']); assert.equal(o2.code, 0, o2.out);
+      // #M14 先關瀏覽器再跑 gates
+      assert.ok(o2.out.indexOf('瀏覽器已關閉，開始跑 gates') > o2.out.lastIndexOf('寬度 390'), o2.out);
       assert.ok(fs.existsSync(path.join(out, dir, 'report.json')), '只量一頁的試跑不可清掉不同範圍的報告');
       const onlyDirs = fs.readdirSync(out).filter((d) => d !== dir && fs.existsSync(path.join(out, d, 'report.json'))).sort();
       assert.equal(onlyDirs.length, 1, '同範圍 --keep 1 只留最新一份：' + onlyDirs.join(','));
@@ -510,7 +526,7 @@ await t('#8 e2e: --only typo exits 2 without creating a run', async () => {
     assert.ok(lb.checks.cls.value > 0, '錯誤條插在最上面造成的位移要算進 CLS');
     assert.match(x.md, /穩定即止/);
   });
-  await t('#M17 oklch／color-mix 顏色解析得出來（不再 unknown）、#O2 a11y、#M16 桌機門檻試算', async () => {
+  await t('#M17 oklch／color-mix 顏色解析得出來（不再 unknown）、#O1 a11y、#M15 樣本附位置、#M16 桌機門檻試算', async () => {
     const x = await extraRun('m17-out', ['--only', 'colors,a11y,desk-small', '--widths', '390,1280', '--no-early-swipe', '--extras', 'none']);
     assert.ok(x.rep, x.r.out);
     const c = x.row('colors', 390);
@@ -528,7 +544,7 @@ await t('#8 e2e: --only typo exits 2 without creating a run', async () => {
     const y2 = await extraRun('m16b-out', ['--only', 'desk-small', '--widths', '1280', '--no-early-swipe', '--extras', 'none', '--desktop-profile']);
     assert.equal(y2.row('desk-small', 1280).checks.font.status, 'PASS'); assert.equal(y2.row('desk-small', 1280).whatIf.profile, 'mobile');
   });
-  await t('#O1 五語、#O3 減少動態、#O4 返回重進與慢捲到底', async () => {
+  await t('#O1 五語、減少動態、返回重進；#O9 慢捲到底', async () => {
     const x = await extraRun('ext-out', ['--only', 'i18n-ok,i18n-bad,rm-blank,lazy-shift', '--widths', '390', '--no-early-swipe', '--extras', 'all']);
     assert.ok(x.rep, x.r.out);
     const ck = (id, k) => x.row(id, 390).checks[k];
