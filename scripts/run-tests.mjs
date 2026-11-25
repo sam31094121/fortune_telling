@@ -39,6 +39,7 @@ export const KNOWN_FAILING = {
   'test:mobile-zoom-pan': 'dual-chart.module.css「手機字體再加大一階」之後有 11 處寫死 px 字級（後來加的規則）；要改成隨字體大小設定放大，會改變「大／特大」時的畫面，待業主決定',
   'test:battle-reward': '測試比對 API 原始碼字串（battleRewardFor(match, …)），程式已改寫、字串對不上，待確認新寫法是否等價',
   'test:iching-sources': 'docs/技能戰鬥檔案/八字/年度單一神煞來源查核.md 沒有登記來源（命理資料，不由工具代填）',
+  'test:taiji-lock': 'lib/taiji24-sound-engine.ts、components/UnifiedTaijiCore.tsx 在主線（e27b6a81 等）改過，reports/taiji-lock 基準指紋沒跟著更新；太極是保護檔，要不要重設基準待業主決定',
   'test:red-luan-audit': '腳本的 tsc 少了 --resolveJsonModule，編譯就失敗',
 };
 

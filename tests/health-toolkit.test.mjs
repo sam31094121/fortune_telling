@@ -375,7 +375,8 @@ await t('prune / compare / markdown', () => {
   fs.mkdirSync(path.join(root, 'a0-other'));
   // a1..a3 沒有 report.json：視為中斷留下的空殼，過了寬限期就清；寬限期內不動；不是自己的（沒有 .hc-run）永遠不動
   assert.deepEqual(pruneOwnRuns(root, 2, { emptyGraceMs: 60000 }), [], '剛建立的空資料夾在寬限期內不清');
-  assert.deepEqual(pruneOwnRuns(root, 2, { current: path.join(root, 'a3'), emptyGraceMs: 0 }), ['a1', 'a2']);
+  // now 往後推 1 秒：Windows NTFS 的 mtime 有小數毫秒，剛建立的資料夾 mtimeMs 可能比 Date.now() 大一點點（age<0）而被當成寬限期內
+  assert.deepEqual(pruneOwnRuns(root, 2, { current: path.join(root, 'a3'), emptyGraceMs: 0, now: Date.now() + 1000 }), ['a1', 'a2']);
   assert.ok(fs.existsSync(path.join(root, 'a0-other'))); assert.ok(fs.existsSync(path.join(root, 'a3')));
   assert.equal(typeof diskGuard(tmp, 0).freeGb, 'number');
   const prev = { tool: 'mingli-health-v1', rows: [{ id: 'tarot', width: 390, checks: { cls: { status: 'PASS' }, tap: { status: 'FAIL' }, contrast: { status: 'SKIP' }, lcp: { status: 'PASS' } } }] };
