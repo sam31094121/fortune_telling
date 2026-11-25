@@ -68,7 +68,7 @@
   - 回收過期鎖要先拿到 `.reclaim` 互斥檔，在互斥中重讀確認仍過期才刪；建立新鎖一律原子 `wx`。多個行程同時搶只會有一個成功（測試用 8 個行程驗證）。
 - **硬碟／記憶體**：輸出位置 <0.3G 拒跑；要建置時硬碟 <6G 或可用記憶體 <2G 拒建（改用 `--base` 或 `--prod`）。
 - **建置衝突**：`--serve` 前列出 node 行程（Windows 只看 node／bun／deno，不會把 cmd.exe 外殼重複算）；有別的 `next build` 在跑就拒建（exit 2），同 repo 有 `next start/dev` 正在用輸出資料夾也拒建（`--wait-for-builds <分鐘>` 可等它結束再繼續）；只是重用時，同 repo 正在建置也會擋。Windows 讀不到別的行程的工作目錄，用相對路徑啟動的 next 「不知道是不是同 repo」：這時看輸出資料夾 60 秒內有沒有被寫入來判斷，並在記錄裡註明。長得像但不是 next 的行程（例如路徑或參數裡有 next 字樣）不算。
-- **輸出資料夾**：預設 `.next`；可用 `HC_DIST_DIR`／`NEXT_DIST_DIR` 改（next.config.mjs 讀 `NEXT_DIST_DIR`），不會碰 `npm run build` 用的 `.next-production`。
+- **輸出資料夾**：預設 `.next`；next build 遇到新的輸出資料夾會自己改 tsconfig.json（加入 `<distDir>/types`）或 next-env.d.ts，工具在建置前記下原內容、建置後原樣還原並記錄；可用 `HC_DIST_DIR`／`NEXT_DIST_DIR` 改（next.config.mjs 讀 `NEXT_DIST_DIR`），不會碰 `npm run build` 用的 `.next-production`。
 - **不留孤兒行程**：工具啟動的 next build／next start 都帶看門狗（`NODE_OPTIONS=--require scripts/health/watchdog.cjs`，每 1.5 秒確認工具本身還在，不在就自己結束）。正常結束、Ctrl+C（exit 130）、被強制結束都不留 next 行程。
 - **伺服器起不來**：`--serve` 失敗時在這次的資料夾寫 `error.json`（階段、原因、build 閘門 FAIL／SKIP），不會留空殼也不會冒充 build PASS；exit 2。
 - **一次建置**：`--serve` 先看 `.next/HC_BUILD_SHA` 是否等於 HEAD 且工作區乾淨（除了 reports／docs／logs／tests 與 .md 之外的改動都算，含 features、cards、data、public），是就重用；髒工作區建出來的不寫標記。可設 `HC_BUILD_CACHE_DIR` 共用 Next 的編譯快取。

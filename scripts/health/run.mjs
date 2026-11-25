@@ -126,6 +126,19 @@ async function guardBuildConflicts(a, log, { building }) {
   }
 }
 
+// next build 遇到不在 include 裡的 distDir（例如 .next-hc2）會自己把「<distDir>/types/**/*.ts」寫進 tsconfig.json，
+// 也可能改 next-env.d.ts。這是工具造成的改動：建置前記下原內容，建置後（成功或失敗）原樣還原，回傳被還原的檔名。
+export const BUILD_TOUCHED = ['tsconfig.json', 'next-env.d.ts'];
+export function snapshotFiles(root, names = BUILD_TOUCHED) {
+  const snap = names.map((n) => { const f = path.join(root, n); return { n, f, buf: fs.existsSync(f) ? fs.readFileSync(f) : null }; });
+  return () => snap.filter(({ f, buf }) => {
+    const now = fs.existsSync(f) ? fs.readFileSync(f) : null;
+    if (buf === null ? now === null : now !== null && buf.equals(now)) return false;
+    if (buf === null) fs.rmSync(f, { force: true }); else fs.writeFileSync(f, buf);
+    return true;
+  }).map(({ n }) => n);
+}
+
 // 建置最多一次：.next/HC_BUILD_SHA 與 HEAD 一致且程式沒改 → 直接重用。
 async function ensureServer(a, log) {
   const dist = path.join(REPO, DIST_DIR);
@@ -150,11 +163,17 @@ async function ensureServer(a, log) {
     const t = Date.now();
     log(`next build（HEAD ${sha}）…`);
     try { fs.rmSync(marker, { force: true }); } catch {}
-    await new Promise((res, rej) => {
-      const p = spawn(process.execPath, [path.join(REPO, 'node_modules/next/dist/bin/next'), 'build'], { cwd: REPO, stdio: 'inherit', env: childEnv() });
-      buildChild = p;
-      p.on('exit', (c) => (c === 0 ? res() : rej(new Error(`next build exit ${c}`))));
-    });
+    const restore = snapshotFiles(REPO);
+    try {
+      await new Promise((res, rej) => {
+        const p = spawn(process.execPath, [path.join(REPO, 'node_modules/next/dist/bin/next'), 'build'], { cwd: REPO, stdio: 'inherit', env: childEnv() });
+        buildChild = p;
+        p.on('exit', (c) => (c === 0 ? res() : rej(new Error(`next build exit ${c}`))));
+      });
+    } finally {
+      const back = restore();
+      if (back.length) log(`next build 改了 ${back.join('、')}（自動加入 ${DIST_DIR}/types），已原樣還原`);
+    }
     // 建置當下工作區是乾淨的才寫標記；髒的建置下次不會被當成 HEAD 重用
     if (!gitDirty()) fs.writeFileSync(marker, sha + '\n');
     build = `built in ${round((Date.now() - t) / 1000, 0)}s`;

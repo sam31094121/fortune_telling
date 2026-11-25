@@ -12,7 +12,7 @@ import { mergeMobileRows, colorTokens, parseColor, blendOver, contrastRatio, isL
 import { judge, judgeEarlySwipe, filterBlockedConsole, DOM_KEYS, judgeFont, judgeTap, judgeTbt, tbtFrom, judgeOneLang, judgeI18n, langMatches } from '../scripts/health/judge.mjs';
 import { CARDS, THRESHOLDS, MICHELIN_TARGETS, VIEWPORTS, LOCAL_ENV_GAP_APIS } from '../scripts/health/config.mjs';
 import { metricsScript, INIT_SCRIPT } from '../scripts/health/probe.mjs';
-import { parseArgs, selectCards, UsageError, childEnv, GATE_ALL, distBusy, beadSize, EXTRAS_ALL } from '../scripts/health/run.mjs';
+import { parseArgs, selectCards, UsageError, childEnv, GATE_ALL, distBusy, beadSize, EXTRAS_ALL, snapshotFiles } from '../scripts/health/run.mjs';
 import { startFixture, FIXTURE_CARDS, EXTRA_CARDS } from '../scripts/health/fixture-server.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -144,6 +144,17 @@ await t('#O2 TBT 代理值、#O1 單一語言判定', () => {
 await t('#M15 主控台的「Failed to load resource … status of 404」與 HTTP 404 只算一次', () => {
   const r = judge(m(), { ...noErr(), http: [{ status: 404, url: 'http://x/a.png', type: 'image' }], console: ['Failed to load resource: the server responded with a status of 404 (Not Found)'] }, okNav, THRESHOLDS, open);
   assert.match(r.errors.summary, /console\.error 0、/); assert.match(r.errors.summary, /HTTP≥400 1/);
+});
+await t('#M7 next build 自動改寫 tsconfig.json／next-env.d.ts 要原樣還原（MSI 實跑發現）', () => {
+  const d = fs.mkdtempSync(path.join(tmp, 'snap-'));
+  fs.writeFileSync(path.join(d, 'tsconfig.json'), '{"include":[".next/types/**/*.ts"]}\n');
+  const restore = snapshotFiles(d);
+  fs.writeFileSync(path.join(d, 'tsconfig.json'), '{"include":[".next/types/**/*.ts",".next-hc2/types/**/*.ts"]}\n');
+  fs.writeFileSync(path.join(d, 'next-env.d.ts'), '/// <reference types="next" />\n');
+  assert.deepEqual(restore(), ['tsconfig.json', 'next-env.d.ts']);
+  assert.equal(fs.readFileSync(path.join(d, 'tsconfig.json'), 'utf8'), '{"include":[".next/types/**/*.ts"]}\n');
+  assert.equal(fs.existsSync(path.join(d, 'next-env.d.ts')), false, '原本沒有的檔案要刪回去');
+  assert.deepEqual(snapshotFiles(d)(), [], '沒改就不動');
 });
 // 第 5 項：被攔的寫入只抵銷該筆
 await t('#5 blocked writes absorb only their own messages', () => {
