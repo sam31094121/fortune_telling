@@ -6,6 +6,7 @@ import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 import type { resolveOrbTurn } from '@/lib/beast-game/match3/resolve-turn';
 import OrbTreasures, { TreasureAnimation, type TreasureFlight } from './OrbTreasures';
 import { isKeluWeapon, advanceKeluCombo, emptyKeluCombo } from '@/lib/beast-game/match3/kelu-combo';
+import { canAcceptTreasurePress, decrementTreasureCatalog, upsertTreasureFlight, removeTreasureFlight, deathWarmTargets } from '@/lib/beast-game/match3/treasure-rapid-fire';
 import OrbDropAnimation from './OrbDropAnimation';
 import type { TreasureBook, TreasureUse, treasureCatalog } from '@/lib/beast-game/match3/treasures';
 import Match3ReplayLines from './Match3ReplayLines';
@@ -374,6 +375,10 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const [resultHoldExpired, setResultHoldExpired] = useState(false);
   /** 擊倒特效播放中凍結預熱名單：不替「換上來的新鎖定目標」新建引擎（避免擊倒後 100ms 級長任務），播完再補。 */
   const [warmFreeze, setWarmFreeze] = useState<readonly string[] | null>(null);
+  const [warmResume, setWarmResume] = useState(true);
+  const warmHeld = useRef<readonly string[] | null>(null);
+  const warmIdle = useRef(0);
+  const deathWarmAllRef = useRef<{ foeId: string; foeIndex: number }[]>([]);
   const queueKnockouts = (before: readonly Foe[], serverAfter: readonly Foe[], actionId: string, source: KnockoutSource, delayMs: number) => {
     const ko = deriveServerKnockouts(before, serverAfter, { actionId, source, isFinalBoss: isFinalBoss ?? reservedGuardianBossRule(rigEnabled ? stage.wins + 1 : 0) });
     if (!ko.length) return;
@@ -383,7 +388,20 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     setWarmFreeze(f => (f && deathPending.size ? f : deathWarm.map(w => w.foeId)));
     setKnockouts(list => [...list.filter(e => !ko.some(n => n.id === e.id)).slice(-8), ...ko]);
   };
-  const finishDeath = (ev: KnockoutEvent) => setDeathPending(p => { if (!p.has(ev.id)) return p; const n = new Set(p); n.delete(ev.id); return n; });
+  const finishDeath = (ev: KnockoutEvent) => {
+    setDeathPending(p => { if (!p.has(ev.id)) return p; const n = new Set(p); n.delete(ev.id); return n; });
+    // 播完當幀先不要預熱「換上來的新目標」，把 prewarm() 跟引擎 destroy() 拆開。
+    warmHeld.current = warmFreeze ? [...warmFreeze] : deathWarmAllRef.current.map(w => w.foeId);
+    setWarmResume(false);
+    if (warmIdle.current) {
+      if (typeof cancelIdleCallback === 'function') cancelIdleCallback(warmIdle.current);
+      else window.clearTimeout(warmIdle.current);
+      warmIdle.current = 0;
+    }
+    const kick = () => { warmIdle.current = 0; setWarmResume(true); };
+    if (typeof requestIdleCallback === 'function') warmIdle.current = requestIdleCallback(kick, { timeout: 200 });
+    else warmIdle.current = window.setTimeout(kick, 0);
+  };
   const settleDeath = (ev: KnockoutEvent) => setDeathHold(h => { if (!h.has(ev.foeId)) return h; const n = new Set(h); n.delete(ev.foeId); return n; });
   const projectileKey = useRef(0);
   const showOutgoing = (hits: readonly { attackerId?: string | null; amount: number }[], foe: Foe) => {
@@ -523,10 +541,20 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     return transactTreasures(init.owner, run);
   };
   const [treasureGuard, setTreasureGuard] = useState(init.resumeInput?.treasureGuard ?? 1);
-  const [treasureFlight, setTreasureFlight] = useState<TreasureFlight | null>(null);
+  const [treasureFlights, setTreasureFlights] = useState<TreasureFlight[]>([]);
   const [pendingTreasure, setPendingTreasure] = useState<string | null>(null);
+  const pendingCounts = useRef(new Map<string, number>());
+  const [treasureVisuals, setTreasureVisuals] = useState(0);
   const catalogRevision = useRef(0);
   const treasureAction = useRef(0);
+  const treasureQueue = useRef(Promise.resolve());
+  const treasureVisualsRef = useRef(0);
+  const keluUnlockAt = useRef(0);
+  const boardTurn = useRef(false);
+  const fireGen = useRef(0);
+  const syncedFoes = useRef(foes);
+  const syncedTeam = useRef(team);
+  const viewRef = useRef({ board, magic, wins, ti: 0, moves, attackBoost, treasureGuard, chosen, rule });
   const keluCombo = useRef(emptyKeluCombo());
   const battleId = useRef('');
   useEffect(() => {
@@ -541,7 +569,13 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     return () => controller.abort();
   }, [rigEnabled, campaignEnabled, init.owner]);
   const turnRequest = useRef<AbortController | null>(null);
-  useEffect(() => () => { const request=turnRequest.current; turnRequest.current=null; request?.abort(); }, []);
+  useEffect(() => () => { const request=turnRequest.current; turnRequest.current=null; request?.abort(); fireGen.current += 1; }, []);
+  useEffect(() => {
+    if (treasureVisualsRef.current === 0) {
+      syncedFoes.current = foes;
+      syncedTeam.current = team;
+    }
+  }, [foes, team]);
   const [shortMsg, setShortMsg] = useState('');
   const [matchFrame, setMatchFrame] = useState<OrbReplayFrame | null>(null);
   const [refillEpoch, setRefillEpoch] = useState(0);
@@ -557,6 +591,11 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     refillRun.current?.abort(); refillCommit.current?.(); refillCommit.current = null;
     timers.current.forEach((t) => window.clearTimeout(t));
     timers.current.clear();
+    if (warmIdle.current) {
+      if (typeof cancelIdleCallback === 'function') cancelIdleCallback(warmIdle.current);
+      else window.clearTimeout(warmIdle.current);
+      warmIdle.current = 0;
+    }
     if (window.__match3Events) window.__match3Events.length = 0;
   }, []);
   const showBanner = (text: string, kind: 'magic' | 'skill' | 'counter' | 'info', visual = rigEnabled) => queuedBanner(text, kind, visual);
@@ -935,10 +974,12 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const duelRig = guardianDuel ? rigFor(foes[4].id) : null;
   const duelArt = duelRig ? rigFrameUrl(duelRig, duelRig.frames.some(frame => frame.id === 'land-crouch') ? 'land-crouch' : 'run-reach') : null;
   const ti = availableFoeTarget(foes, target, rigEnabled ? stage.wins + 1 : 0);
+  viewRef.current = { board, magic, wins, ti, moves, attackBoost, treasureGuard, chosen, rule };
   // 阿修羅死亡 v3 預熱：戰鬥中只對「鎖定目標」與 HP≤30% 的一般敵人先建引擎並 prewarm()（最終魔王走 v3 魔王分支，不在此列）；Host 同時最多 5 個。
   const deathBossRule = isFinalBoss ?? reservedGuardianBossRule(rigEnabled ? stage.wins + 1 : 0);
   const deathWarmAll = over ? [] : foes.flatMap((f, i) => f.hp > 0 && (i === ti || f.hp <= f.maxHp * 0.3) && !deathBossRule(f, i, foes) ? [{ foeId: f.id, foeIndex: i }] : []);
-  const deathWarm = deathPending.size > 0 && warmFreeze ? deathWarmAll.filter(w => warmFreeze.includes(w.foeId)) : deathWarmAll;
+  deathWarmAllRef.current = deathWarmAll;
+  const deathWarm = deathWarmTargets(deathWarmAll, { deathPending: deathPending.size > 0, warmFreeze, resume: warmResume, hold: warmHeld.current });
   /** 一般版卡圖明確給：與畫面上同一張（rig 模式＝Match3TargetArt 的 src，非 rig＝background-image 的 thumbnail）。 */
   const deathBossPresent = foes.some((f, i) => deathBossRule(f, i, foes));
   /** 殿後魔王登場（護衛全倒、魔王仍在）：交給 Host 呼叫 v4 預熱。 */
@@ -974,7 +1015,10 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     if (campaignEnabled) { if (!campaignAwaiting) onCampaignContinue?.(); return; }
     setConfirmedOutcome(null);
     setFalling(new Map()); setFlash(new Set()); setDrop(new Set()); setEmptyCells(new Set()); setRewards(new Set());
-    setKnockouts([]); setDeathHold(new Set()); setDeathPending(new Set()); setResultHoldExpired(false); setWarmFreeze(null); deathDelay.current.clear();
+    setKnockouts([]); setDeathHold(new Set()); setDeathPending(new Set()); setResultHoldExpired(false); setWarmFreeze(null); setWarmResume(true); warmHeld.current = null; deathDelay.current.clear();
+    fireGen.current += 1; turnRequest.current?.abort(); turnRequest.current = null; boardTurn.current = false;
+    setTreasureFlights([]); treasureVisualsRef.current = 0; setTreasureVisuals(0); setBusy(false);
+    keluUnlockAt.current = 0; keluCombo.current = emptyKeluCombo(); pendingCounts.current.clear(); setPendingTreasure(null);
     setStrike(null); setAttackCaption(null); setShieldBurst(null); setFusionBurst(null); setGuardianFx(null); fusionState.current = GUARDIAN_FUSION_START; setGuardActive(false); setCounterFoes(new Set()); setCounterVisuals([]); setHitTeam(new Set()); setSkillVisuals([]);
     const rng = rngRef.current; const nextWins = rigEnabled ? nextProgressionWins(wins, over === 'win') : 0; setWins(nextWins); const n = pickLineup(rng, teamIds, cfg, nextWins); const b = generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, rigEnabled ? progressionStage(nextWins).minChain : 3);
     showSkillEvents(n.playerSkillEvents ?? []);
@@ -1033,73 +1077,127 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     } else applyCounter();
   };
 
-  const useTreasure = async (element: BeastElement, variant: number) => {
-    if (busy || turnRequest.current || over || ti < 0 || (!treasurePractice && (!init.owner || !campaignEnabled))) return;
-    // 點下即回饋：蓄力音與按鈕亮起不等伺服端往返；傷害、庫存與飛行動畫仍只吃伺服端結果。
-    // 斷風輪另外在送出前先起飛（意圖動畫），傷害仍等伺服端確認後才套用。
-    cue('charge'); setPendingTreasure(element + ':' + variant);
-    catalogRevision.current++;
-    const controller = new AbortController(); turnRequest.current = controller; setBusy(true); setLastHealing([]);
-    const timeout = window.setTimeout(() => controller.abort(), 15000);
-    battleId.current ||= crypto.randomUUID();
-    const actionId = battleId.current + ':treasure:' + (++treasureAction.current);
-    const actionSeq = treasureAction.current;
+  const bumpTreasureVisuals = (delta: number) => {
+    treasureVisualsRef.current = Math.max(0, treasureVisualsRef.current + delta);
+    setTreasureVisuals(treasureVisualsRef.current);
+    if (treasureVisualsRef.current <= 0) setBusy(false);
+    else setBusy(true);
+  };
+  const useTreasure = (element: BeastElement, variant: number) => {
     const kelu = isKeluWeapon(element, variant);
     const pressedAt = performance.now();
+    const slot = treasures.find(x => x.element === element && x.variant === variant);
+    const modeAllowed = !!(treasurePractice || (init.owner && campaignEnabled));
+    if (!canAcceptTreasurePress({
+      over: !!over, hasTarget: ti >= 0, modeAllowed, boardActionLocked: boardTurn.current,
+      isKelu: kelu, now: pressedAt, keluUnlockAt: keluUnlockAt.current,
+      count: slot?.count ?? 0, available: !!slot?.available,
+    })) return;
+    // 點下即回饋：蓄力音與按鈕亮起不等伺服端往返；傷害、庫存與飛行動畫仍只吃伺服端結果。
+    // 斷風輪另外在送出前先起飛（意圖動畫），傷害仍等伺服端確認後才套用。一般寶器可在動畫尚未結束時再按，請求依序排隊。
+    cue('charge');
+    const pendingKey = element + ':' + variant;
+    pendingCounts.current.set(pendingKey, (pendingCounts.current.get(pendingKey) ?? 0) + 1);
+    setPendingTreasure(pendingKey);
+    catalogRevision.current++;
+    const localRev = catalogRevision.current;
+    const gen = fireGen.current;
+    setTreasures(cur => decrementTreasureCatalog(cur, element, variant));
+    battleId.current ||= crypto.randomUUID();
+    const actionId = battleId.current + ':treasure:' + (++treasureAction.current);
     const stepped = kelu ? advanceKeluCombo(keluCombo.current, pressedAt) : null;
     if (stepped) keluCombo.current = stepped.state;
     const timing = stepped?.timing ?? null;
+    if (kelu && timing) keluUnlockAt.current = pressedAt + timing.clearAt;
+    bumpTreasureVisuals(1);
+    setLastHealing([]);
     if (kelu && timing && root.current) {
       const bounds = root.current.getBoundingClientRect();
       const sourceEl = root.current.querySelector('[data-treasure="'+element+'"][data-variant="'+variant+'"]');
-      const targetEl = root.current.querySelector('[data-testid="match3-enemy"][data-id="'+(foes[ti]?.id ?? '')+'"]') ?? root.current.querySelector('[data-testid="match3-enemy"]');
+      const targetEl = root.current.querySelector('[data-testid="match3-enemy"][data-id="'+(syncedFoes.current[ti]?.id ?? foes[ti]?.id ?? '')+'"]') ?? root.current.querySelector('[data-testid="match3-enemy"]');
       if (sourceEl && targetEl) {
         const source = sourceEl.getBoundingClientRect();
         const target = targetEl.getBoundingClientRect();
-        const ownerId = treasures.find(x => x.element === element && x.variant === variant)?.ownerId ?? '';
-        setTreasureFlight({
-          effect: { id: actionId, element, variant, role: 'pierce', tier: 5, ownerId, name: '斷風輪', targetId: foes[ti]?.id ?? '', damage: 0, shieldBroken: 0, hits: [], healing: [], energyBefore: 0, energyAfter: 0, description: '斷風輪' },
+        const ownerId = slot?.ownerId ?? '';
+        const intent: TreasureFlight = {
+          effect: { id: actionId, element, variant, role: 'pierce', tier: 5, ownerId, name: '斷風輪', targetId: (syncedFoes.current[ti]?.id ?? foes[ti]?.id ?? ''), damage: 0, shieldBroken: 0, hits: [], healing: [], energyBefore: 0, energyAfter: 0, description: '斷風輪' },
           x1: source.left+source.width/2-bounds.left, y1: source.top+source.height/2-bounds.top,
           x2: target.left+target.width/2-bounds.left, y2: target.top+target.height/2-bounds.top,
           chain: timing.chain, intent: true, flightMs: timing.flightMs,
-        });
+        };
+        setTreasureFlights(cur => upsertTreasureFlight(cur, intent));
       }
     }
-    try {
-      const result = await treasureTransaction(async book => {
-        const r = await postOrbTurn(JSON.stringify({ guestBattleToken:guestState.current.token, sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, board,magic,path:[],team,foes,mode:cfg.id,wins,target:ti,seed:init.seed,move:moves,chosen,rule,attackBoost,treasureGuard,treasures:book,action:'treasure',treasureElement:element,treasureVariant:variant,actionId }), {'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, controller.signal);
-        if (!r.ok) throw new Error('暫時無法使用寶器，請重試。');
-        const result: TreasureUse & {sharedVersion?:number} = await r.json();
-        requireOutcome(result);
+    const restoreCount = () => setTreasures(cur => cur.map(x => x.element === element && x.variant === variant ? { ...x, count: x.count + 1 } : x));
+    const run = async () => {
+      if (gen !== fireGen.current) { restoreCount(); bumpTreasureVisuals(-1); return; }
+      const controller = new AbortController();
+      turnRequest.current = controller;
+      const timeout = window.setTimeout(() => controller.abort(), 15000);
+      try {
+        const snapshot = viewRef.current;
+        const liveFoes = syncedFoes.current;
+        const liveTeam = syncedTeam.current;
+        let target = snapshot.ti;
+        if (!liveFoes[target] || liveFoes[target].hp <= 0) target = liveFoes.findIndex(f => f.hp > 0);
+        if (target < 0) throw new Error('目前不能使用寶器');
+        const result = await treasureTransaction(async book => {
+          const r = await postOrbTurn(JSON.stringify({ guestBattleToken:guestState.current.token, sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, board:snapshot.board,magic:snapshot.magic,path:[],team:liveTeam,foes:liveFoes,mode:cfg.id,wins:snapshot.wins,target,seed:init.seed,move:snapshot.moves,chosen:snapshot.chosen,rule:snapshot.rule,attackBoost:snapshot.attackBoost,treasureGuard:snapshot.treasureGuard,treasures:book,action:'treasure',treasureElement:element,treasureVariant:variant,actionId }), {'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, controller.signal);
+          if (!r.ok) throw new Error('暫時無法使用寶器，請重試。');
+          const result: TreasureUse & {sharedVersion?:number} = await r.json();
+          requireOutcome(result);
+          if (controller.signal.aborted) throw new Error('請求已中止');
+          acceptGuestResult(result);
+          return { book:result.book, result };
+        });
         if (controller.signal.aborted) throw new Error('請求已中止');
-        acceptGuestResult(result);
-        return { book:result.book, result };
-      });
-      if (controller.signal.aborted) return;
-      if(init.sharedBattleToken)sharedVersion.current=(result as TreasureUse & {sharedVersion:number}).sharedVersion;
-      const bounds = root.current!.getBoundingClientRect();
-      const source = root.current!.querySelector('[data-treasure="'+element+'"][data-variant="'+variant+'"]')!.getBoundingClientRect();
-      const target = root.current!.querySelector('[data-testid="match3-enemy"][data-id="'+result.effect.targetId+'"]')!.getBoundingClientRect();
-      setTreasures(result.catalog);
-      const confirmed: TreasureFlight = {effect:result.effect,x1:source.left+source.width/2-bounds.left,y1:source.top+source.height/2-bounds.top,x2:target.left+target.width/2-bounds.left,y2:target.top+target.height/2-bounds.top, chain: timing?.chain, intent: false, flightMs: timing?.flightMs};
-      // 斷風輪若已先起飛，只補上傷害數字、不重開動畫，避免接上伺服端結果時重播造成卡頓。
-      setTreasureFlight(cur => cur?.effect.id === actionId ? { ...cur, effect: result.effect, intent: false, chain: timing?.chain ?? cur.chain, flightMs: timing?.flightMs ?? cur.flightMs } : confirmed);
-      const elapsed = performance.now() - pressedAt;
-      const damageDelay = timing ? Math.max(0, timing.damageAt - elapsed) : 950;
-      const clearDelay = timing ? Math.max(0, timing.clearAt - elapsed) : 1900;
-      later(() => { queueKnockouts(foes, result.foes, actionId, 'server-treasure', 0); setTeam(result.team); setFoes(result.foes); setConfirmedOutcome(result.outcome); setTreasureGuard(result.guardScale); setLastDmg(result.effect.damage); setTotalDmg(d=>d===null?null:d+result.effect.damage); setLog(result.effect.description); setSupportText([result.effect.description,result.comebackText].filter(Boolean).join('；')); cue('impact'); }, damageDelay);
-      later(() => { if (treasureAction.current !== actionSeq) return; setTreasureFlight(cur => cur?.effect.id === actionId ? null : cur); setBusy(false); }, clearDelay);
-    } catch (e) {
-      if (kelu) keluCombo.current = emptyKeluCombo();
-      if (kelu) setTreasureFlight(cur => cur?.effect.id === actionId ? null : cur);
-      if(turnRequest.current===controller){if (init.sharedBattleToken) onRecover(); else { setLog(e instanceof Error ? e.message : '寶器未保存，請重試。'); setBusy(false); }}
-    }
-    finally { window.clearTimeout(timeout); setPendingTreasure(null); if (turnRequest.current === controller) turnRequest.current = null; }
+        if (gen !== fireGen.current) throw new Error('請求已中止');
+        if(init.sharedBattleToken)sharedVersion.current=(result as TreasureUse & {sharedVersion:number}).sharedVersion;
+        syncedFoes.current = result.foes;
+        syncedTeam.current = result.team;
+        if (catalogRevision.current === localRev) setTreasures(result.catalog);
+        const bounds = root.current!.getBoundingClientRect();
+        const sourceEl = root.current!.querySelector('[data-treasure="'+element+'"][data-variant="'+variant+'"]');
+        const source = (sourceEl ?? root.current)!.getBoundingClientRect();
+        const targetNode = root.current!.querySelector('[data-testid="match3-enemy"][data-id="'+result.effect.targetId+'"]') ?? root.current!.querySelector('[data-testid="match3-enemy"]');
+        const targetBox = (targetNode ?? root.current)!.getBoundingClientRect();
+        const confirmed: TreasureFlight = {effect:result.effect,x1:source.left+source.width/2-bounds.left,y1:source.top+source.height/2-bounds.top,x2:targetBox.left+targetBox.width/2-bounds.left,y2:targetBox.top+targetBox.height/2-bounds.top, chain: timing?.chain, intent: false, flightMs: timing?.flightMs};
+        // 斷風輪若已先起飛，只補上傷害數字、不重開動畫，避免接上伺服端結果時重播造成卡頓。
+        setTreasureFlights(cur => upsertTreasureFlight(cur, confirmed));
+        const elapsed = performance.now() - pressedAt;
+        const damageDelay = timing ? Math.max(0, timing.damageAt - elapsed) : 950;
+        const clearDelay = timing ? Math.max(0, timing.clearAt - elapsed) : 1900;
+        later(() => {
+          if (gen !== fireGen.current) return;
+          queueKnockouts(liveFoes, result.foes, actionId, 'server-treasure', 0); setTeam(result.team); setFoes(result.foes); setConfirmedOutcome(result.outcome); setTreasureGuard(result.guardScale); setLastDmg(result.effect.damage); setTotalDmg(d=>d===null?null:d+result.effect.damage); setLog(result.effect.description); setSupportText([result.effect.description,result.comebackText].filter(Boolean).join('；')); cue('impact');
+        }, damageDelay);
+        later(() => {
+          if (gen !== fireGen.current) return;
+          setTreasureFlights(cur => removeTreasureFlight(cur, actionId)); bumpTreasureVisuals(-1);
+        }, clearDelay);
+      } catch (e) {
+        fireGen.current += 1;
+        if (kelu) { keluCombo.current = emptyKeluCombo(); keluUnlockAt.current = 0; }
+        setTreasureFlights(cur => removeTreasureFlight(cur, actionId));
+        restoreCount();
+        bumpTreasureVisuals(-1);
+        if (init.sharedBattleToken) onRecover();
+        else setLog(e instanceof Error ? e.message : '寶器未保存，請重試。');
+      } finally {
+        window.clearTimeout(timeout);
+        const left = (pendingCounts.current.get(pendingKey) ?? 1) - 1;
+        if (left <= 0) pendingCounts.current.delete(pendingKey);
+        else pendingCounts.current.set(pendingKey, left);
+        setPendingTreasure(cur => left <= 0 && cur === pendingKey ? null : cur);
+        if (turnRequest.current === controller) turnRequest.current = null;
+      }
+    };
+    treasureQueue.current = treasureQueue.current.then(run, run);
   };
 
   const release = async (path: Cell[]) => {
     if (busy || turnRequest.current || over || ti < 0 || path.length === 0) return;
-    const controller = new AbortController(); turnRequest.current = controller; setBusy(true); setLastHealing([]);
+    const controller = new AbortController(); turnRequest.current = controller; boardTurn.current = true; setBusy(true); setLastHealing([]);
     const timeout = window.setTimeout(() => controller.abort(), 15000);
     setSubmittedPath(path); setAwaitingTurn(true);
     let prediction: ReturnType<typeof predictOrbBoard> | undefined;
@@ -1206,7 +1304,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       resetPrediction();
       if (turnRequest.current === controller) { if(init.sharedBattleToken)onRecover(); else { setBusy(false); setLog('暫時無法完成本回合，請重新連珠。'); } }
       return;
-    } finally { window.clearTimeout(timeout); if (turnRequest.current === controller) { turnRequest.current = null; setAwaitingTurn(false); } }
+    } finally { window.clearTimeout(timeout); if (turnRequest.current === controller) { turnRequest.current = null; boardTurn.current = false; setAwaitingTurn(false); } }
     if(init.sharedBattleToken)sharedVersion.current=(prepared as typeof prepared & {sharedVersion:number}).sharedVersion;
     const { res } = prepared;
     setShieldGoals(prepared.shieldGoals);
@@ -1395,7 +1493,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const cardActionId = (kind: 'skill' | 'link') => (battleId.current ||= crypto.randomUUID()) + ':' + kind + ':' + (++cardAttackKey.current);
   const requestCardAttack = async (action: 'energy' | 'link', ids: string[], eventId: string, actionId: string): Promise<CardAttackResult | null> => {
     // Refs lock commands immediately; non-urgent board repaint yields to tap feedback.
-    const controller = new AbortController(); turnRequest.current = controller;
+    const controller = new AbortController(); turnRequest.current = controller; boardTurn.current = true;
     startTransition(() => { setBusy(true); setLastHealing([]); });
     const timeout = window.setTimeout(() => controller.abort(), 15000);
     try {
@@ -1412,7 +1510,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       setAttackCaption({ side: 'ally', hint: true, text: '暫時無法確認攻擊結果，正在核對；請稍候再試。' });
       if (turnRequest.current === controller) { if(init.sharedBattleToken){onRecover();return null;} energyClickLock.current = false; setBusy(false); setLog(action === 'energy' ? '暫時無法發動技能，能量與生命未變更，請重試。' : '暫時無法發動連線攻擊，能量與生命未變更，請重試。'); }
       return null;
-    } finally { window.clearTimeout(timeout); if (turnRequest.current === controller) turnRequest.current = null; }
+    } finally { window.clearTimeout(timeout); if (turnRequest.current === controller) { turnRequest.current = null; boardTurn.current = false; } }
   };
   const unleash = async (u: Unit) => {
     if (energyClickLock.current || busy || over || u.hp <= 0 || ti < 0 || u.energy < ENERGY_MAX || (rigEnabled && !fighterCanAct(u))) return;
@@ -1637,10 +1735,10 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           );
         })}
       </div>
-      {rigEnabled && (campaignEnabled || treasurePractice) && <OrbTreasures partyCount={cfg.id === 'hard45' ? team.length : undefined} catalog={lastAllyBig ? treasures.filter(x => x.ownerId === (held?.lastAllyId ?? team.find(u => u.hp > 0)?.id)) : treasures} sideDock={cfg.id==='hard45'&&lastAllyBig} disabled={busy || !!over} guard={treasureGuard} pending={pendingTreasure} onUse={useTreasure}/>}
+      {rigEnabled && (campaignEnabled || treasurePractice) && <OrbTreasures partyCount={cfg.id === 'hard45' ? team.length : undefined} catalog={lastAllyBig ? treasures.filter(x => x.ownerId === (held?.lastAllyId ?? team.find(u => u.hp > 0)?.id)) : treasures} sideDock={cfg.id==='hard45'&&lastAllyBig} disabled={!!over || (busy && treasureVisuals === 0)} guard={treasureGuard} pending={pendingTreasure} onUse={useTreasure}/>}
       {orbDrops && <OrbDropAnimation drops={orbDrops.drops} catches={orbDrops.catches} onSound={cue} onCredit={drop => { const reward=drop.reward; if(reward)setTreasures(items=>items.map(x=>x.ownerId===drop.ownerId && x.element===reward.element && x.variant===reward.variant && reward.count>x.count ? {...x,count:reward.count} : x)); }} onDone={() => { const finish=finishOrbDrops.current; finishOrbDrops.current=null; setOrbDrops(null); finish?.(); }}/>}
       {rigEnabled && !mobileActionless && actions}
-      <TreasureAnimation flight={treasureFlight}/>
+      {treasureFlights.map(flight => <TreasureAnimation key={flight.effect.id} flight={flight}/>)}
       {!rigEnabled && onRepick && <div className={styles.repick}><button type="button" data-testid="open-picker" onClick={onRepick}>重新選卡</button></div>}
 
       {!rigEnabled && !mobileActionless && actions}
