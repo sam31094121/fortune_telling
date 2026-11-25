@@ -1,7 +1,9 @@
 # 首頁三項非保護檔修正：給威諺的審查報告
 
 - 分支：`home-nonprotected-1125`（從 `origin/main` `609b15fe` 分出）
-- 程式提交：`b5a005fdeb18cd050c409e795fb988ed11ceefa4`（當時 sparse-checkout 還沒納入兩張新圖，圖檔在下一筆提交）
+- 程式提交：`b5a005fdeb18cd050c409e795fb988ed11ceefa4`
+- 圖檔提交：`c6dbc9c79ec0edf0843d985c0da4f11adadbcd37`（`pounce-open.home.webp` 175,540 B、`scroll-top-080-shield.sm.webp` 7,832 B）
+- 分支目前 HEAD：`c6dbc9c79ec0edf0843d985c0da4f11adadbcd37`
 - 倉庫：github.com/sam31094121/fortune_telling
 - 作業時間：2026-11-25 18:53–19:22（台灣時間，Asia/Taipei）
 - 範圍：只改非保護檔；未推主線、未部署、未動 `C:\Users\DRAGON\Desktop\命理`、未啟動/重啟 :8888
