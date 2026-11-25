@@ -9,7 +9,7 @@ import { spawn, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import * as C from './config.mjs';
 import { INIT_SCRIPT, metricsScript } from './probe.mjs';
-import { acquireLock, releaseLock, startLockHeartbeat, diskGuard, pruneOwnRuns, pickPort, startServer, listProcesses, findNextConflicts, michelin, coverage, overallStatus, renderMarkdown, compareRuns, round, CHECK_GROUPS } from './lib.mjs';
+import { acquireLock, releaseLock, startLockHeartbeat, diskGuard, pruneOwnRuns, pickPort, startServer, listProcesses, findNextConflicts, michelin, coverage, overallStatus, renderMarkdown, compareRuns, round, CHECK_GROUPS, findBaseline, runScope } from './lib.mjs';
 import { judge, judgeEarlySwipe, mkCheck } from './judge.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -276,12 +276,14 @@ async function main() {
   // Playwright 預設也會攔 SIGINT 並立刻 exit(130)，會搶在非同步清理之前結束行程、留下鎖檔——所以 launch 時關掉它的處理。
   const syncCleanup = [];
   const HALT = () => new Promise(() => {});
-  let stopping = false;
+  let stopping = false, ownRunDir = null;
   const onSig = () => {
     if (stopping) return; stopping = true;
     try { process.stderr.write(`[health] 收到中斷訊號，清理後結束（不寫報告）\n`); } catch {}
     for (const f of syncCleanup) { try { f(); } catch {} }
     try { stopBeat(); } catch {} releaseLock(lock.file);
+    // 這次自己建的資料夾還沒有報告 → 直接刪掉，不留空殼
+    if (ownRunDir && !fs.existsSync(path.join(ownRunDir, 'report.json'))) { try { fs.rmSync(ownRunDir, { recursive: true, force: true }); } catch {} }
     runCleanup().finally(() => process.exit(130));
   };
   process.on('SIGINT', onSig); process.on('SIGTERM', onSig); process.on('SIGHUP', onSig);
@@ -298,7 +300,7 @@ async function main() {
     const runDir = path.join(outRoot, `${stamp}-${label}`);
     const shotsDir = path.join(runDir, 'shots');
     fs.mkdirSync(shotsDir, { recursive: true });
-    fs.writeFileSync(path.join(runDir, '.hc-run'), '');
+    fs.writeFileSync(path.join(runDir, '.hc-run'), ''); ownRunDir = runDir;
     const launch = () => pw.chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage'], handleSIGINT: false, handleSIGTERM: false, handleSIGHUP: false });
     const H = { browser: await launch(), ctx: null, reviving: null, crashes: 0 };
     cleanup.unshift(() => H.browser.close());
@@ -377,17 +379,16 @@ async function main() {
       contrastCoverage: { ...contrastAll, pct: contrastAll.checked + contrastAll.unknown ? round(contrastAll.checked / (contrastAll.checked + contrastAll.unknown), 3) : null },
     };
     rep.summary = { pages: rows.length, pass: rows.filter((r) => r.status === 'PASS').length, warn: rows.filter((r) => r.status === 'WARN').length, fail: rows.filter((r) => r.status === 'FAIL').length, skip: rows.filter((r) => r.status === 'SKIP').length };
+    rep.cardsFile = a.cardsFile ? path.basename(a.cardsFile) : null;
+    rep.scope = runScope({ ...rep, scope: { subflows: !!(a.subflows && !a.only && !a.cardsFile) } });
     let prevFile = a.compare;
     if (a.compare === 'auto') {
-      // 同 label、同寬度組合、同樣是完整跑（或同一組 --only）才當基線
-      const sameScope = (j) => JSON.stringify(j.widths) === JSON.stringify(a.widths) && JSON.stringify(j.only || null) === JSON.stringify(a.only || null);
-      const prev = fs.readdirSync(outRoot).filter((d) => d.endsWith(`-${label}`) && path.join(outRoot, d) !== runDir && fs.existsSync(path.join(outRoot, d, 'report.json'))).sort().reverse()
-        .find((d) => { try { return sameScope(JSON.parse(fs.readFileSync(path.join(outRoot, d, 'report.json'), 'utf8'))); } catch { return false; } });
-      prevFile = prev ? path.join(outRoot, prev, 'report.json') : null;
-      if (!prev) warnings.push('找不到同範圍的上次報告，未比較');
+      // 只拿同範圍（目標＋站名＋頁面範圍＋寬度＋唯讀）的上一份
+      prevFile = findBaseline(outRoot, rep, { current: runDir });
+      if (!prevFile) warnings.push('找不到同範圍的上次報告，未比較');
     }
     if (prevFile && fs.existsSync(prevFile)) rep.compare = { against: prevFile, ...compareRuns(JSON.parse(fs.readFileSync(prevFile, 'utf8')), rep) };
-    const removed = pruneOwnRuns(outRoot, a.keep, { current: runDir });
+    const removed = pruneOwnRuns(outRoot, a.keep, { current: runDir, currentRep: rep });
     rep.disk = { outRoot, freeGbAfter: diskGuard(outRoot, 0).freeGb, prunedOwnRuns: removed };
     fs.writeFileSync(path.join(runDir, 'report.json'), JSON.stringify(rep, null, 2));
     fs.writeFileSync(path.join(runDir, 'report.md'), renderMarkdown(rep));

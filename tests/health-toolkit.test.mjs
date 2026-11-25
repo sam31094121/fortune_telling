@@ -8,7 +8,7 @@ import http from 'node:http';
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { parseColor, blendOver, contrastRatio, isLargeText, gradientStops, contrastRange, clsFromEntries, michelin, coverage, overallStatus, acquireLock, releaseLock, lockVerdict, procStartToken, lockPath, pruneOwnRuns, compareRuns, renderMarkdown, diskGuard, pickPort, startServer, findNextConflicts, listProcesses, GROUP_META } from '../scripts/health/lib.mjs';
+import { parseColor, blendOver, contrastRatio, isLargeText, gradientStops, contrastRange, clsFromEntries, michelin, coverage, overallStatus, acquireLock, releaseLock, lockVerdict, procStartToken, lockPath, pruneOwnRuns, findBaseline, scopeKey, isFullScope, compareRuns, renderMarkdown, diskGuard, pickPort, startServer, findNextConflicts, listProcesses, GROUP_META } from '../scripts/health/lib.mjs';
 import { judge, judgeEarlySwipe, filterBlockedConsole, DOM_KEYS } from '../scripts/health/judge.mjs';
 import { CARDS, THRESHOLDS, MICHELIN_TARGETS, VIEWPORTS, LOCAL_ENV_GAP_APIS } from '../scripts/health/config.mjs';
 import { metricsScript, INIT_SCRIPT } from '../scripts/health/probe.mjs';
@@ -203,14 +203,47 @@ await t('#9 concurrent reclaim of a stale lock → exactly one winner', async ()
 });
 
 // ---------- 輸出保留、比較、報告 ----------
+await t('#M9 範圍分組保留＋完整基準不被試跑擠掉＋compare auto 只拿同範圍', () => {
+  const root = path.join(tmp, 'scoped');
+  const mk = (name, rep) => { const d = path.join(root, name); fs.mkdirSync(d, { recursive: true }); fs.writeFileSync(path.join(d, '.hc-run'), ''); if (rep) fs.writeFileSync(path.join(d, 'report.json'), JSON.stringify({ target: 'remote', label: 'site', readOnly: true, widths: [360, 390, 1280], only: null, rows: [], ...rep })); return d; };
+  const FULL = {}, ONE = { only: ['home'], widths: [390] };
+  mk('20261125T010000-site', FULL);
+  for (let i = 1; i <= 6; i++) mk(`20261125T02000${i}-site`, ONE);
+  mk('20261125T030000-site', null); // 中斷留下的空殼
+  mk('20261125T040000-site', { ...FULL, target: 'local-start' }); // 不同目標
+  mk('20261125T050000-site', { widths: [1280, 390, 360] }); // 寬度順序不同仍是完整範圍、同一組
+  const cur = mk('20261125T060000-site', null);
+  const removed = pruneOwnRuns(root, 3, { current: cur, emptyGraceMs: 0 });
+  assert.deepEqual(removed.sort(), ['20261125T020001-site', '20261125T020002-site', '20261125T020003-site', '20261125T030000-site'].sort());
+  const left = fs.readdirSync(root).sort();
+  assert.ok(left.includes('20261125T010000-site') && left.includes('20261125T050000-site'), '完整範圍 2 份 ≤ keep，都留著');
+  // keep=1：完整範圍只留最新一份；只量一頁的組也只留 1 份；最新完整那份永不刪
+  const r2 = pruneOwnRuns(root, 1, { current: cur });
+  assert.ok(r2.includes('20261125T010000-site') && !r2.includes('20261125T050000-site'));
+  assert.ok(fs.existsSync(path.join(root, '20261125T050000-site')) && fs.existsSync(path.join(root, '20261125T040000-site')));
+  assert.deepEqual(fs.readdirSync(root).filter((n) => n.startsWith('20261125T02')), ['20261125T020006-site']);
+  // 舊報告沒有 label → 由資料夾名補；完整範圍的判定
+  assert.equal(isFullScope({ widths: [390, 360, 1280], only: null }), true); assert.equal(isFullScope({ widths: [390], only: null }), false); assert.equal(isFullScope({ widths: [360, 390, 1280], only: ['home'] }), false);
+  assert.notEqual(scopeKey({ target: 'remote', label: 'site', widths: [390], only: ['home'] }), scopeKey({ target: 'remote', label: 'site', widths: [390], only: ['tarot'] }));
+  // compare auto：完整跑對完整跑，不會拿到一頁的試跑
+  assert.equal(findBaseline(root, { target: 'remote', label: 'site', readOnly: true, widths: [360, 390, 1280] }, { current: cur }), path.join(root, '20261125T050000-site', 'report.json'));
+  assert.equal(findBaseline(root, { target: 'remote', label: 'site', readOnly: true, widths: [390], only: ['home'] }), path.join(root, '20261125T020006-site', 'report.json'));
+  assert.equal(findBaseline(root, { target: 'remote', label: 'site', readOnly: true, widths: [390], only: ['tarot'] }), null);
+  assert.equal(findBaseline(root, { target: 'remote', label: 'other', readOnly: true, widths: [360, 390, 1280] }), null);
+  // 這次本身是完整跑：它算該組的一份；keep=1 時上一份完整可清（最新完整就是這次）；只量一頁的試跑當 current 時完整那份仍不動
+  const asOne = pruneOwnRuns(root, 1, { current: cur, currentRep: { target: 'remote', label: 'site', readOnly: true, widths: [390], only: ['home'] } });
+  assert.ok(asOne.includes('20261125T020006-site') && fs.existsSync(path.join(root, '20261125T050000-site')));
+  const asFull = pruneOwnRuns(root, 1, { current: cur, currentRep: { target: 'remote', label: 'site', readOnly: true, widths: [360, 390, 1280] } });
+  assert.deepEqual(asFull, ['20261125T050000-site']);
+});
 await t('prune / compare / markdown', () => {
   const root = path.join(tmp, 'runs');
   for (const d of ['a1', 'a2', 'a3']) { fs.mkdirSync(path.join(root, d), { recursive: true }); fs.writeFileSync(path.join(root, d, '.hc-run'), ''); }
   fs.mkdirSync(path.join(root, 'a0-other'));
-  assert.deepEqual(pruneOwnRuns(root, 2), ['a1']);
-  assert.ok(fs.existsSync(path.join(root, 'a0-other')));
-  assert.deepEqual(pruneOwnRuns(root, 0, { current: path.join(root, 'a3') }), ['a2'], 'keep 下限 1，目前這次不刪');
-  assert.ok(fs.existsSync(path.join(root, 'a3')));
+  // a1..a3 沒有 report.json：視為中斷留下的空殼，過了寬限期就清；寬限期內不動；不是自己的（沒有 .hc-run）永遠不動
+  assert.deepEqual(pruneOwnRuns(root, 2, { emptyGraceMs: 60000 }), [], '剛建立的空資料夾在寬限期內不清');
+  assert.deepEqual(pruneOwnRuns(root, 2, { current: path.join(root, 'a3'), emptyGraceMs: 0 }), ['a1', 'a2']);
+  assert.ok(fs.existsSync(path.join(root, 'a0-other'))); assert.ok(fs.existsSync(path.join(root, 'a3')));
   assert.equal(typeof diskGuard(tmp, 0).freeGb, 'number');
   const prev = { tool: 'mingli-health-v1', rows: [{ id: 'tarot', width: 390, checks: { cls: { status: 'PASS' }, tap: { status: 'FAIL' }, contrast: { status: 'SKIP' }, lcp: { status: 'PASS' } } }] };
   const cur = { tool: 'mingli-health-v2', rows: [{ id: 'tarot', width: 390, checks: { cls: { status: 'FAIL' }, tap: { status: 'PASS' }, contrast: { status: 'FAIL' }, lcp: { status: 'SKIP' }, images: { status: 'PASS' } } }, { id: 'new', width: 390, checks: {} }] };
@@ -312,6 +345,16 @@ if (findPlaywright()) {
       // #2 分數不完整、涵蓋率有列
       assert.equal(rep.michelin.stability.complete, false); assert.ok(rep.coverage.pct < 1 && rep.coverage.pct > 0.5);
       assert.ok(rep.blockedWrites.length >= 2);
+      // #M9 端到端：同一輸出資料夾跑兩次「只量一頁」＋--keep 1，完整那份不能被擠掉；compare auto 只比同範圍
+      const only = ['--base', f.base, '--cards', cf, '--only', 'ok', '--widths', '390', '--settle-ms', '300', '--no-early-swipe', '--shots', 'none', '--out', out, '--keep', '1', '--compare', 'auto'];
+      const o1 = await runTool(only); assert.equal(o1.code, 0, o1.out); assert.match(o1.out, /找不到同範圍的上次報告/);
+      const o2 = await runTool(only); assert.equal(o2.code, 0, o2.out);
+      assert.ok(fs.existsSync(path.join(out, dir, 'report.json')), '只量一頁的試跑不可清掉不同範圍的報告');
+      const onlyDirs = fs.readdirSync(out).filter((d) => d !== dir && fs.existsSync(path.join(out, d, 'report.json'))).sort();
+      assert.equal(onlyDirs.length, 1, '同範圍 --keep 1 只留最新一份：' + onlyDirs.join(','));
+      const rep2 = JSON.parse(fs.readFileSync(path.join(out, onlyDirs[0], 'report.json'), 'utf8'));
+      assert.ok(rep2.compare && !rep2.compare.against.includes(dir), 'compare auto 不可拿不同範圍當基線');
+      assert.deepEqual(rep2.scope.pages, 'only:ok');
       e2e = `ok（${rep.rows.length} 頁，${rep.elapsedSec}s）`;
     } finally { await f.close(); }
   });
@@ -334,7 +377,8 @@ if (findPlaywright() && process.platform !== 'win32') {
       const r = await Promise.race([exited, new Promise((res) => setTimeout(() => res({ code: 'timeout' }), 10000))]);
       assert.equal(r.code, 130, out); assert.equal(fs.existsSync(lockFile), false, '中斷後鎖必須被清掉');
       const runs = fs.existsSync(path.join(tmp, 'sig-out')) ? fs.readdirSync(path.join(tmp, 'sig-out'), { recursive: true }).filter((x) => /report\.json$/.test(x)) : [];
-      assert.deepEqual(runs, [], '中斷後不可寫出半套報告'); assert.match(out, /收到中斷訊號/);
+      assert.deepEqual(runs, [], '中斷後不可寫出半套報告');
+      assert.deepEqual(fs.existsSync(path.join(tmp, 'sig-out')) ? fs.readdirSync(path.join(tmp, 'sig-out')).filter((n) => /^\d{8}T/.test(n)) : [], [], '中斷時自己這次的空資料夾要清掉'); assert.match(out, /收到中斷訊號/);
       sigint = 'ok';
     } finally { await f.close(); }
   });

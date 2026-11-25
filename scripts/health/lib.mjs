@@ -244,16 +244,67 @@ export function diskGuard(dir, minGb) {
   return { ok: free >= minGb, freeGb: free, minGb, dir };
 }
 
-// 只清自己的輸出：資料夾內必須有 .hc-run 標記才會被刪。至少留 1 份（目前這次永遠不刪）。
-export function pruneOwnRuns(root, keep, { current = null } = {}) {
+// ---- 報告保留：依「範圍」分組 ----
+// 範圍＝目標（remote／local-start／local-existing）＋label（站名）＋頁面範圍（all／--only／--cards）＋寬度＋唯讀與否。
+// 只量一頁／部分寬度的試跑和完整跑是不同組，互不擠掉；--compare auto 也只拿同一組。
+export const DEFAULT_WIDTHS = [360, 390, 1280];
+export function runScope(rep) {
+  const pages = rep.scope?.pages ?? (rep.only?.length ? 'only:' + [...rep.only].sort().join(',') : rep.cardsFile ? 'cards:' + rep.cardsFile : 'all');
+  const widths = [...(rep.widths || [])].map(Number).sort((a, b) => a - b);
+  return { target: rep.target || '?', label: rep.label || null, pages, widths, readOnly: rep.readOnly !== false, subflows: rep.scope?.subflows ?? null };
+}
+export function scopeKey(rep) { const s = runScope(rep); return JSON.stringify([s.target, s.label, s.pages, s.widths, s.readOnly]); }
+export function isFullScope(rep, defaultWidths = DEFAULT_WIDTHS) {
+  const s = runScope(rep);
+  return s.pages === 'all' && JSON.stringify(s.widths) === JSON.stringify([...defaultWidths].sort((a, b) => a - b));
+}
+const readReport = (dir) => { try { return JSON.parse(fs.readFileSync(path.join(dir, 'report.json'), 'utf8')); } catch { return null; } };
+// 舊報告（v2 之前）沒有 label 欄位：由資料夾名 <stamp>-<label> 補上
+const withLabel = (rep, name) => (rep.label ? rep : { ...rep, label: name.replace(/^\d{8}T\d{6}-/, '') });
+
+// 只清自己的輸出（資料夾內有 .hc-run 標記）：
+//  1. 沒有 report.json 的（中斷／失敗留下的空資料夾），超過 emptyGraceMs 就清；
+//  2. 其餘依範圍分組，每組留最新 keep 份；
+//  3. 完整範圍（全部頁面＋預設三個寬度）每個目標＋label 最新一份永不自動刪；目前這次永不刪。
+export function pruneOwnRuns(root, keep, { current = null, currentRep = null, emptyGraceMs = 120000, now = Date.now() } = {}) {
   if (!fs.existsSync(root)) return [];
   keep = Math.max(1, Number.isFinite(keep) ? keep : 5);
-  const dirs = fs.readdirSync(root, { withFileTypes: true })
+  const runs = fs.readdirSync(root, { withFileTypes: true })
     .filter((d) => d.isDirectory() && fs.existsSync(path.join(root, d.name, '.hc-run')))
-    .map((d) => d.name).sort();
-  const removed = dirs.slice(0, Math.max(0, dirs.length - keep)).filter((d) => !current || path.join(root, d) !== current);
-  for (const d of removed) fs.rmSync(path.join(root, d), { recursive: true, force: true });
+    .map((d) => d.name).sort()
+    .map((name) => { const dir = path.join(root, name); const rep = readReport(dir); return { name, dir, rep: rep && withLabel(rep, name) }; })
+    .filter((r) => !current || path.resolve(r.dir) !== path.resolve(current));
+  const removed = [];
+  const rm = (r) => { fs.rmSync(r.dir, { recursive: true, force: true }); removed.push(r.name); };
+  for (const r of runs.filter((x) => !x.rep)) {
+    let age = Infinity; try { age = now - fs.statSync(r.dir).mtimeMs; } catch {}
+    if (age >= emptyGraceMs) rm(r);
+  }
+  const groups = new Map();
+  for (const r of runs.filter((x) => x.rep)) { const k = scopeKey(r.rep); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(r); }
+  const protectedFull = new Set();
+  const fullBySite = new Map();
+  for (const r of runs.filter((x) => x.rep && isFullScope(x.rep))) fullBySite.set(`${r.rep.target}|${r.rep.label}`, r.name); // 名稱已排序 → 最後寫入的是最新
+  for (const n of fullBySite.values()) protectedFull.add(n);
+  // 目前這次（還沒寫 report.json）也算它那一組的一份
+  const curKey = currentRep ? scopeKey(currentRep) : null;
+  if (currentRep && isFullScope(currentRep)) { const k = `${currentRep.target}|${currentRep.label}`; const n = fullBySite.get(k); if (n) protectedFull.delete(n); }
+  for (const [k, list] of groups) { const allow = k === curKey ? keep - 1 : keep; for (const r of list.slice(0, Math.max(0, list.length - allow))) if (!protectedFull.has(r.name)) rm(r); }
   return removed;
+}
+
+// --compare auto：同範圍、最新、有 report.json 的上一份
+export function findBaseline(root, rep, { current = null } = {}) {
+  if (!fs.existsSync(root)) return null;
+  const k = scopeKey(rep);
+  const names = fs.readdirSync(root, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort().reverse();
+  for (const name of names) {
+    const dir = path.join(root, name);
+    if (current && path.resolve(dir) === path.resolve(current)) continue;
+    const prev = readReport(dir);
+    if (prev && scopeKey(withLabel(prev, name)) === k) return path.join(dir, 'report.json');
+  }
+  return null;
 }
 
 export async function pickPort(from = 3400, to = 3499, reserved = []) {

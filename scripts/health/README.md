@@ -52,7 +52,7 @@
 - **建置衝突**：`--serve` 前列出行程；有別的 `next build` 在跑就拒建，同 repo 有 `next start/dev` 正在用 .next 也拒建（`--wait-for-builds <分鐘>` 可等它結束）；只是重用 .next 時，同 repo 正在建置也會擋。
 - **一次建置**：`--serve` 先看 `.next/HC_BUILD_SHA` 是否等於 HEAD 且工作區乾淨（除了 reports／docs／logs／tests 與 .md 之外的改動都算，含 features、cards、data、public），是就重用；髒工作區建出來的不寫標記。可設 `HC_BUILD_CACHE_DIR` 共用 Next 的編譯快取。
 - **伺服器身分**：開在 3400–3499 的空埠（跳過 3010、3092、3227、8888、9333）。選埠到綁定之間若被別人搶走，自己的 next start 會結束——工具會看到「自己的行程已結束」並報錯，而且要求 `/_next/static/<BUILD_ID>/_buildManifest.js` 回 200 才算是自己的伺服器。next start 的輸出最後 20 行寫進 report.json；量測途中伺服器結束會在報告標「不可信」。結束即關，不會重啟別人的服務。
-- **只清自己的輸出**：輸出預設在系統暫存 `mingli-health-runs/`（不在 repo 裡，避免被自動提交掃進去），只刪帶 `.hc-run` 標記的舊結果，保留最近 5 次（下限 1，目前這次永遠不刪）。找不到 playwright、參數錯誤時不會留下空資料夾。
+- **只清自己的輸出、依範圍保留**：輸出預設在系統暫存 `mingli-health-runs/`（不在 repo 裡，避免被自動提交掃進去），只刪帶 `.hc-run` 標記的舊結果。保留依「範圍」分組＝目標（remote／local-start／local-existing）＋站名 label＋頁面範圍（全部／`--only`／`--cards`）＋寬度＋唯讀與否，每組各留 `--keep` 份（含這次，下限 1）；只量一頁或部分寬度的試跑不會擠掉完整跑。完整範圍（全部頁面＋360/390/1280）每個目標＋站名最新一份永不自動刪。沒有 report.json 的資料夾（中斷、失敗留下的）超過 2 分鐘就清；Ctrl+C 中斷時這次自己的資料夾當場刪掉。`--compare auto` 只拿同範圍的上一份。
 - 只用自己啟動的無頭 Chromium；指到 9333 會直接拒絕。playwright 依 `PLAYWRIGHT_MODULE` → repo → `.tmp/shared-qa` 尋找，不做全域安裝。
 - **部署版本**：正式站會記錄每個請求上的 Vercel `dpl_…`；同一次量測出現兩個版本（部署到一半）會標注意並 exit 1。
 
