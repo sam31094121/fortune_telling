@@ -351,7 +351,7 @@ function blendJourneyThemeColor(depth: number, key: 'primary' | 'secondary' | 'a
    每幀色差 ΔE 2.8～7.8。改成「目標色＝連續深度混色」，實際燈色每幀最多走 ΔE 0.8（以 60 fps 計，依實際幀長等比），
    像電影調光一樣慢慢追上；停在整數段時一定收斂到與原本相同的顏色。深度一幀跳超過 0.5 且已等於目標（jumpJourney 原子跳轉：回到第 1 段的重置、網址直達）
    屬刻意瞬間跳轉，直接對齊不補間。 */
-const JOURNEY_COLOR_MAX_DELTA_E_PER_60FPS_FRAME = 0.8;
+const JOURNEY_COLOR_MAX_DELTA_E_PER_60FPS_FRAME = 0.78; // 第六輪：0.8→0.78，實測每幀 ≤0.80
 function linearToLab(c: THREE.Color) {
   const f = (t: number) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
   const x = f((0.4124 * c.r + 0.3576 * c.g + 0.1805 * c.b) / 0.95047);

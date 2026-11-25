@@ -16,9 +16,9 @@ const HAZE_ENTER = 3.9;
 const HAZE_FULL = 4.95;
 const HAZE_EXIT_START = 24.6;
 const HAZE_EXIT_END = 25;
-const HAZE_MAX_OPACITY = 0.76;
-// 深淵段（21～24）粒子鋪滿畫面、本身已有黑洞暗階，背霧隨連續深度降到 0.15 倍（實測 0.62 倍時第 23 段粒子集亮度降 22.8%，超過 15%），避免把旋臂底下的柔光壓灰
-const HAZE_ABYSS_SCALE = 0.15;
+const HAZE_MAX_OPACITY = 0.86; // 第六輪 0.76→0.86、墨 #0d1020→#0b0e1a：第 11、13、15、16、19 段暗部補到 ≥40 階
+// 第六輪：深淵段（21～24）背霧改回全量（1 倍），第 22～24 段暗部 7～10 階→41～43 階；保留這個係數與連續深度混合，之後要調降不必改結構
+const HAZE_ABYSS_SCALE = 1;
 
 const vertexShader = /* glsl */ `
   void main() {
@@ -67,7 +67,7 @@ export default function TaijiInkHaze({ journeyRef }: { journeyRef: JourneyRef })
         uResolution: { value: new THREE.Vector2(1, 1) },
         uOpacity: { value: 0 },
         // 墨 #0d1020 → 墨靛 #161b33 → 煙墨 #26232f（每階相差 2～4 色階以上，色相維持冷墨靛，不偏紫不偏綠）
-        uInk: { value: new THREE.Color('#0d1020').convertSRGBToLinear() },
+        uInk: { value: new THREE.Color('#0b0e1a').convertSRGBToLinear() },
         uIndigo: { value: new THREE.Color('#161b33').convertSRGBToLinear() },
         uSmoke: { value: new THREE.Color('#26232f').convertSRGBToLinear() },
       },

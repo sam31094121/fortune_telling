@@ -107,7 +107,7 @@ function labToLinear(lab: [number, number, number], out: THREE.Color) {
     Math.max(0, 0.0557 * x - 0.204 * y + 1.057 * z),
   );
 }
-export const TAIJI_COLOR_MAX_DELTA_E_PER_60FPS_FRAME = 0.8;
+export const TAIJI_COLOR_MAX_DELTA_E_PER_60FPS_FRAME = 0.78; // 第六輪：0.8→0.78，扣掉 Lab↔線性來回的非線性誤差後實測每幀 ≤0.80
 export function followColorLab(limiter: TaijiRevealLimiter, current: THREE.Color, target: THREE.Color, initialized: boolean) {
   if (limiter.snap || !initialized) {
     current.copy(target);
