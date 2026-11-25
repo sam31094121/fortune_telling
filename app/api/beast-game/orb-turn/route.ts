@@ -11,10 +11,26 @@ import { withReferee } from '@/lib/beast-game/match3/referee';
 export const runtime = 'nodejs';
 // 共同卡庫資料庫在東京（Supabase ap-northeast-1）；函式預設在美東，每次資料庫來回多耗數百毫秒，改放東京。
 export const preferredRegion = 'hnd1';
+// 拒絕原因只回機器代碼（不新增顯示文字），真正原因寫伺服器紀錄；前端據此決定就地還原或重新讀取。
+const rejectAs = (code: string) => Object.assign(new Error('invalid'), { orbCode: code });
+const CODE_BY_MESSAGE: [string, string][] = [
+  ['戰局已更新', 'ORB_VERSION_STALE'], ['上一招已保存', 'ORB_REPLAY_MISMATCH'], ['戰局版本無效', 'ORB_VERSION_INVALID'],
+  ['已過期', 'ORB_TICKET_EXPIRED'], ['憑證無效', 'ORB_TICKET_INVALID'], ['缺少驗證憑據', 'ORB_TICKET_MISSING'],
+  ['戰局已離開', 'ORB_RUN_MISSING'], ['原寶珠戰局暫時無法取得', 'ORB_RUN_MISSING'], ['戰局已結束', 'ORB_ENDED'],
+  ['目標尚未出戰', 'ORB_TARGET_UNAVAILABLE'], ['關卡紀錄不符', 'ORB_LEDGER_MISMATCH'], ['寶器紀錄不完整', 'ORB_BAD_TREASURES'], ['法寶種類紀錄不完整', 'ORB_BAD_TREASURES'],
+  ['共同卡庫暫時無法讀取', 'ORB_STORE_UNAVAILABLE'], ['卡庫保存尚未確認', 'ORB_STORE_UNAVAILABLE'],
+];
+function orbTurnErrorCode(error: unknown): string {
+  const coded = (error as { orbCode?: unknown } | null)?.orbCode;
+  if (typeof coded === 'string') return coded;
+  if (error instanceof SyntaxError) return 'ORB_BAD_JSON';
+  const message = error instanceof Error ? error.message : '';
+  return CODE_BY_MESSAGE.find(([text]) => message.includes(text))?.[1] ?? 'ORB_TURN_FAILED';
+}
 export async function POST(request: Request) {
   try {
     const raw = await request.text();
-    if (raw.length > 120000) return NextResponse.json({ error: '戰鬥資料過大，請重試。' }, { status: 413 });
+    if (raw.length > 120000) { console.error('[orb-turn] rejected', 'ORB_TOO_LARGE', raw.length); return NextResponse.json({ error: '戰鬥資料過大，請重試。', code: 'ORB_TOO_LARGE' }, { status: 413 }); }
     // 裁判：前端先演、後端判決。claim 只決定「預演動畫留不留」，傷害、獎勵、掉珠永遠只看後端結算。
     const claim = (() => { try { return (JSON.parse(raw) as { claim?: unknown }).claim; } catch { return undefined; } })();
     let p = JSON.parse(raw) as TurnInput & {sharedBattleToken?:string;sharedVersion?:number;guestBattleToken?:string};
@@ -24,52 +40,54 @@ export async function POST(request: Request) {
     const owner=cultivationOwner(request);
     const shared=owner&&!guest?await verifySharedOrb(owner,p.sharedBattleToken):null;
     if(p.mode==='hard45'&&!shared&&!guest)throw new Error('親友戰局缺少驗證憑據');
-    if(shared){if(p.wins!==shared.wins||JSON.stringify(p.team?.map(c=>c.id))!==JSON.stringify(shared.teamIds))throw new Error('invalid');p.team=p.team.map(c=>({...c,attack:shared.attacks[c.id],attackExact:shared.exactAttacks?.[c.id]}));}
+    if(shared){if(p.wins!==shared.wins||JSON.stringify(p.team?.map(c=>c.id))!==JSON.stringify(shared.teamIds))throw rejectAs('ORB_TICKET_MISMATCH');p.team=p.team.map(c=>({...c,attack:shared.attacks[c.id],attackExact:shared.exactAttacks?.[c.id]}));}
     else if(!guest&&Array.isArray(p.team))p.team=p.team.map(({attackExact,...c})=>c);
     if(Array.isArray(p.foes))p.foes=p.foes.map(f=>{const c={...f} as typeof f & {attackExact?:string};delete c.attackExact;return c;});
     const integer = (v: unknown, min: number, max: number) => typeof v === 'number' && Number.isInteger(v) && v >= min && v <= max;
-    if (!['medium','hard45','hard45b'].includes(p.mode) || !integer(p.seed,0,4294967295) || !integer(p.move,0,1000000) || !integer(p.wins,0,1000000) || !integer(p.target,0,4) || ![1,1.5].includes(p.attackBoost)) throw new Error('invalid');
+    if (!['medium','hard45','hard45b'].includes(p.mode) || !integer(p.seed,0,4294967295) || !integer(p.move,0,1000000) || !integer(p.wins,0,1000000) || !integer(p.target,0,4) || ![1,1.5].includes(p.attackBoost)) throw rejectAs('ORB_BAD_FIELDS');
     const rows = p.mode === 'medium' ? 5 : 8;
-    if (!Array.isArray(p.board) || p.board.length !== rows || p.board.some(r => !Array.isArray(r) || r.length !== 7 || r.some(e => !isBeastElement(e)))) throw new Error('invalid');
-    if (!Array.isArray(p.magic) || p.magic.length !== rows || p.magic.some(r => !Array.isArray(r) || r.length !== 7 || r.some(n => !integer(n,0,1000000)))) throw new Error('invalid');
-    if (!Array.isArray(p.path) || p.path.length > 56 || p.path.some(c => !c || !integer(c.r,0,rows-1) || !integer(c.c,0,6))) throw new Error('invalid');
+    if (!Array.isArray(p.board) || p.board.length !== rows || p.board.some(r => !Array.isArray(r) || r.length !== 7 || r.some(e => !isBeastElement(e)))) throw rejectAs('ORB_BAD_BOARD');
+    if (!Array.isArray(p.magic) || p.magic.length !== rows || p.magic.some(r => !Array.isArray(r) || r.length !== 7 || r.some(n => !integer(n,0,1000000)))) throw rejectAs('ORB_BAD_MAGIC');
+    if (!Array.isArray(p.path) || p.path.length > 56 || p.path.some(c => !c || !integer(c.r,0,rows-1) || !integer(c.c,0,6))) throw rejectAs('ORB_BAD_PATH');
     for (const side of [p.team,p.foes]) {
-      if (!Array.isArray(side) || (side === p.team && p.mode === 'hard45' ? side.length < 1 || side.length > 5 : side.length !== 5) || new Set(side.map(f => f.id)).size !== side.length) throw new Error('invalid');
-      for (const f of side) if (!getCard(f.id) || getCard(f.id)!.element !== f.element || !integer(f.maxHp,1,10000000) || !integer(f.hp,0,f.maxHp) || !Number.isSafeInteger(f.attack) || !integer(f.attack,0,side===p.team&&shared?Number.MAX_SAFE_INTEGER:10000000)) throw new Error('invalid');
+      if (!Array.isArray(side) || (side === p.team && p.mode === 'hard45' ? side.length < 1 || side.length > 5 : side.length !== 5) || new Set(side.map(f => f.id)).size !== side.length) throw rejectAs('ORB_BAD_UNITS');
+      for (const f of side) if (!getCard(f.id) || getCard(f.id)!.element !== f.element || !integer(f.maxHp,1,10000000) || !integer(f.hp,0,f.maxHp) || !Number.isSafeInteger(f.attack) || !integer(f.attack,0,side===p.team&&shared?Number.MAX_SAFE_INTEGER:10000000)) throw rejectAs('ORB_BAD_UNITS');
     }
-    if (p.team.some(f => !integer(f.energy,0,100)) || p.foes.some(f => !integer(f.cd,0,1000)) || !['tap-lead','first-attacks','all-attack'].includes(p.rule) || !p.chosen || typeof p.chosen !== 'object' || Array.isArray(p.chosen)) throw new Error('invalid');
-    if (p.foes.some(f => f.attackEnergy !== undefined && ![0,25,50,75,100].includes(f.attackEnergy) || f.lastChargeTurn !== undefined && (typeof f.lastChargeTurn !== 'string' || f.lastChargeTurn.length > 80))) throw new Error('invalid');
-    if (Object.entries(p.chosen).some(([element,id]) => !isBeastElement(element) || typeof id !== 'string' || !p.team.some(f => f.id === id && f.element === element))) throw new Error('invalid');
+    if (p.team.some(f => !integer(f.energy,0,100)) || p.foes.some(f => !integer(f.cd,0,1000)) || !['tap-lead','first-attacks','all-attack'].includes(p.rule) || !p.chosen || typeof p.chosen !== 'object' || Array.isArray(p.chosen)) throw rejectAs('ORB_BAD_STATE');
+    if (p.foes.some(f => f.attackEnergy !== undefined && ![0,25,50,75,100].includes(f.attackEnergy) || f.lastChargeTurn !== undefined && (typeof f.lastChargeTurn !== 'string' || f.lastChargeTurn.length > 80))) throw rejectAs('ORB_BAD_STATE');
+    if (Object.entries(p.chosen).some(([element,id]) => !isBeastElement(element) || typeof id !== 'string' || !p.team.some(f => f.id === id && f.element === element))) throw rejectAs('ORB_BAD_STATE');
     if (p.treasures !== undefined) validateTreasureBook(p.treasures);
-    if (p.actionId !== undefined && (typeof p.actionId !== 'string' || !p.actionId.length || p.actionId.length > 100)) throw new Error('invalid');
-    if (p.treasureGuard !== undefined && ![1,0.5].includes(p.treasureGuard)) throw new Error('invalid');
+    if (p.actionId !== undefined && (typeof p.actionId !== 'string' || !p.actionId.length || p.actionId.length > 100)) throw rejectAs('ORB_BAD_FIELDS');
+    if (p.treasureGuard !== undefined && ![1,0.5].includes(p.treasureGuard)) throw rejectAs('ORB_BAD_FIELDS');
     if(guest){
-      if(p.action!==undefined&&!['treasure','energy','link'].includes(p.action))throw new Error('invalid');
-      if(p.action&&p.path.length)throw new Error('invalid');
-      if(p.action==='treasure'&&!isBeastElement(p.treasureElement))throw new Error('invalid');
+      if(p.action!==undefined&&!['treasure','energy','link'].includes(p.action))throw rejectAs('ORB_BAD_ACTION');
+      if(p.action&&p.path.length)throw rejectAs('ORB_BAD_ACTION');
+      if(p.action==='treasure'&&!isBeastElement(p.treasureElement))throw rejectAs('ORB_BAD_ACTION');
       return NextResponse.json(withReferee(resolveGuestOrb(guest,p),claim),{headers:{'Cache-Control':'no-store'}});
     }
     if(shared){
-      if(p.action!==undefined&&!['treasure','energy','link'].includes(p.action))throw new Error('invalid');
-      if(p.action==='treasure'&&!isBeastElement(p.treasureElement))throw new Error('invalid');
-      if(p.action&&p.path.length)throw new Error('invalid');
+      if(p.action!==undefined&&!['treasure','energy','link'].includes(p.action))throw rejectAs('ORB_BAD_ACTION');
+      if(p.action==='treasure'&&!isBeastElement(p.treasureElement))throw rejectAs('ORB_BAD_ACTION');
+      if(p.action&&p.path.length)throw rejectAs('ORB_BAD_ACTION');
       return NextResponse.json(withReferee(await resolveSharedOrbTurn(shared,p,p.sharedVersion!),claim),{headers:{'Cache-Control':'no-store'}});
     }
     if (p.action === 'treasure') {
-      if (!isBeastElement(p.treasureElement) || (p.treasureVariant !== undefined && !integer(p.treasureVariant,0,4))) throw new Error('invalid');
+      if (!isBeastElement(p.treasureElement) || (p.treasureVariant !== undefined && !integer(p.treasureVariant,0,4))) throw rejectAs('ORB_BAD_ACTION');
       const result=resolveTreasureUse(p, p.treasureElement, p.treasureVariant ?? 0);
       return NextResponse.json(result, { headers: { 'Cache-Control': 'no-store' } });
     }
     // 能量技／連結攻擊：伺服端算傷害並回權威敵方 HP（擊倒由前端 deriveServerKnockouts 讀取，不在前端判定）。
     if (p.action === 'energy' || p.action === 'link') {
-      if (p.path.length !== 0) throw new Error('invalid');
+      if (p.path.length !== 0) throw rejectAs('ORB_BAD_ACTION');
       const result=resolveCardAttackTurn(p);
       return NextResponse.json(result, { headers: { 'Cache-Control': 'no-store' } });
     }
-    if (p.action !== undefined) throw new Error('invalid');
+    if (p.action !== undefined) throw rejectAs('ORB_BAD_ACTION');
     const result=withReferee(resolveOrbTurn(p),claim);
     return NextResponse.json(result, { headers: { 'Cache-Control': 'no-store' } });
-  } catch {
-    return NextResponse.json({ error: '暫時無法完成本回合，請重試；尚未套用結果。' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
+  } catch (error) {
+    const code = orbTurnErrorCode(error);
+    console.error('[orb-turn] rejected', code, error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: '暫時無法完成本回合，請重試；尚未套用結果。', code }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
   }
 }
