@@ -9,6 +9,11 @@ export interface DragPoint { x: number; y: number }
  *  它是格子的內切圓，半徑 = 0.5 倍格寬。指標進到這個圓就算選中，圓外（格角與格間空隙）都是空的。
  *  所有珠子共用同一個圓；測試會核對 CSS 的圓與這個數字一致。 */
 const ENTER_RADIUS = 0.5;
+/** 起手容錯（2026-11-26 健康檢查）：手指按在兩顆珠之間的空隙或盤面內距（寶石捷連線 390 寬各 2px）時，以前整筆拖曳都不算
+ *  （正式站實測按在空隙起手 4/4 被吃掉）。現在先記下 SNAP_PX 以內的候選格，不猜；等手指第一次真的進到某顆珠的碰撞圓，
+ *  若那顆就是候選格就從它起手，否則從「能接到那顆的同色候選格」起手，都不合才從那顆起手。只按不動仍然什麼都不做（不會誤送一顆）。
+ *  拖曳途中照舊用上面的碰撞圓，不放寬連線判定。 */
+const SNAP_PX = 8;
 
 /** 拖曳路徑的外部儲存：進出格子只通知「真的用到路徑」的小元件，不讓整個戰鬥畫面（敵我卡、寶器、說明）跟著重新渲染。
  *  手機 CPU 弱，整頁重渲染一次就卡一下，手指跟不上；電腦夠快看不出來。 */
@@ -74,25 +79,49 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
     return { cell: { r: hit.r, c: hit.c }, pt: { x: cx, y: cy } };
   }, [measureCells]);
 
+  /** 邊框距離 SNAP_PX 以內的格子（近到遠）；只在起手按到空隙時用。 */
+  const nearCells = (x: number, y: number): Cell[] => {
+    const g = geometry.current ?? measureCells(); if (!g) return [];
+    const lx = x - g.hostLeft, ly = y - g.hostTop;
+    return g.cells.map(q => ({ q, d: Math.hypot(Math.max(q.x - lx, 0, lx - (q.x + q.w)), Math.max(q.y - ly, 0, ly - (q.y + q.h))) }))
+      .filter(v => v.d <= SNAP_PX).sort((a, b) => a.d - b.d).map(v => ({ r: v.q.r, c: v.q.c }));
+  };
+  const gapStart = useRef<Cell[] | null>(null);
+  const centerOf = (cell: Cell): DragPoint | null => { const q = geometry.current?.cells.find(x => x.r === cell.r && x.c === cell.c); return q ? { x: q.x + q.w / 2, y: q.y + q.h / 2 } : null; };
   const commit = (next: Cell[], pts: DragPoint[]) => { pathRef.current = next; store.set(next, pts); if (reactive) { setPath(next); setPoints(pts); } };
   const ptsRef = useRef<DragPoint[]>([]);
 
   const onPointerDown = (e: RPointerEvent<HTMLDivElement>) => {
     if (!enabled || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    gapStart.current = null;
     measureCells();
-    const hit = cellAt(e.clientX, e.clientY, false); if (!hit) return;
+    const hit = cellAt(e.clientX, e.clientY, false);
+    if (!hit) {
+      const near = nearCells(e.clientX, e.clientY); if (!near.length) return;
+      e.preventDefault(); gapStart.current = near;
+      try { ref.current?.setPointerCapture(e.pointerId); } catch { /* 部分瀏覽器不支援 */ }
+      return;
+    }
     e.preventDefault();
     try { ref.current?.setPointerCapture(e.pointerId); } catch { /* 部分瀏覽器不支援 */ }
     ptsRef.current = [hit.pt]; commit([hit.cell], ptsRef.current);
   };
   const onPointerMove = (e: Pick<RPointerEvent<HTMLDivElement>, 'clientX' | 'clientY' | 'nativeEvent'>) => {
-    let cur = pathRef.current; if (!cur.length) return;
+    let cur = pathRef.current; if (!cur.length && !gapStart.current) return;
     let pts = ptsRef.current;
     // Busy browsers batch pointer samples. Validate every recorded point, never
     // interpolate missing cells or treat the batch's last point as a jump.
     const samples = e.nativeEvent.getCoalescedEvents?.() ?? [];
     for (const sample of [...samples, e]) {
       const hit = cellAt(sample.clientX, sample.clientY, true); if (!hit) continue;
+      if (!cur.length) {
+        // 空隙起手：第一次進到珠子才決定起點（見 SNAP_PX 說明）。
+        const near = gapStart.current ?? []; gapStart.current = null;
+        const from = near.some(n => n.r === hit.cell.r && n.c === hit.cell.c) ? null : near.find(n => canExtend(board, [n], hit.cell, diagonal, magic, shieldMode));
+        const fromPt = from ? centerOf(from) : null;
+        if (from && fromPt) { cur = [from, hit.cell]; pts = [fromPt, hit.pt]; } else { cur = [hit.cell]; pts = [hit.pt]; }
+        continue;
+      }
       const last = cur[cur.length - 1];
       if (last.r === hit.cell.r && last.c === hit.cell.c) continue;
       const prev = cur[cur.length - 2];
@@ -113,11 +142,12 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
   }, []);
 
   const end = () => {
+    gapStart.current = null;
     releaseGeometry();
     const done = pathRef.current; ptsRef.current = []; commit([], []);
     if (done.length) onRelease(done);
   };
-  const cancel = () => { releaseGeometry(); ptsRef.current = []; commit([], []); };
+  const cancel = () => { gapStart.current = null; releaseGeometry(); ptsRef.current = []; commit([], []); };
 
   return { ref, path, points, store: store as DragStore, handlers: { onPointerDown, onPointerUp: end, onPointerCancel: cancel } };
 }
