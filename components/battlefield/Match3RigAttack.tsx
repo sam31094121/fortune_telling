@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import BeastRigStage, { type BeastRigGeometry } from './BeastRigStage';
 import { rigFor, RIG_CARD_HIDDEN, RIG_IMPACT_MS, RIG_STRIKE_MS, type BeastRig } from '@/lib/beast-game/beast-rig';
+import { ART_RETRY_DELAYS_MS, MAX_ART_RETRIES, artOnError, artOnLoad, artRetry, initialArtState } from '@/lib/beast-game/match3/art-retry';
 
 export interface Match3Strike { key: number; targetId: string; attackerIds: string[]; summon?: { guardianId: string; sourceId: string } | null }
 /** Presentation only: consume recorded HP changes; never decide damage or eligibility. */
@@ -32,19 +33,22 @@ export function useBattleArtUrl(src: string, fallback?: string): string {
 
 export function Match3TargetArt({ src, fallback }: { src: string; fallback?: string }) {
   // Real target pixels are shared with the reversible bite/tear renderer.
-  const [current, setCurrent] = useState(src);
-  const usedFallback = useRef(false);
+  // 原圖與備援都失敗時不留破圖示：標記 data-art-failed（CSS 隱藏、外框顯示屬性色底），連線恢復／回前景／定時重試原圖。
+  const [art, setArt] = useState(() => initialArtState(src));
+  const fallbackRef = useRef(fallback); fallbackRef.current = fallback;
+  useEffect(() => { setArt(initialArtState(src)); }, [src]);
+  const onFail = useCallback(() => setArt(s => artOnError(s, fallbackRef.current)), []);
   useEffect(() => {
-    setCurrent(src);
-    usedFallback.current = false;
-  }, [src]);
-  const applyFallback = () => {
-    if (usedFallback.current) return;
-    usedFallback.current = true;
-    if (fallback && fallback !== src && fallback !== current) setCurrent(fallback);
-  };
+    if (!art.failed || art.retries >= MAX_ART_RETRIES) return;
+    const retry = () => setArt(artRetry);
+    const onVisible = () => { if (document.visibilityState === 'visible') retry(); };
+    const timer = window.setTimeout(retry, ART_RETRY_DELAYS_MS[Math.min(art.retries, ART_RETRY_DELAYS_MS.length - 1)]);
+    window.addEventListener('online', retry);
+    document.addEventListener('visibilitychange', onVisible);
+    return () => { window.clearTimeout(timer); window.removeEventListener('online', retry); document.removeEventListener('visibilitychange', onVisible); };
+  }, [art.failed, art.retries]);
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={current} alt="" draggable={false} decoding="async" onError={applyFallback} ref={(el) => { if (el && el.complete && el.naturalWidth === 0) queueMicrotask(applyFallback); }} />;
+  return <img key={art.attempt} src={art.current} alt="" draggable={false} decoding="async" data-art-failed={art.failed ? 'true' : undefined} onLoad={() => setArt(artOnLoad)} onError={onFail} ref={(el) => { if (el && el.complete && el.naturalWidth === 0 && el.currentSrc) queueMicrotask(onFail); }} />;
 }
 function Strike({ rig, root, strike, tear, onImpact }: { rig: BeastRig; root: RefObject<HTMLElement | null>; strike: Match3Strike | null; tear: boolean; onImpact: (key: number) => void }) {
   const impactCallback = useRef(onImpact); impactCallback.current = onImpact;

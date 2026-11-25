@@ -1622,6 +1622,8 @@ function Match3Game({ onRecover, onTurnAccepted, treasurePractice, init, teamIds
         {rigEnabled && <span className={styles.srOnly} data-testid="match3-round">{stage.label}·{moves + 1}回合</span>}
         {rigEnabled && <button type="button" className={`${styles.helpBtn} ${styles.helpTop}`} aria-expanded={help} onClick={() => setHelp(!help)}>玩法與操作</button>}
       </header>
+      {/* 手機橫向（高度不足）時寶珠會縮到 20px 上下、無法精準連線：只顯示轉向提示，不暫停、不改戰局（CSS 媒體查詢控制顯示）。 */}
+      {cfg.id === 'hard45' && <div className={styles.rotateHint} data-testid="match3-rotate-hint" role="note"><strong>請把手機轉回直向</strong><span>橫向時寶珠太小、不好連線；轉回直向就能繼續，戰局不會中斷。</span></div>}
       {cfg.id === 'hard45' && <div className={styles.turnFeedback} data-testid="match3-turn-feedback">
         <span role="status" aria-live="polite" data-testid="match3-input-status">{over?'本局已結束':awaitingTurn?'連線已送出・正在處理':busy?'戰鬥演出中':dragging?'放手完成連線':ti<0?'等待對手入場':'可以連線'}</span>
         {moves > 0 && <span data-testid="match3-visible-damage">本步傷害 <b>{lastDmg}</b></span>}

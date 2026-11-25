@@ -1266,3 +1266,14 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode="hard45"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] {
  height:calc(100% + var(--board-preview-drop, 0px));
 }
+
+/* 卡圖載入失敗（原圖與備援都失敗）：不留破圖示，改顯示屬性色底；連線恢復後 Match3TargetArt 會自動重試原圖。 */
+.wrap .foeArt img[data-art-failed], .wrap .allyCard img[data-art-failed] { visibility: hidden; }
+.wrap .foeArt:has(> img[data-art-failed]), .wrap .allyCard:has(> img[data-art-failed]) { background: radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--ec, #8d6fd1) 42%, #10151d) 0%, #0c0b10 74%); }
+
+/* 手機橫向（高度 ≤500px、觸控）：寶珠會縮到 20px 上下，改顯示轉向提示（不暫停、不改戰局）。直向與桌機不顯示。 */
+.rotateHint { display: none; }
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .wrap[data-match3-battle-active="true"] .rotateHint { display: flex; position: fixed; inset: 0; z-index: 90; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; text-align: center; background: rgba(8, 10, 16, .95); color: #f6efe0; font-size: 16px; line-height: 1.5; }
+  .wrap[data-match3-battle-active="true"] .rotateHint strong { font-size: 20px; }
+}
