@@ -17,6 +17,8 @@ assert(/\.text-xs\):not\(\[class\*="sm:text-sm"\]/.test(block), ':is(...) 與 :n
 // 已有 sm:/md:/lg: 放大字級的元素不可被壓回 14px
 assert(block.includes('[class*="sm:text-base"]') && block.includes('[class*="lg:text-lg"]'), '有 sm:/lg: 放大字級的元素要排除');
 
+for (const c of ['.choice-signal', '.zodiac-brand-hero__eyebrow', '.tarot-question-entry__field-hint', '.music-landing-eyebrow', '.growth-module-route__helper']) assert(block.includes(c), '電腦版小標籤 ' + c + ' 要補到 14px');
+
 // 2. 金色主按鈕最深的金不能再暗到讓深色字低於 AA
 assert(!/linear-gradient\(135deg, #c9a24a 0%, #f7efd2 50%, #8a6a2f 100%\)/.test(css), '金色按鈕最深色不可回到 #8a6a2f（對比 3.99）');
 assert(css.includes('linear-gradient(135deg, #c9a24a 0%, #f7efd2 50%, #a6803a 100%)'), '金色按鈕最深色 #a6803a');

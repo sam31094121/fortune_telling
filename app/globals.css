@@ -27705,7 +27705,8 @@ body:has(#home-eight-card-route) #home-eight-card-route#home-eight-card-route .h
   .choice-signal,
   .zodiac-brand-hero__eyebrow,
   .tarot-question-entry__label-row span,
-  .tarot-question-entry__field-hint { font-size: max(14px, 0.875rem); }
+  .tarot-question-entry__field-hint,
+  .music-landing-eyebrow { font-size: max(14px, 0.875rem); }
 }
 
 /* 西洋星座頁頂端英文小標：手機 clamp 下限只有 13.6px，補到 14px（所有寬度） */
