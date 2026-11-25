@@ -525,6 +525,8 @@ await t('#8 e2e: --only typo exits 2 without creating a run', async () => {
     assert.equal(lb.checks.visibleError.status, 'FAIL', lb.checks.visibleError.summary);
     assert.ok(lb.checks.cls.value > 0, '錯誤條插在最上面造成的位移要算進 CLS');
     assert.match(x.md, /穩定即止/);
+    // #O7 報告固定列「本工具未涵蓋」
+    assert.match(x.md, /## 本工具未涵蓋[\s\S]*INP/);
   });
   await t('#M17 oklch／color-mix 顏色解析得出來（不再 unknown）、#O1 a11y、#M15 樣本附位置、#M16 桌機門檻試算', async () => {
     const x = await extraRun('m17-out', ['--only', 'colors,a11y,desk-small', '--widths', '390,1280', '--no-early-swipe', '--extras', 'none']);
@@ -532,6 +534,8 @@ await t('#8 e2e: --only typo exits 2 without creating a run', async () => {
     const c = x.row('colors', 390);
     assert.equal(c.checks.contrast.status, 'FAIL', c.checks.contrast.summary); assert.match(c.checks.contrast.samples.join(' '), /深灰字/);
     assert.doesNotMatch(c.checks.contrast.samples.join(' '), /淺字/); assert.match(c.checks.contrast.summary, /另 0 段未判定/);
+    // #O8 祖先 opacity:0 的字不算（checkVisibility）
+    assert.equal(c.checks.font.status, 'PASS', c.checks.font.summary); assert.doesNotMatch(c.checks.contrast.samples.join(' '), /祖先透明/);
     const y = x.row('a11y', 390).checks.a11y;
     assert.equal(y.status, 'FAIL', y.summary); assert.match(y.summary, /沒有名稱的按鈕／連結 1、沒有標籤的欄位 1/); assert.match(y.summary, /缺 alt 的圖 1/);
     assert.ok(y.samples.some((s) => /button/.test(s)), '樣本要附位置／選擇器：' + y.samples.join('|'));

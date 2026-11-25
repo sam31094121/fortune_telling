@@ -63,7 +63,7 @@ setTimeout(()=>fetch('/drop').catch((e)=>console.error('data failed', String(e))
     '/frame': () => '<!doctype html><html lang="zh-TW"><body><script>fetch("/f-post",{method:"POST"}).catch(()=>{})</script></body></html>',
     '/late-banner': () => page('<main><h1>晚到錯誤條</h1><p>1.8 秒後才去拿資料，再 1.5 秒失敗，才在最上面插入錯誤條。</p></main>', {
       script: `setTimeout(()=>fetch('/slow?ms=1500').then(()=>{const b=document.createElement('div');b.textContent='載入失敗，請稍後再試';b.style.cssText='height:80px;background:#fee;color:#900;font-size:16px';document.body.prepend(b);}),1800);` }),
-    '/colors': () => page('<div class="bg"><p class="lo">oklch 深灰字在 color-mix 深底上</p><p class="hi">oklch 淺字在 color-mix 深底上</p></div>', {
+    '/colors': () => page('<div class="bg"><p class="lo">oklch 深灰字在 color-mix 深底上</p><p class="hi">oklch 淺字在 color-mix 深底上</p></div><div style="opacity:0"><p style="font-size:9px;color:#eee">祖先透明的極小淺色字不該被算進字級與對比</p></div>', {
       style: '.bg{background-color:color-mix(in srgb, black 90%, white);padding:8px} .lo{color:oklch(0.3 0 0)} .hi{color:oklch(0.97 0 0)}' }),
     '/a11y': () => page('<h1>無障礙缺漏</h1><button class="icon"><svg width="20" height="20"><circle cx="10" cy="10" r="8"/></svg></button><input id="q" placeholder="搜尋"><img src="/ok.png" width="40" height="40"><label for="name">名字</label><input id="name">', { script: '' }),
     '/i18n-ok': () => page('<h1 id="t">你好</h1><p id="p">這一頁五種語言都正常。</p>', { script: LANG_JS + `if(L==='en'){t.textContent='Hello';p.textContent='All five languages are fine.'}` }),
