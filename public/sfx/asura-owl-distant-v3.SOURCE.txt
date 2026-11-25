@@ -1,0 +1,17 @@
+asura-owl-distant-v3.mp3 — 鬼魅阿修羅「現在」／阿修羅頁背景循環（2026-11-25 用戶指定，取代 asura-wardrum-v2-3min.mp3；v2 檔保留）
+
+本檔即用戶核可的 owl-distant-night-v3-18s.mp3（2026-11-24），原樣使用、未再處理。
+SHA-256: 8733b7f16b285961c745e5a602981dceea875b1bdd6f5a2d647bd4f93e3b409b
+18 s, 48 kHz stereo, MP3 192 kbps；頭尾皆為數位靜音，於 site-bgm 以 loopStart/loopEnd 0–18 s 無縫循環（單一實例，不疊放）。
+
+Source: "Tawny owl hooting" by Patrick Corrà (Patrick_Corra), CC0 1.0.
+https://freesound.org/people/Patrick_Corra/sounds/745208/
+License: Creative Commons CC0 1.0 Universal (Public Domain Dedication)
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Mix notes (from OWL-V3-SOURCES-AND-MIX.txt):
+Only the owl source is used — no added water, wind, foliage, other animals, music or battle sounds.
+Two cleaned, unpitched field-recording excerpts; first call at 1.5 s (gain 0.8), second call at 10.5 s (gain 0.48, low-pass 1800 Hz).
+Distance = sparse low-passed early reflections of the owl itself (no feedback echo, no pitch shifting); small L/R arrival offsets (24–42 ms).
+Padded with digital silence to 18 s. True peak -17.4 dBFS; integrated -27.5 LUFS; no clipped samples.
+No AI generation.

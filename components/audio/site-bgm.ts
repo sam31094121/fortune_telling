@@ -3,7 +3,7 @@
 /**
  * 全站背景循環音（2026-11-22 用戶指定上線兩首）：
  * - home：首頁背景循環（迷霧開場，120 s 無縫）。
- * - asura：阿修羅戰鼓新版（180 s 無縫）。
+ * - asura：阿修羅「現在」遠方純貓頭鷹叫聲（2026-11-25 用戶指定取代戰鼓 v2；18 s 無縫，CC0，來源見 public/sfx/asura-owl-distant-v3.SOURCE.txt）。
  *
  * 全站共用 window.__siteAudioCtx 這一個 AudioContext（其他音效也要從 getSharedAudioContext 取用，禁止再 new）。
  * 解碼後的 AudioBuffer 依曲目快取，切頁只換 BufferSource，不再重新抓檔／解碼。
@@ -29,7 +29,7 @@ interface TrackSpec {
 const TRACKS: Record<BgmTrackId, TrackSpec> = {
   home: { src: '/sfx/home-bgm-v1.mp3', loopSeconds: 120, volume: 0.45, fadeInS: 3, respectSiteMute: true },
   // 阿修羅：依技能檔「互動音效」，不看網站靜音設定。
-  asura: { src: '/sfx/asura-wardrum-v2-3min.mp3', loopSeconds: 180, volume: 0.6, fadeInS: 0.6, respectSiteMute: false },
+  asura: { src: '/sfx/asura-owl-distant-v3.mp3', loopSeconds: 18, volume: 0.6, fadeInS: 0.6, respectSiteMute: false },
 };
 
 const FADE_OUT_S = 0.15;

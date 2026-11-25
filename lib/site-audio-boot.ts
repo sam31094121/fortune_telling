@@ -16,7 +16,7 @@ export const SITE_AUDIO_BOOT_SCRIPT = `(function(){
   if (window.__siteAudioBoot) return;
   window.__siteAudioBoot = true;
   window.__siteAudioFetch = window.__siteAudioFetch || {};
-  var ASURA = '/sfx/asura-wardrum-v2-3min.mp3';
+  var ASURA = '/sfx/asura-owl-distant-v3.mp3';
   function want(){
     try {
       // 首頁背景音已停掛（8ea4abc6），只有阿修羅頁進頁就播；其他頁不先抓 1.9MB 首頁配音。
