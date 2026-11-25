@@ -333,6 +333,8 @@ if (findPlaywright() && process.platform !== 'win32') {
       p.kill('SIGINT');
       const r = await Promise.race([exited, new Promise((res) => setTimeout(() => res({ code: 'timeout' }), 10000))]);
       assert.equal(r.code, 130, out); assert.equal(fs.existsSync(lockFile), false, '中斷後鎖必須被清掉');
+      const runs = fs.existsSync(path.join(tmp, 'sig-out')) ? fs.readdirSync(path.join(tmp, 'sig-out'), { recursive: true }).filter((x) => /report\.json$/.test(x)) : [];
+      assert.deepEqual(runs, [], '中斷後不可寫出半套報告'); assert.match(out, /收到中斷訊號/);
       sigint = 'ok';
     } finally { await f.close(); }
   });

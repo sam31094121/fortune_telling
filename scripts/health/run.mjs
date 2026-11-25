@@ -275,9 +275,11 @@ async function main() {
   // 中斷（Ctrl+C／SIGTERM）：先同步放掉鎖、停心跳、關自己起的伺服器，再嘗試關瀏覽器（最多 5 秒）。
   // Playwright 預設也會攔 SIGINT 並立刻 exit(130)，會搶在非同步清理之前結束行程、留下鎖檔——所以 launch 時關掉它的處理。
   const syncCleanup = [];
+  const HALT = () => new Promise(() => {});
   let stopping = false;
   const onSig = () => {
     if (stopping) return; stopping = true;
+    try { process.stderr.write(`[health] 收到中斷訊號，清理後結束（不寫報告）\n`); } catch {}
     for (const f of syncCleanup) { try { f(); } catch {} }
     try { stopBeat(); } catch {} releaseLock(lock.file);
     runCleanup().finally(() => process.exit(130));
@@ -348,11 +350,13 @@ async function main() {
         rs[0].checks.earlySwipe = { ...worst, summary: `${runs.length} 次：` + runs.map((r) => `${r.status}(${r.method || '—'})`).join('/') + '；' + worst.summary };
       }
       if (a.subflows && !a.only && !a.cardsFile) for (const sub of C.SUBFLOWS) subRows.push({ id: sub.id, width, page: false, checks: { beadSize: await guarded((ctx) => beadSize(ctx, base, sub), (e) => mkCheck('SKIP', String(e.message).slice(0, 80))) } });
+      if (stopping) await HALT(); // 中斷：不再往下量、不產生半套報告，等 onSig 收尾 exit 130
       for (const r of rs) r.status = overallStatus(r.checks);
       rows.push(...rs); blockedWrites.push(...blocked);
       await H.ctx.close().catch(() => {});
       if (server?.exited()) { warnings.push(`本機伺服器在量測途中結束（code ${server.exited().code}），之後的結果不可信`); break; }
     }
+    if (stopping) await HALT();
     await H.browser.close().catch(() => {}); // 先關瀏覽器再跑 gates，避免 tsc＋Chromium 同時吃記憶體
     const gates = await runGates(a.gates, log);
     const gateRows = gates.map((x) => ({ id: `gate:${x.name}`, page: false, checks: { gates: { status: x.status } } }));
