@@ -29,11 +29,12 @@ export default function OrbTreasures({ catalog, disabled, guard, onUse, sideDock
   </div>;
 }
 
-export interface TreasureFlight { effect: TreasureUse['effect']; x1: number; y1: number; x2: number; y2: number; }
+export interface TreasureFlight { effect: TreasureUse['effect']; x1: number; y1: number; x2: number; y2: number; chain?: number; intent?: boolean; flightMs?: number; }
 export function TreasureAnimation({ flight }: { flight: TreasureFlight | null }) {
   if (!flight) return null;
-  const { effect: e, x1, y1, x2, y2 } = flight;
-  return <div key={e.id} className={styles.animation} data-testid="treasure-animation" data-element={e.element} data-role={e.role} data-variant={e.variant} style={{ '--treasure-color': colors[e.element], '--dx': `${x2-x1}px`, '--dy': `${y2-y1}px` } as CSSProperties} aria-label={e.description} role="status">
+  const { effect: e, x1, y1, x2, y2, chain=0, intent=false, flightMs } = flight;
+  const kelu = e.element === 'AIR' && e.variant === 4;
+  return <div key={e.id} className={styles.animation} data-testid="treasure-animation" data-element={e.element} data-role={e.role} data-variant={e.variant} data-kelu={kelu?'true':undefined} data-combo={chain>0?String(chain):undefined} data-intent={intent?'true':undefined} style={{ '--treasure-color': colors[e.element], '--dx': `${x2-x1}px`, '--dy': `${y2-y1}px`, ...(flightMs ? { '--flight-ms': `${flightMs}ms` } : {}) } as CSSProperties} aria-label={e.description} role="status">
     <div className={`${styles.source} ${styles[roleArt[e.role]]}`} style={{ left:x1, top:y1 }}><TreasureGlyph element={e.element} role={e.role}/></div>
     <div className={`${styles.target} ${styles['hit'+roleArt[e.role]]}`} style={{left:x2,top:y2}}>
       {e.role === 'pierce' && <><i/><i/></>}
@@ -41,7 +42,8 @@ export function TreasureAnimation({ flight }: { flight: TreasureFlight | null })
       {e.role === 'drain' && <><i/><i/><i/></>}
       {e.role === 'burst' && <><i/><i/></>}
       {e.role === 'guard' && <><i/><i/></>}
-      <span>{e.damage > 0 ? `−${e.damage}` : e.hits.some(h => h.shieldAbsorbed > 0) ? '護盾吸收' : '未造成傷害'}</span>
+      {!intent && <span>{e.damage > 0 ? `−${e.damage}` : e.hits.some(h => h.shieldAbsorbed > 0) ? '護盾吸收' : '未造成傷害'}</span>}
+      {kelu && chain >= 2 && <b className={styles.combo} data-testid="kelu-combo">連擊 ×{chain}</b>}
     </div>
   </div>;
 }

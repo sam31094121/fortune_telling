@@ -5,6 +5,7 @@ import { ElementTreasureOrb as SharedEnergyOrb } from '@/components/bazi/custome
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 import type { resolveOrbTurn } from '@/lib/beast-game/match3/resolve-turn';
 import OrbTreasures, { TreasureAnimation, type TreasureFlight } from './OrbTreasures';
+import { isKeluWeapon, advanceKeluCombo, emptyKeluCombo } from '@/lib/beast-game/match3/kelu-combo';
 import OrbDropAnimation from './OrbDropAnimation';
 import type { TreasureBook, TreasureUse, treasureCatalog } from '@/lib/beast-game/match3/treasures';
 import Match3ReplayLines from './Match3ReplayLines';
@@ -526,6 +527,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const [pendingTreasure, setPendingTreasure] = useState<string | null>(null);
   const catalogRevision = useRef(0);
   const treasureAction = useRef(0);
+  const keluCombo = useRef(emptyKeluCombo());
   const battleId = useRef('');
   useEffect(() => {
     if (!rigEnabled || !campaignEnabled || !init.owner) return;
@@ -1019,12 +1021,35 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const useTreasure = async (element: BeastElement, variant: number) => {
     if (busy || turnRequest.current || over || ti < 0 || (!treasurePractice && (!init.owner || !campaignEnabled))) return;
     // 點下即回饋：蓄力音與按鈕亮起不等伺服端往返；傷害、庫存與飛行動畫仍只吃伺服端結果。
+    // 斷風輪另外在送出前先起飛（意圖動畫），傷害仍等伺服端確認後才套用。
     cue('charge'); setPendingTreasure(element + ':' + variant);
     catalogRevision.current++;
     const controller = new AbortController(); turnRequest.current = controller; setBusy(true); setLastHealing([]);
     const timeout = window.setTimeout(() => controller.abort(), 15000);
     battleId.current ||= crypto.randomUUID();
     const actionId = battleId.current + ':treasure:' + (++treasureAction.current);
+    const actionSeq = treasureAction.current;
+    const kelu = isKeluWeapon(element, variant);
+    const pressedAt = performance.now();
+    const stepped = kelu ? advanceKeluCombo(keluCombo.current, pressedAt) : null;
+    if (stepped) keluCombo.current = stepped.state;
+    const timing = stepped?.timing ?? null;
+    if (kelu && timing && root.current) {
+      const bounds = root.current.getBoundingClientRect();
+      const sourceEl = root.current.querySelector('[data-treasure="'+element+'"][data-variant="'+variant+'"]');
+      const targetEl = root.current.querySelector('[data-testid="match3-enemy"][data-id="'+(foes[ti]?.id ?? '')+'"]') ?? root.current.querySelector('[data-testid="match3-enemy"]');
+      if (sourceEl && targetEl) {
+        const source = sourceEl.getBoundingClientRect();
+        const target = targetEl.getBoundingClientRect();
+        const ownerId = treasures.find(x => x.element === element && x.variant === variant)?.ownerId ?? '';
+        setTreasureFlight({
+          effect: { id: actionId, element, variant, role: 'pierce', tier: 5, ownerId, name: '斷風輪', targetId: foes[ti]?.id ?? '', damage: 0, shieldBroken: 0, hits: [], healing: [], energyBefore: 0, energyAfter: 0, description: '斷風輪' },
+          x1: source.left+source.width/2-bounds.left, y1: source.top+source.height/2-bounds.top,
+          x2: target.left+target.width/2-bounds.left, y2: target.top+target.height/2-bounds.top,
+          chain: timing.chain, intent: true, flightMs: timing.flightMs,
+        });
+      }
+    }
     try {
       const result = await treasureTransaction(async book => {
         const r = await postOrbTurn(JSON.stringify({ guestBattleToken:guestState.current.token, sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, board,magic,path:[],team,foes,mode:cfg.id,wins,target:ti,seed:init.seed,move:moves,chosen,rule,attackBoost,treasureGuard,treasures:book,action:'treasure',treasureElement:element,treasureVariant:variant,actionId }), {'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, controller.signal);
@@ -1041,10 +1066,19 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       const source = root.current!.querySelector('[data-treasure="'+element+'"][data-variant="'+variant+'"]')!.getBoundingClientRect();
       const target = root.current!.querySelector('[data-testid="match3-enemy"][data-id="'+result.effect.targetId+'"]')!.getBoundingClientRect();
       setTreasures(result.catalog);
-      setTreasureFlight({effect:result.effect,x1:source.left+source.width/2-bounds.left,y1:source.top+source.height/2-bounds.top,x2:target.left+target.width/2-bounds.left,y2:target.top+target.height/2-bounds.top});
-      later(() => { queueKnockouts(foes, result.foes, actionId, 'server-treasure', 0); setTeam(result.team); setFoes(result.foes); setConfirmedOutcome(result.outcome); setTreasureGuard(result.guardScale); setLastDmg(result.effect.damage); setTotalDmg(d=>d===null?null:d+result.effect.damage); setLog(result.effect.description); setSupportText([result.effect.description,result.comebackText].filter(Boolean).join('；')); cue('impact'); }, 950);
-      later(() => { setTreasureFlight(null); setBusy(false); }, 1900);
-    } catch (e) { if(turnRequest.current===controller){if (init.sharedBattleToken) onRecover(); else { setLog(e instanceof Error ? e.message : '寶器未保存，請重試。'); setBusy(false); }} }
+      const confirmed: TreasureFlight = {effect:result.effect,x1:source.left+source.width/2-bounds.left,y1:source.top+source.height/2-bounds.top,x2:target.left+target.width/2-bounds.left,y2:target.top+target.height/2-bounds.top, chain: timing?.chain, intent: false, flightMs: timing?.flightMs};
+      // 斷風輪若已先起飛，只補上傷害數字、不重開動畫，避免接上伺服端結果時重播造成卡頓。
+      setTreasureFlight(cur => cur?.effect.id === actionId ? { ...cur, effect: result.effect, intent: false, chain: timing?.chain ?? cur.chain, flightMs: timing?.flightMs ?? cur.flightMs } : confirmed);
+      const elapsed = performance.now() - pressedAt;
+      const damageDelay = timing ? Math.max(0, timing.damageAt - elapsed) : 950;
+      const clearDelay = timing ? Math.max(0, timing.clearAt - elapsed) : 1900;
+      later(() => { queueKnockouts(foes, result.foes, actionId, 'server-treasure', 0); setTeam(result.team); setFoes(result.foes); setConfirmedOutcome(result.outcome); setTreasureGuard(result.guardScale); setLastDmg(result.effect.damage); setTotalDmg(d=>d===null?null:d+result.effect.damage); setLog(result.effect.description); setSupportText([result.effect.description,result.comebackText].filter(Boolean).join('；')); cue('impact'); }, damageDelay);
+      later(() => { if (treasureAction.current !== actionSeq) return; setTreasureFlight(cur => cur?.effect.id === actionId ? null : cur); setBusy(false); }, clearDelay);
+    } catch (e) {
+      if (kelu) keluCombo.current = emptyKeluCombo();
+      if (kelu) setTreasureFlight(cur => cur?.effect.id === actionId ? null : cur);
+      if(turnRequest.current===controller){if (init.sharedBattleToken) onRecover(); else { setLog(e instanceof Error ? e.message : '寶器未保存，請重試。'); setBusy(false); }}
+    }
     finally { window.clearTimeout(timeout); setPendingTreasure(null); if (turnRequest.current === controller) turnRequest.current = null; }
   };
 
