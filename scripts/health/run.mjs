@@ -272,13 +272,22 @@ async function main() {
   const cleanup = [() => stopBeat(), () => releaseLock(lock.file)];
   let cleaning = null;
   const runCleanup = () => (cleaning ||= (async () => { for (const f of cleanup) { try { await Promise.race([f(), new Promise((r) => setTimeout(r, 5000))]); } catch {} } })());
-  const onSig = () => { runCleanup().finally(() => process.exit(130)); };
-  process.on('SIGINT', onSig); process.on('SIGTERM', onSig);
+  // 中斷（Ctrl+C／SIGTERM）：先同步放掉鎖、停心跳、關自己起的伺服器，再嘗試關瀏覽器（最多 5 秒）。
+  // Playwright 預設也會攔 SIGINT 並立刻 exit(130)，會搶在非同步清理之前結束行程、留下鎖檔——所以 launch 時關掉它的處理。
+  const syncCleanup = [];
+  let stopping = false;
+  const onSig = () => {
+    if (stopping) return; stopping = true;
+    for (const f of syncCleanup) { try { f(); } catch {} }
+    try { stopBeat(); } catch {} releaseLock(lock.file);
+    runCleanup().finally(() => process.exit(130));
+  };
+  process.on('SIGINT', onSig); process.on('SIGTERM', onSig); process.on('SIGHUP', onSig);
   const t0 = Date.now();
   const warnings = [];
   try {
     let base = a.base, build = 'none（指向既有伺服器）', target, server = null;
-    if (a.serve) { const s = await ensureServer(a, log); cleanup.unshift(s.stop); base = s.base; build = s.build; target = 'local-start'; server = s.server; }
+    if (a.serve) { const s = await ensureServer(a, log); cleanup.unshift(s.stop); syncCleanup.push(s.stop); base = s.base; build = s.build; target = 'local-start'; server = s.server; }
     base = base.replace(/\/$/, '');
     if (!a.serve) target = /localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]/.test(base) ? 'local-existing' : 'remote';
     a.target = target;
@@ -288,7 +297,7 @@ async function main() {
     const shotsDir = path.join(runDir, 'shots');
     fs.mkdirSync(shotsDir, { recursive: true });
     fs.writeFileSync(path.join(runDir, '.hc-run'), '');
-    const launch = () => pw.chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage'] });
+    const launch = () => pw.chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage'], handleSIGINT: false, handleSIGTERM: false, handleSIGHUP: false });
     const H = { browser: await launch(), ctx: null, reviving: null, crashes: 0 };
     cleanup.unshift(() => H.browser.close());
     const rows = [], blockedWrites = [], subRows = [];
@@ -321,8 +330,9 @@ async function main() {
       })().finally(() => { H.reviving = null; }));
       const guarded = async (fn, fallback) => {
         for (let attempt = 0; attempt < 2; attempt++) {
+          if (stopping) return fallback(new Error('使用者中斷'));
           try { if (H.reviving) await H.reviving; return await fn(H.ctx); }
-          catch (e) { if (!H.browser.isConnected() || isCrash(e)) { await revive().catch(() => {}); continue; } return fallback(e); }
+          catch (e) { if (stopping) return fallback(new Error('使用者中斷')); if (!H.browser.isConnected() || isCrash(e)) { await revive().catch(() => {}); continue; } return fallback(e); }
         }
         return fallback(new Error('瀏覽器連續崩潰'));
       };

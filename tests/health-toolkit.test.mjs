@@ -317,7 +317,29 @@ if (findPlaywright()) {
   });
 }
 
+// 中斷：Ctrl+C／SIGINT 後鎖要被清掉、exit 130（Windows 的 process.kill 是強制結束、送不了 SIGINT，改在 MSI 用 GenerateConsoleCtrlEvent 手動驗）
+let sigint = 'SKIP（Windows 另以主控台 Ctrl+C 手動驗）';
+if (findPlaywright() && process.platform !== 'win32') {
+  await t('SIGINT releases the lock (exit 130)', async () => {
+    const f = await startFixture();
+    try {
+      const lockFile = path.join(tmp, 'sig.lock');
+      const p = spawn(process.execPath, [RUN, '--base', f.base, '--only', 'ok', '--cards', path.join(tmp, 'fixture-cards.json'), '--widths', '390', '--settle-ms', '20000', '--no-early-swipe', '--shots', 'none', '--out', path.join(tmp, 'sig-out')], { env: { ...process.env, HC_LOCK_FILE: lockFile } });
+      let out = ''; p.stdout.on('data', (d) => (out += d)); p.stderr.on('data', (d) => (out += d));
+      const exited = new Promise((res) => p.on('exit', (code, signal) => res({ code, signal })));
+      const t0 = Date.now(); while (!/寬度 390/.test(out) && Date.now() - t0 < 15000) await new Promise((r) => setTimeout(r, 100));
+      await new Promise((r) => setTimeout(r, 1500));
+      assert.ok(fs.existsSync(lockFile), '執行中應持有鎖');
+      p.kill('SIGINT');
+      const r = await Promise.race([exited, new Promise((res) => setTimeout(() => res({ code: 'timeout' }), 10000))]);
+      assert.equal(r.code, 130, out); assert.equal(fs.existsSync(lockFile), false, '中斷後鎖必須被清掉');
+      sigint = 'ok';
+    } finally { await f.close(); }
+  });
+}
+
 fs.rmSync(tmp, { recursive: true, force: true });
 console.log(results.join('\n'));
+console.log(`SIGINT: ${sigint}`);
 console.log(`e2e: ${e2e}`);
 console.log('health-toolkit: all assertions passed');
