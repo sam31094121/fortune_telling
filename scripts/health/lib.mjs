@@ -82,21 +82,35 @@ export const CHECK_GROUPS = {
 // 業主米其林定義（品質：截圖＋CLS＋點擊＋寶珠不縮；穩定：tsc＋測試＋build＋90 FPS；服務：誠實文案＋清楚下一步）中，本工具量不到的部分。
 export const GROUP_META = {
   quality: { name: '品質（頁面量測）', measures: 'CLS、點擊目標、字級、對比、溢出／裁切、破圖、寶珠大小', needChecks: ['beadSize'], alwaysMissing: [] },
-  stability: { name: '穩定（頁面層）', measures: '頁面有內容、載入、console／網路錯誤、早滑、首頁順序', needGates: ['tsc', 'test', 'build'], alwaysMissing: ['真機 90 FPS'] },
+  stability: { name: '穩定（頁面層）', measures: '頁面有內容、載入、console／網路錯誤、早滑、首頁順序', needGates: ['tsc', 'test', 'build', 'audit'], alwaysMissing: ['真機 90 FPS'] },
   service: { name: '服務（技術代理）', measures: 'LCP 與頁面錯誤字樣', alwaysMissing: ['文案是否誠實、下一步是否清楚（需人工）'] },
 };
 export const PAGE_KEYS = ['content', 'cls', 'tap', 'font', 'contrast', 'overflow', 'images', 'errors', 'load', 'lcp', 'visibleError'];
 
-function gateKind(name) {
-  if (/^tsc$|typecheck/.test(name)) return 'tsc';
-  if (/build/.test(name)) return 'build';
-  if (/test/.test(name)) return 'test';
+// gate 名稱 → 業主穩定定義中的哪一關。只有「完整」的那一關才算：test 只認 `npm test`（不是隨便一支 test:xxx）。
+export function gateKind(name) {
+  if (name === 'tsc' || name === 'typecheck') return 'tsc';
+  if (name === 'build') return 'build';
+  if (name === 'test') return 'test';
+  if (name === 'audit') return 'audit';
   return null;
+}
+
+// npm audit --json → PASS（無 high/critical/moderate）／WARN（只有 moderate）／FAIL（有 high 或 critical）。low／info 不扣分但列出。
+export function auditVerdict(json) {
+  let j; try { j = typeof json === 'string' ? JSON.parse(json) : json; } catch { return { status: 'SKIP', summary: 'npm audit 輸出不是 JSON，未判定' }; }
+  if (j?.error) return { status: 'SKIP', summary: `npm audit 失敗：${String(j.error.summary || j.error.code || '').slice(0, 120)}（多半是連不到 registry），未判定` };
+  const v = j?.metadata?.vulnerabilities;
+  if (!v) return { status: 'SKIP', summary: 'npm audit 沒有回報 metadata.vulnerabilities，未判定' };
+  const n = (k) => Number(v[k] || 0);
+  const status = n('critical') || n('high') ? 'FAIL' : n('moderate') ? 'WARN' : 'PASS';
+  const names = Object.entries(j.vulnerabilities || {}).filter(([, x]) => ['critical', 'high', 'moderate'].includes(x.severity)).map(([k, x]) => `${k}(${x.severity})`).slice(0, 8);
+  return { status, summary: `正式相依套件弱點：critical ${n('critical')}、high ${n('high')}、moderate ${n('moderate')}、low ${n('low')}`, samples: names, counts: { critical: n('critical'), high: n('high'), moderate: n('moderate'), low: n('low'), info: n('info') } };
 }
 
 export function michelin(rows, targets, groups = CHECK_GROUPS, { gatesRun = [], meta = GROUP_META } = {}) {
   const out = {};
-  const passedGates = new Set(gatesRun.filter((g) => g.status === 'PASS').map((g) => gateKind(g.name)).filter(Boolean));
+  // 有跑出結果（PASS／WARN／FAIL）就算「量到了」並計入分數；沒跑或 SKIP 才列為缺項
   let allNum = 0, allDen = 0;
   for (const [group, keys] of Object.entries(groups)) {
     let num = 0, den = 0, skipped = 0;
@@ -108,7 +122,8 @@ export function michelin(rows, targets, groups = CHECK_GROUPS, { gatesRun = [], 
     const md = meta[group] || {};
     const missing = [...(md.alwaysMissing || [])];
     for (const k of md.needChecks || []) if (!judgedKeys.has(k)) missing.push(`${k}（本次未判定）`);
-    for (const g of md.needGates || []) if (!passedGates.has(g)) missing.push(`${g}（未跑或未過）`);
+    const ranGates = new Map(gatesRun.map((g) => [gateKind(g.name), g]));
+    for (const g of md.needGates || []) { const r = ranGates.get(g); if (!r) missing.push(`${g}（未跑）`); else if (!(r.status in W)) missing.push(`${g}（未判定：${String(r.summary || '').slice(0, 40)}）`); }
     const score = den ? round((10 * num) / den, 1) : null;
     out[group] = { name: md.name || group, measures: md.measures || '', score, passedWeight: num, checks: den, skipped, coverage: den + skipped ? round(den / (den + skipped), 3) : null, target: targets[group], complete: missing.length === 0, missing };
     // 不完整時不宣稱達標／未達標（null），避免「穩定 10」被當成業主定義的穩定已過。
@@ -260,7 +275,24 @@ export function isFullScope(rep, defaultWidths = DEFAULT_WIDTHS) {
 }
 const readReport = (dir) => { try { return JSON.parse(fs.readFileSync(path.join(dir, 'report.json'), 'utf8')); } catch { return null; } };
 // 舊報告（v2 之前）沒有 label 欄位：由資料夾名 <stamp>-<label> 補上
-const withLabel = (rep, name) => (rep.label ? rep : { ...rep, label: name.replace(/^\d{8}T\d{6}-/, '') });
+export const RUN_DIR_RE = /^\d{8}T\d{6}(?:[+-]\d{4}|Z)?(?:\.\d+)?-/;
+const withLabel = (rep, name) => (rep.label ? rep : { ...rep, label: name.replace(RUN_DIR_RE, '') });
+// 資料夾名稱用「本機時間＋時區」（例：20261125T141530+0800-heaven…），一眼看得出是幾點；同一秒重複就加 .2、.3
+export function localStamp(d = new Date()) {
+  const p = (n, w = 2) => String(Math.abs(n)).padStart(w, '0');
+  const off = -d.getTimezoneOffset();
+  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}T${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}${off >= 0 ? '+' : '-'}${p(Math.floor(Math.abs(off) / 60))}${p(Math.abs(off) % 60)}`;
+}
+export function makeRunDir(root, label, d = new Date()) {
+  const stamp = localStamp(d);
+  for (let i = 1; i < 100; i++) {
+    const dir = path.join(root, `${stamp}${i > 1 ? '.' + i : ''}-${label}`);
+    try { fs.mkdirSync(dir); return dir; } catch (e) { if (e.code !== 'EEXIST') throw e; }
+  }
+  throw new Error('無法建立輸出資料夾（同一秒內已有 99 份）');
+}
+// 依實際開始時間排序（報告的 startedAt；沒有報告就用資料夾時間），不靠資料夾名（舊版是 UTC、新版是本機時間）
+const runTime = (r) => { const t = Date.parse(r.rep?.startedAt || ''); if (Number.isFinite(t)) return t; try { return fs.statSync(r.dir).mtimeMs; } catch { return 0; } };
 
 // 只清自己的輸出（資料夾內有 .hc-run 標記）：
 //  1. 沒有 report.json 的（中斷／失敗留下的空資料夾），超過 emptyGraceMs 就清；
@@ -273,18 +305,23 @@ export function pruneOwnRuns(root, keep, { current = null, currentRep = null, em
     .filter((d) => d.isDirectory() && fs.existsSync(path.join(root, d.name, '.hc-run')))
     .map((d) => d.name).sort()
     .map((name) => { const dir = path.join(root, name); const rep = readReport(dir); return { name, dir, rep: rep && withLabel(rep, name) }; })
+    .map((r) => ({ ...r, t: runTime(r) })).sort((x, y) => x.t - y.t || (x.name < y.name ? -1 : 1))
     .filter((r) => !current || path.resolve(r.dir) !== path.resolve(current));
   const removed = [];
   const rm = (r) => { fs.rmSync(r.dir, { recursive: true, force: true }); removed.push(r.name); };
-  for (const r of runs.filter((x) => !x.rep)) {
+  const hasErr = (r) => fs.existsSync(path.join(r.dir, 'error.json'));
+  for (const r of runs.filter((x) => !x.rep && !hasErr(x))) {
     let age = Infinity; try { age = now - fs.statSync(r.dir).mtimeMs; } catch {}
     if (age >= emptyGraceMs) rm(r);
   }
+  // 建置／啟動失敗留下的 error.json：另成一組，留最新 keep 份
+  const errs = runs.filter((x) => !x.rep && hasErr(x));
+  for (const r of errs.slice(0, Math.max(0, errs.length - keep))) rm(r);
   const groups = new Map();
   for (const r of runs.filter((x) => x.rep)) { const k = scopeKey(r.rep); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(r); }
   const protectedFull = new Set();
   const fullBySite = new Map();
-  for (const r of runs.filter((x) => x.rep && isFullScope(x.rep))) fullBySite.set(`${r.rep.target}|${r.rep.label}`, r.name); // 名稱已排序 → 最後寫入的是最新
+  for (const r of runs.filter((x) => x.rep && isFullScope(x.rep))) fullBySite.set(`${r.rep.target}|${r.rep.label}`, r.name); // 已依時間排序 → 最後寫入的是最新
   for (const n of fullBySite.values()) protectedFull.add(n);
   // 目前這次（還沒寫 report.json）也算它那一組的一份
   const curKey = currentRep ? scopeKey(currentRep) : null;
@@ -297,14 +334,11 @@ export function pruneOwnRuns(root, keep, { current = null, currentRep = null, em
 export function findBaseline(root, rep, { current = null } = {}) {
   if (!fs.existsSync(root)) return null;
   const k = scopeKey(rep);
-  const names = fs.readdirSync(root, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort().reverse();
-  for (const name of names) {
-    const dir = path.join(root, name);
-    if (current && path.resolve(dir) === path.resolve(current)) continue;
-    const prev = readReport(dir);
-    if (prev && scopeKey(withLabel(prev, name)) === k) return path.join(dir, 'report.json');
-  }
-  return null;
+  const cands = fs.readdirSync(root, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)
+    .map((name) => { const dir = path.join(root, name); return { name, dir, rep: readReport(dir) }; })
+    .filter((r) => r.rep && !(current && path.resolve(r.dir) === path.resolve(current)) && scopeKey(withLabel(r.rep, r.name)) === k)
+    .map((r) => ({ ...r, t: runTime(r) })).sort((x, y) => y.t - x.t || (x.name < y.name ? 1 : -1));
+  return cands.length ? path.join(cands[0].dir, 'report.json') : null;
 }
 
 export async function pickPort(from = 3400, to = 3499, reserved = []) {
@@ -462,7 +496,10 @@ export function renderMarkdown(rep) {
     L.push(`| ${rs[0].n} | ${rs[0].name} | ${cells.join(' | ')} |`);
   }
   for (const s of sub) L.push(`| — | ${s.id} @${s.width} | ${widths.map((w) => (w === s.width ? `${s.checks.beadSize.status}：${s.checks.beadSize.summary}` : '')).join(' | ')} |`);
-  if (rep.gates?.length) L.push('', '閘門：' + rep.gates.map((g) => `${g.name} ${g.status} ${Math.round(g.ms / 1000)}s`).join('、'));
+  if (rep.gates?.length) {
+    L.push('', '## 閘門（gates）', '', '| 閘門 | 結果 | 耗時 | 說明 |', '|---|---|---|---|');
+    for (const g of rep.gates) L.push(`| ${g.name} | ${g.status} | ${Math.round((g.ms || 0) / 1000)}s | ${String(g.summary || '').replace(/\|/g, '/')}${g.status === 'FAIL' && g.tail ? '；尾段：' + String(g.tail).replace(/\s+/g, ' ').replace(/\|/g, '/').slice(-200) : ''} |`);
+  }
   L.push('');
   L.push('## 失敗明細（每項最多 3 筆樣本）');
   for (const r of rep.rows) {

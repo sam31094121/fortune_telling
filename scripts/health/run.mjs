@@ -9,7 +9,7 @@ import { spawn, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import * as C from './config.mjs';
 import { INIT_SCRIPT, metricsScript } from './probe.mjs';
-import { acquireLock, releaseLock, startLockHeartbeat, diskGuard, pruneOwnRuns, pickPort, startServer, listProcesses, findNextConflicts, michelin, coverage, overallStatus, renderMarkdown, compareRuns, round, CHECK_GROUPS, findBaseline, runScope } from './lib.mjs';
+import { acquireLock, releaseLock, startLockHeartbeat, diskGuard, pruneOwnRuns, pickPort, startServer, listProcesses, findNextConflicts, michelin, coverage, overallStatus, renderMarkdown, compareRuns, round, CHECK_GROUPS, findBaseline, runScope, auditVerdict, makeRunDir } from './lib.mjs';
 import { judge, judgeEarlySwipe, mkCheck } from './judge.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -17,6 +17,7 @@ const REPO = path.resolve(HERE, '..', '..');
 export const TOOL_VERSION = 'mingli-health-v2';
 
 export class UsageError extends Error {}
+let buildChild = null; // 建置中被 Ctrl+C 時要一起收掉
 
 export function parseArgs(argv) {
   const a = { widths: C.VIEWPORTS.map((v) => v.width), concurrency: 2, keep: 5, readOnly: true, shots: 'fail', subflows: true, earlySwipe: true, gates: [], settleMs: C.THRESHOLDS.settleMs, waitForBuildsMin: 0 };
@@ -42,7 +43,7 @@ export function parseArgs(argv) {
     else if (k === '--shots') { a.shots = v(); if (!['none', 'fail', 'all'].includes(a.shots)) throw new UsageError(`--shots 只能是 none|fail|all，收到「${a.shots}」`); }
     else if (k === '--no-subflows') a.subflows = false;
     else if (k === '--no-early-swipe') a.earlySwipe = false;
-    else if (k === '--gates') a.gates = v().split(',').filter(Boolean);
+    else if (k === '--gates') a.gates = [...new Set(v().split(',').flatMap((g) => (g === 'all' ? GATE_ALL : [g])).filter(Boolean))];
     else if (k === '--label') a.label = v();
     else if (k === '--server-sha') a.serverSha = v();
     else if (k === '--help' || k === '-h') a.help = true;
@@ -109,7 +110,7 @@ async function guardBuildConflicts(a, log, { building }) {
 
 // 建置最多一次：.next/HC_BUILD_SHA 與 HEAD 一致且程式沒改 → 直接重用。
 async function ensureServer(a, log) {
-  const dist = path.join(REPO, '.next');
+  const dist = path.join(REPO, DIST_DIR);
   const marker = path.join(dist, 'HC_BUILD_SHA');
   const sha = gitSha();
   const hasBuild = fs.existsSync(path.join(dist, 'BUILD_ID'));
@@ -132,7 +133,8 @@ async function ensureServer(a, log) {
     log(`next build（HEAD ${sha}）…`);
     try { fs.rmSync(marker, { force: true }); } catch {}
     await new Promise((res, rej) => {
-      const p = spawn(process.execPath, [path.join(REPO, 'node_modules/next/dist/bin/next'), 'build'], { cwd: REPO, stdio: 'inherit', env: { ...process.env, NEXT_TELEMETRY_DISABLED: '1' } });
+      const p = spawn(process.execPath, [path.join(REPO, 'node_modules/next/dist/bin/next'), 'build'], { cwd: REPO, stdio: 'inherit', env: childEnv() });
+      buildChild = p;
       p.on('exit', (c) => (c === 0 ? res() : rej(new Error(`next build exit ${c}`))));
     });
     // 建置當下工作區是乾淨的才寫標記；髒的建置下次不會被當成 HEAD 重用
@@ -144,7 +146,7 @@ async function ensureServer(a, log) {
   // 身分核對：只有用這個 .next 起的伺服器才有 /_next/static/<BUILD_ID>/_buildManifest.js
   const manifest = path.join(dist, 'static', buildId, '_buildManifest.js');
   const identity = fs.existsSync(manifest) ? async (base) => (await fetch(`${base}/_next/static/${buildId}/_buildManifest.js`, { signal: AbortSignal.timeout(5000) })).status === 200 : null;
-  const s = await startServer(process.execPath, [path.join(REPO, 'node_modules/next/dist/bin/next'), 'start', '-H', '127.0.0.1', '-p', String(port)], { cwd: REPO, env: { ...process.env, NEXT_TELEMETRY_DISABLED: '1' }, port, timeoutMs: 120000, identity });
+  const s = await startServer(process.execPath, [path.join(REPO, 'node_modules/next/dist/bin/next'), 'start', '-H', '127.0.0.1', '-p', String(port)], { cwd: REPO, env: childEnv(), port, timeoutMs: 120000, identity });
   return { base: s.base, build, buildId, server: s, stop: s.stop };
 }
 
@@ -242,14 +244,52 @@ async function pool(items, n, fn) {
   return out;
 }
 
-async function runGates(gates, log) {
+// 子行程環境：關遙測、帶上 watchdog（工具被強制結束時子行程自己收掉），並固定 distDir（next.config 讀 NEXT_DIST_DIR）。
+const WATCHDOG = path.join(HERE, 'watchdog.cjs').replace(/\\/g, '/');
+export const DIST_DIR = process.env.HC_DIST_DIR || process.env.NEXT_DIST_DIR || '.next';
+export function childEnv(extra = {}) {
+  const prev = process.env.NODE_OPTIONS || '';
+  return { ...process.env, NEXT_TELEMETRY_DISABLED: '1', NEXT_DIST_DIR: DIST_DIR, HC_PARENT_PID: String(process.pid), NODE_OPTIONS: `${prev} --require "${WATCHDOG}"`.trim(), ...extra };
+}
+
+// gates：tsc、test（npm test）、audit（npm audit --omit=dev）、其他名稱＝npm run <名稱>。build 由 --serve 的建置結果提供。
+export const GATE_ALL = ['tsc', 'test', 'audit'];
+function runCmd(cmd, args, { timeoutMs = 15 * 60e3, cwd = REPO } = {}) {
+  return new Promise((done) => {
+    const win = process.platform === 'win32' && /\.cmd$/.test(cmd);
+    const p = spawn(cmd, args, { cwd, stdio: ['ignore', 'pipe', 'pipe'], shell: win, windowsHide: true, env: childEnv() });
+    let out = '', err = ''; p.stdout.on('data', (d) => { out += d; if (out.length > 4e6) out = out.slice(-2e6); }); p.stderr.on('data', (d) => { err += d; if (err.length > 2e5) err = err.slice(-1e5); });
+    const timer = setTimeout(() => { try { p.kill(); } catch {} done({ code: null, timedOut: true, out, err }); }, timeoutMs);
+    p.on('error', (e) => { clearTimeout(timer); done({ code: null, error: e.message, out, err }); });
+    p.on('exit', (code) => { clearTimeout(timer); done({ code, out, err }); });
+  });
+}
+async function runGates(gates, log, { serve }) {
   const res = [];
+  const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  let scripts = {}; try { scripts = JSON.parse(fs.readFileSync(path.join(REPO, 'package.json'), 'utf8')).scripts || {}; } catch {}
   for (const g of gates) {
     const t = Date.now();
-    const [cmd, args] = g === 'tsc' ? [process.execPath, [path.join(REPO, 'node_modules/typescript/bin/tsc'), '--noEmit', '-p', 'tsconfig.json']] : [process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', '-s', g]];
+    const push = (status, summary, extra = {}) => res.push({ name: g, status, summary, ms: Date.now() - t, ...extra });
+    if (g === 'build') { if (!serve) push('SKIP', '只有 --serve 時才有建置結果（指向既有伺服器或正式站時不建置）'); continue; }
     log(`gate ${g}…`);
-    const r = await new Promise((done) => { const p = spawn(cmd, args, { cwd: REPO, stdio: ['ignore', 'pipe', 'pipe'], shell: process.platform === 'win32' }); let out = ''; p.stdout.on('data', (d) => (out += d)); p.stderr.on('data', (d) => (out += d)); p.on('exit', (c) => done({ ok: c === 0, tail: out.slice(-400) })); });
-    res.push({ name: g, status: r.ok ? 'PASS' : 'FAIL', ms: Date.now() - t, tail: r.ok ? '' : r.tail });
+    if (g === 'tsc') {
+      const tsc = path.join(REPO, 'node_modules/typescript/bin/tsc');
+      if (!fs.existsSync(tsc)) { push('SKIP', '找不到 node_modules/typescript'); continue; }
+      const r = await runCmd(process.execPath, [tsc, '--noEmit', '-p', 'tsconfig.json']);
+      const errs = (r.out.match(/error TS\d+/g) || []).length;
+      push(r.code === 0 ? 'PASS' : r.timedOut ? 'FAIL' : 'FAIL', r.code === 0 ? 'tsc --noEmit 無錯誤' : r.timedOut ? 'tsc 逾時（15 分）' : `tsc 錯誤 ${errs} 個（exit ${r.code}）`, { tail: r.code === 0 ? '' : (r.out + r.err).slice(-600) });
+      continue;
+    }
+    if (g === 'audit') {
+      const r = await runCmd(npm, ['audit', '--omit=dev', '--json'], { timeoutMs: 3 * 60e3 });
+      const v = r.timedOut ? { status: 'SKIP', summary: 'npm audit 逾時（3 分），未判定' } : auditVerdict(r.out);
+      push(v.status, v.summary, { samples: v.samples || [], counts: v.counts || null, tail: v.status === 'SKIP' ? r.err.slice(-300) : '' });
+      continue;
+    }
+    if (!scripts[g]) { push('SKIP', g === 'test' ? 'package.json 沒有 test 腳本（npm test 不存在），未判定' : `package.json 沒有「${g}」腳本，未判定`); continue; }
+    const r = await runCmd(npm, g === 'test' ? ['test', '-s'] : ['run', '-s', g]);
+    push(r.code === 0 ? 'PASS' : 'FAIL', r.code === 0 ? `npm ${g === 'test' ? 'test' : 'run ' + g} 通過` : r.timedOut ? '逾時（15 分）' : `exit ${r.code}`, { tail: r.code === 0 ? '' : (r.out + r.err).slice(-600) });
   }
   return res;
 }
@@ -281,6 +321,7 @@ async function main() {
     if (stopping) return; stopping = true;
     try { process.stderr.write(`[health] 收到中斷訊號，清理後結束（不寫報告）\n`); } catch {}
     for (const f of syncCleanup) { try { f(); } catch {} }
+    try { if (buildChild && buildChild.exitCode === null) buildChild.kill(); } catch {}
     try { stopBeat(); } catch {} releaseLock(lock.file);
     // 這次自己建的資料夾還沒有報告 → 直接刪掉，不留空殼
     if (ownRunDir && !fs.existsSync(path.join(ownRunDir, 'report.json'))) { try { fs.rmSync(ownRunDir, { recursive: true, force: true }); } catch {} }
@@ -291,16 +332,22 @@ async function main() {
   const warnings = [];
   try {
     let base = a.base, build = 'none（指向既有伺服器）', target, server = null;
-    if (a.serve) { const s = await ensureServer(a, log); cleanup.unshift(s.stop); syncCleanup.push(s.stop); base = s.base; build = s.build; target = 'local-start'; server = s.server; }
-    base = base.replace(/\/$/, '');
-    if (!a.serve) target = /localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]/.test(base) ? 'local-existing' : 'remote';
+    // 先決定目標與 label、建資料夾：建置或啟動失敗時把原因寫進 error.json（不再只有終端機看得到）
+    target = a.serve ? 'local-start' : /localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]/.test(a.base) ? 'local-existing' : 'remote';
     a.target = target;
-    const label = a.label || (target === 'remote' ? new URL(base).hostname.split('.')[0] : target);
-    const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
-    const runDir = path.join(outRoot, `${stamp}-${label}`);
+    const label = a.label || (target === 'remote' ? new URL(a.base).hostname.split('.')[0] : target);
+    const runDir = makeRunDir(outRoot, label);
     const shotsDir = path.join(runDir, 'shots');
     fs.mkdirSync(shotsDir, { recursive: true });
     fs.writeFileSync(path.join(runDir, '.hc-run'), ''); ownRunDir = runDir;
+    if (a.serve) {
+      try { const s = await ensureServer(a, log); cleanup.unshift(s.stop); syncCleanup.push(s.stop); base = s.base; build = s.build; server = s.server; }
+      catch (e) {
+        fs.writeFileSync(path.join(runDir, 'error.json'), JSON.stringify({ tool: TOOL_VERSION, phase: 'serve', target, label, gitSha: gitSha(), at: new Date().toISOString(), error: e.message, logTail: e.logTail || null, gates: [{ name: 'build', status: /next build exit/.test(e.message) ? 'FAIL' : 'SKIP', summary: e.message.slice(0, 200) }] }, null, 2));
+        throw e;
+      }
+    }
+    base = base.replace(/\/$/, '');
     const launch = () => pw.chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage'], handleSIGINT: false, handleSIGTERM: false, handleSIGHUP: false });
     const H = { browser: await launch(), ctx: null, reviving: null, crashes: 0 };
     cleanup.unshift(() => H.browser.close());
@@ -360,11 +407,13 @@ async function main() {
     }
     if (stopping) await HALT();
     await H.browser.close().catch(() => {}); // 先關瀏覽器再跑 gates，避免 tsc＋Chromium 同時吃記憶體
-    const gates = await runGates(a.gates, log);
-    const gateRows = gates.map((x) => ({ id: `gate:${x.name}`, page: false, checks: { gates: { status: x.status } } }));
+    const gates = [
+      ...(target === 'local-start' ? [{ name: 'build', status: 'PASS', summary: build.startsWith('built') ? `next build 成功（${build}），並以 next start 啟動、身分核對通過` : `沿用同 HEAD（${gitSha()}）先前成功的建置，未重建`, ms: 0 }] : []),
+      ...(await runGates(a.gates.filter((g) => !(g === 'build' && target === 'local-start')), log, { serve: target === 'local-start' })),
+    ];
+    const gateRows = gates.map((x) => ({ id: `gate:${x.name}`, page: false, checks: { gates: { status: x.status, summary: x.summary } } }));
     const groups = gates.length ? { ...CHECK_GROUPS, stability: [...CHECK_GROUPS.stability, 'gates'] } : CHECK_GROUPS;
-    // 本工具自己建置並成功啟動 = build 這一關有過
-    const gatesRun = [...gates, ...(target === 'local-start' ? [{ name: 'build', status: 'PASS' }] : [])];
+    const gatesRun = gates;
     if (deployIds.size > 1) warnings.push(`量測期間出現 ${deployIds.size} 個部署版本（${[...deployIds].join('、')}）——正式站可能在途中重新部署，結果混了兩版，建議重跑`);
     const contrastAll = rows.reduce((s, r) => ({ checked: s.checked + (r.metrics?.contrastChecked || 0), unknown: s.unknown + (r.metrics?.contrastUnknown || 0), gradient: s.gradient + (r.metrics?.contrastGradient || 0) }), { checked: 0, unknown: 0, gradient: 0 });
     const rep = {

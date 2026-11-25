@@ -25,6 +25,7 @@
     "health:check": "node scripts/screen-health-monitor.mjs --mobile-first --recover-server",
     "health:cards": "node scripts/health/run.mjs --serve --compare auto",
     "health:cards:build": "node scripts/health/run.mjs --serve --build --compare auto",
+    "health:cards:full": "node scripts/health/run.mjs --serve --build --gates all --compare auto",
     "health:cards:prod": "node scripts/health/run.mjs --prod --compare auto",
     "health:cards:url": "node scripts/health/run.mjs --compare auto --base",
     "test:health-toolkit": "node tests/health-toolkit.test.mjs",

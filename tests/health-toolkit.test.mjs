@@ -8,11 +8,11 @@ import http from 'node:http';
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { parseColor, blendOver, contrastRatio, isLargeText, gradientStops, contrastRange, clsFromEntries, michelin, coverage, overallStatus, acquireLock, releaseLock, lockVerdict, procStartToken, lockPath, pruneOwnRuns, findBaseline, scopeKey, isFullScope, compareRuns, renderMarkdown, diskGuard, pickPort, startServer, findNextConflicts, listProcesses, GROUP_META } from '../scripts/health/lib.mjs';
+import { parseColor, blendOver, contrastRatio, isLargeText, gradientStops, contrastRange, clsFromEntries, michelin, coverage, overallStatus, acquireLock, releaseLock, lockVerdict, procStartToken, lockPath, pruneOwnRuns, findBaseline, scopeKey, isFullScope, compareRuns, renderMarkdown, diskGuard, pickPort, startServer, findNextConflicts, listProcesses, GROUP_META, auditVerdict, gateKind, RUN_DIR_RE, localStamp, makeRunDir } from '../scripts/health/lib.mjs';
 import { judge, judgeEarlySwipe, filterBlockedConsole, DOM_KEYS } from '../scripts/health/judge.mjs';
 import { CARDS, THRESHOLDS, MICHELIN_TARGETS, VIEWPORTS, LOCAL_ENV_GAP_APIS } from '../scripts/health/config.mjs';
 import { metricsScript, INIT_SCRIPT } from '../scripts/health/probe.mjs';
-import { parseArgs, selectCards, UsageError } from '../scripts/health/run.mjs';
+import { parseArgs, selectCards, UsageError, childEnv, GATE_ALL } from '../scripts/health/run.mjs';
 import { startFixture, FIXTURE_CARDS } from '../scripts/health/fixture-server.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -140,8 +140,12 @@ await t('#2 michelin names / incomplete / overall', () => {
   assert.equal(mi.overall.score, round1((1 + 0.5 + 0 + 1 + 1) / 5 * 10));
   // 22 FAIL 全在品質、頁面層穩定 10：仍標不完整、不是「穩定達標」
   const many = Array.from({ length: 22 }, () => ({ checks: { font: { status: 'FAIL' }, errors: { status: 'PASS' }, load: { status: 'PASS' } } }));
-  const mm = michelin(many, MICHELIN_TARGETS, undefined, { gatesRun: [{ name: 'tsc', status: 'PASS' }, { name: 'test:health-toolkit', status: 'PASS' }, { name: 'build', status: 'PASS' }] });
-  assert.equal(mm.stability.score, 10); assert.equal(mm.stability.meetsTarget, null); assert.deepEqual(mm.stability.missing, ['真機 90 FPS']);
+  const mm = michelin(many, MICHELIN_TARGETS, undefined, { gatesRun: [{ name: 'tsc', status: 'PASS' }, { name: 'test:health-toolkit', status: 'PASS' }, { name: 'build', status: 'PASS' }, { name: 'audit', status: 'WARN' }, { name: 'test', status: 'SKIP', summary: 'package.json 沒有 test 腳本' }] });
+  assert.equal(mm.stability.score, 10); assert.equal(mm.stability.meetsTarget, null);
+  // 單一 test:xxx 不能冒充 npm test；SKIP 的 gate 列為缺項；有跑的（含 WARN）不算缺
+  assert.deepEqual(mm.stability.missing, ['真機 90 FPS', 'test（未判定：package.json 沒有 test 腳本）']);
+  const mg = michelin(many, MICHELIN_TARGETS, undefined, { gatesRun: [] });
+  assert.deepEqual(mg.stability.missing, ['真機 90 FPS', 'tsc（未跑）', 'test（未跑）', 'build（未跑）', 'audit（未跑）']);
   assert.equal(mm.overall.score, round1(44 / 66 * 10));
   // 定義完整時才判定達標
   const full = michelin(rows, MICHELIN_TARGETS, undefined, { meta: { quality: {}, stability: {}, service: {} } });
@@ -149,6 +153,39 @@ await t('#2 michelin names / incomplete / overall', () => {
   assert.ok(GROUP_META.quality.needChecks.includes('beadSize'));
 });
 function round1(x) { return Math.round(x * 10) / 10; }
+
+// ---------- gates：npm audit 判讀、gate 名稱對應、--gates all ----------
+await t('gates: audit verdict / gateKind / --gates all', () => {
+  const mk = (v, vulns = {}) => JSON.stringify({ metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0, ...v } }, vulnerabilities: vulns });
+  assert.equal(auditVerdict(mk({})).status, 'PASS');
+  assert.equal(auditVerdict(mk({ low: 3 })).status, 'PASS');
+  assert.equal(auditVerdict(mk({ moderate: 1 }, { postcss: { severity: 'moderate' } })).status, 'WARN');
+  const h = auditVerdict(mk({ high: 2, moderate: 1 }, { next: { severity: 'high' }, x: { severity: 'low' } }));
+  assert.equal(h.status, 'FAIL'); assert.deepEqual(h.samples, ['next(high)']); assert.match(h.summary, /high 2/);
+  assert.equal(auditVerdict('not json').status, 'SKIP');
+  assert.equal(auditVerdict(JSON.stringify({ error: { code: 'ENOTFOUND', summary: 'request to registry failed' } })).status, 'SKIP');
+  assert.equal(gateKind('test'), 'test'); assert.equal(gateKind('test:health-toolkit'), null); assert.equal(gateKind('tsc'), 'tsc'); assert.equal(gateKind('audit'), 'audit');
+  assert.deepEqual(parseArgs(['--prod', '--gates', 'all,test:ziwei']).gates, [...GATE_ALL, 'test:ziwei']);
+  const env = childEnv();
+  assert.equal(env.HC_PARENT_PID, String(process.pid)); assert.match(env.NODE_OPTIONS, /--require "[^"]*watchdog\.cjs"/); assert.doesNotMatch(env.NODE_OPTIONS, /\\/, 'NODE_OPTIONS 內路徑用 / 避免反斜線被當跳脫');
+});
+
+// ---------- watchdog：工具被強制結束（SIGKILL／TerminateProcess）時，它啟動的子行程自己結束 ----------
+await t('watchdog: hard-killed parent leaves no orphan child', async () => {
+  const runUrl = pathToFileURL(RUN).href;
+  const parent = spawn(process.execPath, ['--input-type=module', '-e', `import { childEnv } from ${JSON.stringify(runUrl)}; import { spawn } from 'node:child_process';
+const c = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { env: childEnv({ HC_WATCHDOG_MS: '300' }), stdio: 'ignore' });
+console.log('CHILD ' + c.pid); setInterval(() => {}, 1000);`], { stdio: ['ignore', 'pipe', 'pipe'] });
+  let out = ''; parent.stdout.on('data', (d) => (out += d)); parent.stderr.on('data', (d) => (out += d));
+  const t0 = Date.now(); while (!/CHILD \d+/.test(out) && Date.now() - t0 < 10000) await new Promise((r) => setTimeout(r, 50));
+  const childPid = Number(/CHILD (\d+)/.exec(out)?.[1]); assert.ok(childPid > 0, out);
+  await new Promise((r) => setTimeout(r, 500));
+  assert.equal(alive(childPid), true, '父行程活著時子行程應該在');
+  parent.kill('SIGKILL');
+  const t1 = Date.now(); while (alive(childPid) && Date.now() - t1 < 6000) await new Promise((r) => setTimeout(r, 100));
+  assert.equal(alive(childPid), false, '父行程被強制結束後，子行程應在數秒內自己結束');
+});
+function alive(pid) { try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; } }
 
 // ---------- 產生給瀏覽器的程式碼可被解析 ----------
 await t('probe parses', () => { new Function(INIT_SCRIPT); new Function('return ' + metricsScript({ ...THRESHOLDS, visibleErrorRe: 'x' })); });
@@ -203,6 +240,15 @@ await t('#9 concurrent reclaim of a stale lock → exactly one winner', async ()
 });
 
 // ---------- 輸出保留、比較、報告 ----------
+await t('#O4 資料夾時間戳用本機時間＋時區、同一秒不撞名', () => {
+  const d = new Date(2026, 10, 25, 14, 15, 30);
+  const st = localStamp(d);
+  assert.match(st, /^20261125T141530[+-]\d{4}$/);
+  const root = path.join(tmp, 'stamp'); fs.mkdirSync(root);
+  const a1 = makeRunDir(root, 'site', d), a2 = makeRunDir(root, 'site', d);
+  assert.notEqual(a1, a2); assert.match(path.basename(a2), /^20261125T141530[+-]\d{4}\.2-site$/);
+  assert.ok(RUN_DIR_RE.test(path.basename(a1)) && RUN_DIR_RE.test(path.basename(a2)) && RUN_DIR_RE.test('20261125T044351-heaven'));
+});
 await t('#M9 範圍分組保留＋完整基準不被試跑擠掉＋compare auto 只拿同範圍', () => {
   const root = path.join(tmp, 'scoped');
   const mk = (name, rep) => { const d = path.join(root, name); fs.mkdirSync(d, { recursive: true }); fs.writeFileSync(path.join(d, '.hc-run'), ''); if (rep) fs.writeFileSync(path.join(d, 'report.json'), JSON.stringify({ target: 'remote', label: 'site', readOnly: true, widths: [360, 390, 1280], only: null, rows: [], ...rep })); return d; };
@@ -309,7 +355,16 @@ function findPlaywright() {
 const runTool = (args, env = {}) => new Promise((res) => { const p = spawn(process.execPath, [RUN, ...args], { env: { ...process.env, HC_LOCK_FILE: path.join(tmp, 'e2e.lock'), ...env } }); let out = ''; p.stdout.on('data', (d) => (out += d)); p.stderr.on('data', (d) => (out += d)); p.on('exit', (code) => res({ code, out })); });
 let e2e = 'SKIP（找不到 playwright；設 PLAYWRIGHT_MODULE 後可跑）';
 if (findPlaywright()) {
-  await t('#8 e2e: --only typo exits 2 without creating a run', async () => {
+  await t('#M10 --serve 起不來時寫 error.json（不留空殼、不冒充 build PASS）', async () => {
+  const out = path.join(tmp, 'serve-err');
+  const r = await runTool(['--serve', '--only', 'home', '--widths', '390', '--out', out], { HC_DIST_DIR: '.next-hc-test-absent' });
+  assert.equal(r.code, 2, r.out); assert.match(r.out, /沒有 \.next|不是本工具/);
+  const dirs = fs.readdirSync(out).filter((d) => RUN_DIR_RE.test(d));
+  assert.equal(dirs.length, 1);
+  const ej = JSON.parse(fs.readFileSync(path.join(out, dirs[0], 'error.json'), 'utf8'));
+  assert.equal(ej.phase, 'serve'); assert.equal(ej.gates[0].status, 'SKIP');
+});
+await t('#8 e2e: --only typo exits 2 without creating a run', async () => {
     const out = path.join(tmp, 'e2e-typo');
     const r = await runTool(['--base', 'http://127.0.0.1:1', '--only', 'tarrot', '--out', out]);
     assert.equal(r.code, 2, r.out); assert.match(r.out, /不認得的卡/); assert.equal(fs.existsSync(out), false);
@@ -348,13 +403,17 @@ if (findPlaywright()) {
       // #M9 端到端：同一輸出資料夾跑兩次「只量一頁」＋--keep 1，完整那份不能被擠掉；compare auto 只比同範圍
       const only = ['--base', f.base, '--cards', cf, '--only', 'ok', '--widths', '390', '--settle-ms', '300', '--no-early-swipe', '--shots', 'none', '--out', out, '--keep', '1', '--compare', 'auto'];
       const o1 = await runTool(only); assert.equal(o1.code, 0, o1.out); assert.match(o1.out, /找不到同範圍的上次報告/);
-      const o2 = await runTool(only); assert.equal(o2.code, 0, o2.out);
+      const o2 = await runTool([...only, '--gates', 'build,no-such-script-x']); assert.equal(o2.code, 0, o2.out);
       assert.ok(fs.existsSync(path.join(out, dir, 'report.json')), '只量一頁的試跑不可清掉不同範圍的報告');
       const onlyDirs = fs.readdirSync(out).filter((d) => d !== dir && fs.existsSync(path.join(out, d, 'report.json'))).sort();
       assert.equal(onlyDirs.length, 1, '同範圍 --keep 1 只留最新一份：' + onlyDirs.join(','));
       const rep2 = JSON.parse(fs.readFileSync(path.join(out, onlyDirs[0], 'report.json'), 'utf8'));
       assert.ok(rep2.compare && !rep2.compare.against.includes(dir), 'compare auto 不可拿不同範圍當基線');
       assert.deepEqual(rep2.scope.pages, 'only:ok');
+      // gates：沒 --serve 時 build 不冒充 PASS；不存在的腳本 SKIP；穩定分維持不完整並寫明原因
+      assert.deepEqual(rep2.gates.map((g) => `${g.name}:${g.status}`), ['build:SKIP', 'no-such-script-x:SKIP']);
+      assert.ok(rep2.michelin.stability.missing.some((m) => m.startsWith('build（未判定：只有 --serve 時才有建置結果')), rep2.michelin.stability.missing.join('|'));
+      assert.match(fs.readFileSync(path.join(out, onlyDirs[0], 'report.md'), 'utf8'), /## 閘門（gates）[\s\S]*no-such-script-x \| SKIP/);
       e2e = `ok（${rep.rows.length} 頁，${rep.elapsedSec}s）`;
     } finally { await f.close(); }
   });
@@ -378,7 +437,7 @@ if (findPlaywright() && process.platform !== 'win32') {
       assert.equal(r.code, 130, out); assert.equal(fs.existsSync(lockFile), false, '中斷後鎖必須被清掉');
       const runs = fs.existsSync(path.join(tmp, 'sig-out')) ? fs.readdirSync(path.join(tmp, 'sig-out'), { recursive: true }).filter((x) => /report\.json$/.test(x)) : [];
       assert.deepEqual(runs, [], '中斷後不可寫出半套報告');
-      assert.deepEqual(fs.existsSync(path.join(tmp, 'sig-out')) ? fs.readdirSync(path.join(tmp, 'sig-out')).filter((n) => /^\d{8}T/.test(n)) : [], [], '中斷時自己這次的空資料夾要清掉'); assert.match(out, /收到中斷訊號/);
+      assert.deepEqual(fs.existsSync(path.join(tmp, 'sig-out')) ? fs.readdirSync(path.join(tmp, 'sig-out')).filter((n) => RUN_DIR_RE.test(n)) : [], [], '中斷時自己這次的空資料夾要清掉'); assert.match(out, /收到中斷訊號/);
       sigint = 'ok';
     } finally { await f.close(); }
   });
