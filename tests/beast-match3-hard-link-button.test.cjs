@@ -11,7 +11,8 @@ const host = fs.readFileSync('components/battlefield/asura-death/AsuraDeathHost.
 
 // 1) 連結攻擊列：困難模式常駐（不再只在「玩法與操作」打開時出現），非困難模式維持原本位置。
 assert(!/help && actions\}/.test(source), 'hard link bar must not depend on help panel');
-const treasuresAt = source.indexOf('<OrbTreasures catalog=');
+// OrbTreasures 仍掛在寶物列，但開頭屬性可能是 partyCount 等，不再保證是 catalog= 緊接標籤名。
+const treasuresAt = source.search(/<OrbTreasures[\s\S]*?\bcatalog=/);
 const rigActionsAt = source.indexOf('{rigEnabled && !mobileActionless && actions}');
 assert(rigActionsAt > treasuresAt && treasuresAt > 0, 'hard actions JSX still sits right after the treasure row, but stays unmounted');
 assert.equal(source.split('{rigEnabled && !mobileActionless && actions}').length - 1, 1, 'hard bar unmounts when actionless');
