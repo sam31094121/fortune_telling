@@ -186,7 +186,7 @@ function LunarBirthdayInput({
           type="button"
           disabled={disabled}
           onClick={() => handleModeChange('solar')}
-          className={`rounded-lg px-3 py-2.5 font-semibold transition-all ${mode === 'solar' ? 'border border-cyan-300/30 bg-cyan-400/15 text-cyan-100' : 'text-[color:var(--text-sub)] hover:text-white'}`}
+          className={`min-h-[44px] rounded-lg px-3 py-2.5 font-semibold transition-all ${mode === 'solar' ? 'border border-cyan-300/30 bg-cyan-400/15 text-cyan-100' : 'text-[color:var(--text-sub)] hover:text-white'}`}
         >
           {display('國曆生日')}
         </button>
@@ -194,7 +194,7 @@ function LunarBirthdayInput({
           type="button"
           disabled={disabled}
           onClick={() => handleModeChange('lunar')}
-          className={`rounded-lg px-3 py-2.5 font-semibold transition-all ${mode === 'lunar' ? 'border border-violet-300/30 bg-violet-400/15 text-violet-100' : 'text-[color:var(--text-sub)] hover:text-white'}`}
+          className={`min-h-[44px] rounded-lg px-3 py-2.5 font-semibold transition-all ${mode === 'lunar' ? 'border border-violet-300/30 bg-violet-400/15 text-violet-100' : 'text-[color:var(--text-sub)] hover:text-white'}`}
         >
           {display('農曆生日')}
         </button>

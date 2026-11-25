@@ -1315,7 +1315,8 @@ export default function NameologyPage() {
             className="mt-6"
           />
 
-          <div className="mt-7 grid gap-7">
+          {/* 是否為「姓名學 × 八字」要等瀏覽器讀到網址（?mode=bazi）才知道；讀到之前先不顯示表單，免得生日欄位插進來時把下面整片往下推（電腦版 CLS 0.086）。只影響顯示時機。 */}
+          <div className="mt-7 grid gap-7" style={modeChecked ? undefined : { visibility: 'hidden' }}>
             <div>
               <label htmlFor="nameology-name-input" className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
                 1. 姓名（必填） {form.name.trim().length >= 2 && <span className="text-green-400">✓</span>}

@@ -2074,7 +2074,8 @@ body.app-lite-effects .taiji-light-orbit--violet .taiji-light-orbit__head {
   overflow: hidden;
   border: 1px solid rgba(247, 239, 210, 0.45);
   border-radius: 999px;
-  background: linear-gradient(135deg, #c9a24a 0%, #f7efd2 50%, #8a6a2f 100%);
+  /* 2026-11-25：最深的金從 #8a6a2f 提亮到 #a6803a，深色字在按鈕右下角的對比 3.99 → 5.4（AA 4.5） */
+  background: linear-gradient(135deg, #c9a24a 0%, #f7efd2 50%, #a6803a 100%);
   color: #050716;
   font-weight: 900;
   text-transform: uppercase;
@@ -27682,4 +27683,35 @@ body:has(#home-eight-card-route) #home-eight-card-route#home-eight-card-route .h
     user-select: text;
     -webkit-touch-callout: default;
   }
+}
+
+/* ==========================================================================
+   2026-11-25 字級／對比／點擊目標補強（健康檢查 044351 正式站報告）
+   - 電腦、平板（641px 以上）：固定像素小字與 text-xs 下限 14px（客戶選「大」「特大」時跟著 rem 放大）。
+     手機（640px 以下）早已另有下限（見上方「手機字體」），這段不影響手機。
+   - 已有 sm:/md:/lg: 放大字級的元素不動（避免把較大的字壓回 14px）。
+   - 業主保護區不動：首頁信任投票、今日定向關卡、太極、阿修羅、神獸卡（BeastCardTile）、紫微命盤。
+   ========================================================================== */
+@media (min-width: 641px) {
+  :is(.text-\[8px\], .text-\[9px\], .text-\[10px\], .text-\[11px\], .text-\[12px\], .text-\[13px\], .text-xs):not([class*="sm:text-sm"], [class*="sm:text-base"], [class*="sm:text-lg"], [class*="sm:text-xl"], [class*="sm:text-2xl"], [class*="sm:text-3xl"], [class*="md:text-sm"], [class*="md:text-base"], [class*="md:text-lg"], [class*="md:text-xl"], [class*="lg:text-sm"], [class*="lg:text-base"], [class*="lg:text-lg"], [class*="lg:text-xl"]):not(:is(#home-trust-strip, .home-trust-strip, .home-trust-card, [class*="TodayDirectionQuest_"], [class*="BeastCardTile_"], [class*="ghost-asura_"], [class*="GhostAsura"], [class*="Taiji"], [class*="taiji"], [class*="ModelLab_"], [class*="Ziwei"], [class*="Asura"]) *) {
+    font-size: max(14px, 0.875rem);
+  }
+  /* 首頁成長中心模組列（原本 0.64–0.82rem ≈ 10–13px） */
+  .growth-module-route__label { font-size: max(15px, 0.95rem); }
+  .growth-module-route__helper { font-size: max(14px, 0.875rem); }
+  .growth-module-route__status { font-size: max(14px, 0.875rem); }
+  .growth-module-route__index { font-size: max(14px, 0.875rem); }
+  /* 各頁共用的小標籤（原本 0.68–0.82rem ≈ 11–13px） */
+  .choice-signal,
+  .zodiac-brand-hero__eyebrow,
+  .tarot-question-entry__label-row span,
+  .tarot-question-entry__field-hint { font-size: max(14px, 0.875rem); }
+}
+
+/* 西洋星座頁頂端英文小標：手機 clamp 下限只有 13.6px，補到 14px（所有寬度） */
+.zodiac-brand-hero__eyebrow { font-size: max(14px, clamp(0.68rem, 2vw, 0.78rem)); }
+/* 首頁太極主視覺外框（app/page.tsx 的 section，不動太極元件本身）：電腦版太極約 6 秒後才長到 390px 高，
+   把下面的定向關卡與卡片往下推（1280 寬 CLS 0.057）。先保留最終高度，載入過程不再推擠。手機版已固定 132px，不受影響。 */
+@media (min-width: 901px) and (pointer: fine) {
+  #home-top-empty-shell-card { min-height: 390px; }
 }

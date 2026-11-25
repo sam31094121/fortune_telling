@@ -9,7 +9,9 @@
 .login{display:grid;gap:16px;max-width:440px}
 .login input,.zi select{background:#080c18;border:1px solid #a899ba;border-radius:12px;padding:14px;color:#fff;font-size:16px;width:100%}
 .login button,.printButton{min-height:48px;padding:12px 20px;border-radius:12px;background:#d9bef5;color:#21152c;font-weight:700}
-.page button:disabled{opacity:.5}.printButton{display:block;margin:0 0 20px auto;border:1px solid #d9bef5}
+.page button:disabled{opacity:.5}
+/* 2026-11-25：密碼「解鎖」鈕停用時原本半透明，字對比只有 2.93；改成深紫底淺字，看得出不能按、字仍清楚 */
+.login button:disabled{opacity:1;background:#3b3149;color:#eee2ff;cursor:not-allowed}.printButton{display:block;margin:0 0 20px auto;border:1px solid #d9bef5}
 .error{position:sticky;bottom:16px;background:#491e32;color:#ffe6ef;border:1px solid #ff9aba;padding:16px;border-radius:14px;z-index:5}
 .results{scroll-margin-top:20px}.zi{display:grid;gap:12px;margin-top:18px}
 .palace{border:1px solid #bca0e844;border-radius:16px;padding:18px;line-height:1.9;overflow-wrap:anywhere}

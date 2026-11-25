@@ -516,7 +516,7 @@ export default function NumerologyPage() {
           </div>
 
           <details className="mt-3 rounded-2xl border border-cyan-100/15 bg-cyan-200/[0.045] px-3 py-2.5 text-center">
-            <summary className="cursor-pointer text-[11px] font-black text-cyan-100/80">這組數字要用在哪裡？可略過</summary>
+            <summary className="min-h-[44px] cursor-pointer py-2.5 text-[11px] font-black text-cyan-100/80">這組數字要用在哪裡？可略過</summary>
             <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {PURPOSE_OPTIONS.map((option) => (
                 <button

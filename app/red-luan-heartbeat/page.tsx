@@ -1666,7 +1666,7 @@ function RedLuanHeartbeatExperience() {
         <p className="text-xs leading-5 text-white/75">本服務是文化探索與自我反思，不是心理診斷，也不是確定預測。</p>
       </section>}
 
-      <Link href="/" className="mx-auto mt-6 flex w-fit items-center gap-2 text-sm font-bold text-cyan-100 underline underline-offset-4">⌂ 返回首頁</Link>
+      <Link href="/" className="mx-auto mt-6 flex min-h-[44px] w-fit items-center gap-2 px-2 text-sm font-bold text-cyan-100 underline underline-offset-4">⌂ 返回首頁</Link>
 
       {showJumpPill && jumpPillLabel && (
         <button

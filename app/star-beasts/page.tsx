@@ -206,7 +206,7 @@ export default function StarBeastsPage() {
         </Link>
 
         <header className="relative mt-5 overflow-hidden rounded-[2rem] border border-amber-200/25 bg-[radial-gradient(circle_at_82%_20%,rgba(251,191,36,0.22),transparent_24%),radial-gradient(circle_at_12%_110%,rgba(34,211,238,0.18),transparent_35%),linear-gradient(135deg,rgba(25,20,56,0.96),rgba(6,12,30,0.96))] px-5 py-8 shadow-[0_24px_70px_rgba(0,0,0,0.3)] sm:px-10 sm:py-12">
-          <div className="pointer-events-none absolute right-5 top-5 font-serif text-7xl font-black text-amber-100/[0.06] sm:right-10 sm:text-9xl">28</div>
+          <div aria-hidden="true" className="pointer-events-none absolute right-5 top-5 font-serif text-7xl font-black text-amber-100/[0.06] sm:right-10 sm:text-9xl">28</div>
           <p className="text-xs font-black tracking-[0.28em] text-amber-200/85">THE TWENTY-EIGHT MANSIONS</p>
           <h1 className="mt-3 font-serif text-4xl font-black tracking-wide text-white sm:text-6xl">星宿神獸卡片</h1>
           <p className="mt-4 text-sm text-slate-300">二十八星宿分類，各有本體與幼子形態；另有四隻四象守護獸。</p>
