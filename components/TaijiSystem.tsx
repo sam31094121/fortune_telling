@@ -11,6 +11,7 @@
  * 範圍鎖定：只供太極卡使用，不影響其他卡片與手機版面。
  */
 
+import { createBandFollower, followBandPresence } from '@/lib/taiji-band-follower';
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { isLowPowerDevice, isStrongPhoneDevice } from '@/components/taiji/taijiDeviceGate';
@@ -51,6 +52,7 @@ import TaijiQuantumField from './taiji/TaijiQuantumField';
 import TaijiEntanglementCore from './taiji/TaijiEntanglementCore';
 import TaijiCellularCore from './taiji/TaijiCellularCore';
 import TaijiAbyssField from './taiji/TaijiAbyssField';
+import TaijiInkHaze from './taiji/TaijiInkHaze';
 import { useTaijiFirstScreenScroll } from './taiji/useTaijiFirstScreenScroll';
 import { useTaijiPinch } from './taiji/useTaijiPinch';
 import {
@@ -345,6 +347,56 @@ function blendJourneyThemeColor(depth: number, key: 'primary' | 'secondary' | 'a
   return target.copy(TAIJI_24_THEME_COLORS[fromIndex][key]).lerp(TAIJI_24_THEME_COLORS[toIndex][key], index - fromIndex);
 }
 
+/* 【轉場｜2026-11-25 第二輪】光色限速跟隨：線性混色仍讓第 7→8、8→9、15→16、16→17（鎏金↔月銀換氣）
+   每幀色差 ΔE 2.8～7.8。改成「目標色＝連續深度混色」，實際燈色每幀最多走 ΔE 0.8（以 60 fps 計，依實際幀長等比），
+   像電影調光一樣慢慢追上；停在整數段時一定收斂到與原本相同的顏色。深度一幀跳超過 0.5 且已等於目標（jumpJourney 原子跳轉：回到第 1 段的重置、網址直達）
+   屬刻意瞬間跳轉，直接對齊不補間。 */
+const JOURNEY_COLOR_MAX_DELTA_E_PER_60FPS_FRAME = 0.8;
+function linearToLab(c: THREE.Color) {
+  const f = (t: number) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
+  const x = f((0.4124 * c.r + 0.3576 * c.g + 0.1805 * c.b) / 0.95047);
+  const y = f(0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b);
+  const z = f((0.0193 * c.r + 0.1192 * c.g + 0.9505 * c.b) / 1.08883);
+  return [116 * y - 16, 500 * (x - y), 200 * (y - z)] as const;
+}
+function labToLinear(l: number, a: number, b: number, out: THREE.Color) {
+  const fy = (l + 16) / 116;
+  const fx = fy + a / 500;
+  const fz = fy - b / 200;
+  const inv = (t: number) => (t * t * t > 0.008856 ? t * t * t : (t - 16 / 116) / 7.787);
+  const x = inv(fx) * 0.95047;
+  const y = inv(fy);
+  const z = inv(fz) * 1.08883;
+  out.r = Math.max(0, 3.2406 * x - 1.5372 * y - 0.4986 * z);
+  out.g = Math.max(0, -0.9689 * x + 1.8758 * y + 0.0415 * z);
+  out.b = Math.max(0, 0.0557 * x - 0.204 * y + 1.057 * z);
+  return out;
+}
+type JourneyThemeKey = 'primary' | 'secondary' | 'accent';
+class JourneyThemeFollower {
+  readonly color: Record<JourneyThemeKey, THREE.Color> = { primary: new THREE.Color(), secondary: new THREE.Color(), accent: new THREE.Color() };
+  private readonly target = new THREE.Color();
+  private lastDepth = Number.NaN;
+  update(depth: number, frameDelta: number, target = depth) {
+    // 只有「原子跳轉」（jumpJourney：current 一幀內直接等於 target 且跳超過半段）才對齊；一般多段補間照樣限速。
+    const snap = !Number.isFinite(this.lastDepth) || (Math.abs(depth - this.lastDepth) > 0.5 && Math.abs(depth - target) < 1e-6);
+    this.lastDepth = depth;
+    const budget = JOURNEY_COLOR_MAX_DELTA_E_PER_60FPS_FRAME * Math.max(0, Math.min(frameDelta, FRAME_DELTA_CAP)) * 60;
+    (['primary', 'secondary', 'accent'] as const).forEach((key) => {
+      blendJourneyThemeColor(depth, key, this.target);
+      const current = this.color[key];
+      if (snap) { current.copy(this.target); return; }
+      // 在 Lab 空間等距前進：每一步的色差恰好是 budget，不會因 RGB 非線性超標。
+      const p = linearToLab(current);
+      const q = linearToLab(this.target);
+      const distance = Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
+      if (distance <= budget || distance < 1e-6) { current.copy(this.target); return; }
+      const k = budget / distance;
+      labToLinear(p[0] + (q[0] - p[0]) * k, p[1] + (q[1] - p[1]) * k, p[2] + (q[2] - p[2]) * k, current);
+    });
+  }
+}
+
 function hexToRgb(hex: string) {
   const normalized = hex.replace('#', '');
   const value = normalized.length === 3
@@ -577,6 +629,51 @@ function createDefaultTaijiTexture() {
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+/* 【視覺｜2026-11-25 第三輪 黑階】墨面的「自發光底」：
+   原本自發光＝鎏金色 × 球面貼圖，墨面貼圖本身接近 0，背光那半邊經 ACES 色調映射後整片 RGB 0～2（第 1 段實測主體 11～17% 死黑）。
+   這張 1024×512 的自發光貼圖：月面＝原貼圖 × 鎏金（與原本自發光相同），墨面＝反相遮罩 × 墨靛底色 TAIJI_INK_FLOOR，
+   只讓墨面最暗處留住一層墨靛，不碰受光面與高光；材質的自發光色改成白色，強度曲線完全不變。
+   全部是 Canvas 合成運算（difference／multiply／lighter），不逐像素回讀，手機不產生長任務。 */
+const TAIJI_INK_FLOOR = '#5866a6';
+function createTaijiInkEmissiveTexture(source: THREE.Texture | null, accent: string) {
+  const image = source?.image as CanvasImageSource | undefined;
+  if (!image) return null;
+  const w = 1024;
+  const h = 512;
+  const base = document.createElement('canvas');
+  base.width = w;
+  base.height = h;
+  const ctx = base.getContext('2d');
+  const inkCanvas = document.createElement('canvas');
+  inkCanvas.width = w;
+  inkCanvas.height = h;
+  const ictx = inkCanvas.getContext('2d');
+  if (!ctx || !ictx) return null;
+  ctx.drawImage(image, 0, 0, w, h);
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.fillStyle = accent;
+  ctx.fillRect(0, 0, w, h);
+  ictx.drawImage(image, 0, 0, w, h);
+  ictx.globalCompositeOperation = 'difference';
+  ictx.fillStyle = '#ffffff';
+  ictx.fillRect(0, 0, w, h);
+  ictx.globalCompositeOperation = 'multiply';
+  ictx.fillStyle = TAIJI_INK_FLOOR;
+  ictx.fillRect(0, 0, w, h);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.drawImage(inkCanvas, 0, 0);
+  ctx.globalCompositeOperation = 'source-over';
+  const texture = new THREE.CanvasTexture(base);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.ClampToEdgeWrapping;
+  texture.generateMipmaps = true;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
   texture.needsUpdate = true;
   return texture;
 }
@@ -1478,7 +1575,8 @@ function Level01AccumulatedLightningWeb({ strikes, flashStrikeId, lowPower = fal
 /** 光線科技③：黃金時刻掃光——主光緩慢繞行，球面高光如夕陽流動（人類最愛的 golden hour） */
 function KeyLightSweep({ theme, progress24, journeyRef }: { theme: TaijiVisualTheme; progress24: number; journeyRef?: TaijiJourneyRef }) {
   const lightRef = useRef<THREE.DirectionalLight>(null);
-  useFrame((state) => {
+  const follower = useMemo(() => new JourneyThemeFollower(), []);
+  useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
     if (!lightRef.current) return;
     lightRef.current.position.x = Math.sin(t * 0.12) * 5.2;
@@ -1486,7 +1584,8 @@ function KeyLightSweep({ theme, progress24, journeyRef }: { theme: TaijiVisualTh
     /* 【轉場｜2026-11-25】主燈色溫與亮度跟連續深度走，不在半層處跳一格。 */
     if (journeyRef) {
       const depth = journeyRef.current.current;
-      blendJourneyThemeColor(depth, 'primary', lightRef.current.color);
+      follower.update(depth, delta, journeyRef.current.target);
+      lightRef.current.color.copy(follower.color.primary);
       lightRef.current.intensity = 1.35 + progressFromDepth(depth) * 0.45;
     }
   });
@@ -1496,8 +1595,10 @@ function KeyLightSweep({ theme, progress24, journeyRef }: { theme: TaijiVisualTh
 /** 背光（輪廓光）：同一盞燈，色溫依連續深度混色。 */
 function JourneyAccentBackLight({ theme, journeyRef }: { theme: TaijiVisualTheme; journeyRef: TaijiJourneyRef }) {
   const lightRef = useRef<THREE.PointLight>(null);
-  useFrame(() => {
-    if (lightRef.current) blendJourneyThemeColor(journeyRef.current.current, 'accent', lightRef.current.color);
+  const follower = useMemo(() => new JourneyThemeFollower(), []);
+  useFrame((_, delta) => {
+    follower.update(journeyRef.current.current, delta, journeyRef.current.target);
+    if (lightRef.current) lightRef.current.color.copy(follower.color.accent);
   });
   return <pointLight ref={lightRef} position={[0, 2.2, -4.5]} intensity={1.15} color={theme.accent} />;
 }
@@ -1775,6 +1876,14 @@ function TaijiCore({
   const sepRef = useRef(0);
   /* 2026-08-16「太極要穩」：自轉角改增量積分（速度變化不瞬跳）＋縮放/深度平滑過渡 */
   const totemAngleRef = useRef(0);
+  /* 【轉場｜2026-11-25 第三輪】第 1 段離場時，整組旋轉會從第 1 層的感測姿態（實測累積到 x 6.53、y 12.57、z −4.78 rad，
+     折回後 z 約 1.51 rad＝86°）在一幀內被重設成 (0, 0.135, 0)，畫面像剪接跳格。
+     這裡只在「旅程正在移動」（current≠target）時偵測單幀角度跳變 >0.35 rad，把跳差（取最短角度）當成偏移，
+     再用 smoothstep 在 dur 秒內退到 0（角加速度 ≤1.2 rad/s²，即每幀角速度變化 ≤0.02）。
+     旅程停住（含第 1 層手勢甩動、jumpJourney 原子重置）時不介入；偏移退完後畫面與原本完全相同。 */
+  // 第四輪：深層群組顯示與元件內淡出用同一個限速跟隨（lib/taiji-band-follower.ts），關閉那一幀畫面不變
+  const bandFollowersRef = useRef({ quantum: createBandFollower() });
+  const rotationHandoffRef = useRef({ active: false, start: 0, dur: 0, ox: 0, oy: 0, oz: 0, ax: 0, ay: 0, az: 0, px: 0, py: 0, pz: 0, has: false });
   const totemScaleRef = useRef(1);
   const totemZRef = useRef(0);
   const pulseRef = useRef(0);
@@ -1802,6 +1911,10 @@ function TaijiCore({
   const sixiangGroupRef = useRef<THREE.Group>(null);
   /* 【轉場｜2026-11-25】兩儀互照燈、八卦軌道、四象石發光：改由每幀依連續深度設定（燈數與材質數不變）。 */
   const moonBounceRef = useRef<THREE.PointLight>(null);
+  const sparklesRef = useRef<THREE.Points>(null);
+  const sparkleBlend = useMemo(() => new THREE.Color(), []);
+  const themeFollower = useMemo(() => new JourneyThemeFollower(), []);
+  const ballOpacityRef = useRef({ value: Number.NaN, depth: Number.NaN });
   const inkBounceRef = useRef<THREE.PointLight>(null);
   const baguaRingMatRefs = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const sixiangStoneMatRefs = useRef<(THREE.MeshPhysicalMaterial | null)[]>([]);
@@ -1943,6 +2056,8 @@ function TaijiCore({
     };
   }, [ultraTexture, textureDetail]);
   const ballTexture = useMemo(() => createTaijiSphereTexture(TAIJI_BENCHMARK_THEME, textureDetail), [textureDetail]);
+  const ballEmissiveTexture = useMemo(() => createTaijiInkEmissiveTexture(ballTexture, TAIJI_BENCHMARK_THEME.accent), [ballTexture]);
+  useEffect(() => () => { ballEmissiveTexture?.dispose(); }, [ballEmissiveTexture]);
   const surfaceNoise = useMemo(() => createSurfaceNoiseTexture(), []);
   /* 量子層預算：依裝置能力給定，物件身分穩定（不會因為重繪而重建幾何） */
   const quantumBudget = useMemo(
@@ -2115,6 +2230,14 @@ function TaijiCore({
       energyFieldRef.current.rotation.x = Math.sin(t * 0.08) * 0.01;
     }
 
+    const handoff = rotationHandoffRef.current;
+    if (handoff.ax !== 0 || handoff.ay !== 0 || handoff.az !== 0) {
+      // 先拿掉上一幀加上的偏移，下面各分支（含 += 的緩動）都在原本的基準角度上運算
+      groupRef.current.rotation.x -= handoff.ax;
+      groupRef.current.rotation.y -= handoff.ay;
+      groupRef.current.rotation.z -= handoff.az;
+      handoff.ax = 0; handoff.ay = 0; handoff.az = 0;
+    }
     if (layer === 1 && entrance.active) {
       const pose = level01PoseRef?.current;
       groupRef.current.rotation.set(
@@ -2202,6 +2325,33 @@ function TaijiCore({
       groupRef.current.rotation.y += impactState.angleY;
     }
 
+    {
+      const rot = groupRef.current.rotation;
+      const wrapAngle = (v: number) => v - Math.round(v / (Math.PI * 2)) * Math.PI * 2;
+      const travelling = Math.abs(journeyRef.current.target - depth) > 1e-4;
+      if (handoff.has && travelling) {
+        const dx = wrapAngle(handoff.px - rot.x);
+        const dy = wrapAngle(handoff.py - rot.y);
+        const dz = wrapAngle(handoff.pz - rot.z);
+        const jump = Math.max(Math.abs(dx), Math.abs(dy), Math.abs(dz));
+        if (jump > 0.35) {
+          handoff.active = true;
+          handoff.start = t;
+          handoff.dur = Math.min(3, Math.max(0.6, Math.sqrt((6 * jump) / 1.2)));
+          handoff.ox = dx; handoff.oy = dy; handoff.oz = dz;
+        }
+      }
+      if (handoff.active) {
+        const k = 1 - smoothstep(0, handoff.dur, t - handoff.start);
+        if (k <= 0) handoff.active = false;
+        else {
+          handoff.ax = handoff.ox * k; handoff.ay = handoff.oy * k; handoff.az = handoff.oz * k;
+          rot.x += handoff.ax; rot.y += handoff.ay; rot.z += handoff.az;
+        }
+      }
+      handoff.px = rot.x; handoff.py = rot.y; handoff.pz = rot.z; handoff.has = true;
+    }
+
     if (diskRef.current) {
       if (level01Drive && level01PoseRef?.current) {
         totemAngleRef.current = level01PoseRef.current.spinAngle;
@@ -2260,10 +2410,14 @@ function TaijiCore({
     }
     if (moonBounceRef.current) moonBounceRef.current.intensity = 0.22 * liangyiEmerge;
     if (inkBounceRef.current) inkBounceRef.current.intensity = 0.08 * liangyiEmerge;
-    const showSixiang = sixiangPresence(depth) > 0.04 && macroVisible;
+    /* 【轉場｜2026-11-25 第三輪】四象石、八卦環原本在出現量 0.04 那一幀以 4% 尺寸「冒出」、退場時在 4% 一幀消失；
+       門檻改成 0.002（尺寸 0.2%，小於一個像素），出現量 ≥0.04 時尺寸、時間與原本完全相同。 */
+    /* 宏觀層在 macroFade 0.02 那一幀整組關閉；讓四象／八卦在 macroFade 0.12→0.02 先縮到 0，關閉那一幀畫面不變。macroFade≥0.12（含第 1～4 段）完全不變。 */
+    const macroTail = smoothstep(0.02, 0.12, macroFade);
+    const showSixiang = sixiangPresence(depth) > 0.002 && macroVisible;
     if (sixiangGroupRef.current) {
       sixiangGroupRef.current.visible = showSixiang || warming;
-      sixiangGroupRef.current.scale.setScalar(showSixiang ? sixiangPresence(depth) : warmScale);
+      sixiangGroupRef.current.scale.setScalar(showSixiang ? Math.max(0.0001, sixiangPresence(depth) * macroTail) : warmScale);
     }
 
     const ballMat = ballMatRef.current;
@@ -2272,7 +2426,15 @@ function TaijiCore({
         ? Math.max(motionGamePose.motionGame.motionMagnitude, motionGamePose.motionEnergy)
         : 0;
       const baseOpacity = lerpNumber(1, 0.82, split);
-      const opacity = Number.isFinite(baseOpacity * shellFade) ? Math.min(1, Math.max(0, baseOpacity * shellFade)) : 1;
+      const opacityTarget = Number.isFinite(baseOpacity * shellFade) ? Math.min(1, Math.max(0, baseOpacity * shellFade)) : 1;
+      /* 【轉場｜2026-11-25 第二輪】第 4→5 段太極球淡出原本每幀最多掉 0.1 不透明度；
+         改成每幀（60 fps 計）最多變 0.018，像溶接一樣退場；停在整數段時與原值相同，原子跳轉（jumpJourney）時直接對齊。 */
+      const opacityState = ballOpacityRef.current;
+      const opacityStep = 0.018 * frameDelta * 60;
+      if (!Number.isFinite(opacityState.value) || (Math.abs(depth - opacityState.depth) > 0.5 && Math.abs(depth - journeyRef.current.target) < 1e-6)) opacityState.value = opacityTarget;
+      else opacityState.value += Math.max(-opacityStep, Math.min(opacityStep, opacityTarget - opacityState.value));
+      opacityState.depth = depth;
+      const opacity = opacityState.value;
       ballMat.opacity = opacity;
       ballMat.depthWrite = opacity > 0.995;
       // LEVEL 01 surface refinement: reuse material uniforms only. Motion makes
@@ -2311,30 +2473,29 @@ function TaijiCore({
       if (Math.abs(surfaceNoise.repeat.x - grain) > 0.01) surfaceNoise.repeat.set(grain, grain);
     }
 
-    const quantumWeight = bandWeight(depth, TAIJI_BANDS.quantum.enter, TAIJI_BANDS.quantum.full, TAIJI_BANDS.quantum.exitStart, TAIJI_BANDS.quantum.exitEnd);
-    const cellularWeight = bandWeight(depth, TAIJI_BANDS.cellular.enter, TAIJI_BANDS.cellular.full, TAIJI_BANDS.cellular.exitStart, TAIJI_BANDS.cellular.exitEnd);
-    const entangleWeight = bandWeight(depth, TAIJI_BANDS.entanglement.enter, TAIJI_BANDS.entanglement.full, TAIJI_BANDS.entanglement.exitStart, TAIJI_BANDS.entanglement.exitEnd);
-    const abyssWeight = bandWeight(depth, TAIJI_BANDS.abyss.enter, TAIJI_BANDS.abyss.full, TAIJI_BANDS.abyss.exitStart, TAIJI_BANDS.abyss.exitEnd);
+    const quantumWeight = followBandPresence(bandFollowersRef.current.quantum, bandWeight(depth, TAIJI_BANDS.quantum.enter, TAIJI_BANDS.quantum.full, TAIJI_BANDS.quantum.exitStart, TAIJI_BANDS.quantum.exitEnd), depth, journeyRef.current.target, delta);
 
     if (quantumGroupRef.current && diskRef.current) {
-      if (quantumWeight > 0.02) quantumGroupRef.current.rotation.set(0, 0, 0);
+      // 第五輪：旋轉交接點由權重 0.02 降到 0.002（skill 56 第 8 條：低權重淡層只能在 ≤0.002 時切換行為，此時量子層不可見）
+      if (quantumWeight > 0.002) quantumGroupRef.current.rotation.set(0, 0, 0);
       else quantumGroupRef.current.rotation.y = diskRef.current.rotation.y + Math.PI / 2;
-      quantumGroupRef.current.visible = quantumWeight > 0.002 || warming;
+      // 第四輪：外層群組不再依出現量開關——各深層元件的 root 會在所有淡入量（逐項限速）退完後才自行關閉，避免外層先關造成一幀消失
+      quantumGroupRef.current.visible = true;
     }
     if (deepGroupRef.current) {
-      deepGroupRef.current.visible = entangleWeight > 0.002 || warming;
+      deepGroupRef.current.visible = true;
       if (deepGroupRef.current.visible) {
         deepGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
       }
     }
     if (cellularGroupRef.current) {
-      cellularGroupRef.current.visible = cellularWeight > 0.002 || warming;
+      cellularGroupRef.current.visible = true;
       if (cellularGroupRef.current.visible) {
         cellularGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
       }
     }
     if (abyssGroupRef.current) {
-      abyssGroupRef.current.visible = abyssWeight > 0.002 || warming;
+      abyssGroupRef.current.visible = true;
       if (abyssGroupRef.current.visible) {
         abyssGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
       }
@@ -2343,32 +2504,44 @@ function TaijiCore({
     /* 【轉場｜2026-11-25】雲隙光／光暈原本在分儀量 0.04 時直接 visible=false（加法光一幀消失）；
        改成在分儀量 0→0.3 之間淡到 0 才關，關掉那一幀畫面不變。第 1 層（分儀量 0）與第 2 層起（已關）都不變。 */
     const preSplitFade = 1 - smoothstep(0, 0.3, split);
+    themeFollower.update(depth, frameDelta, journeyRef.current.target);
     if (raysRef.current) {
       raysRef.current.material.rotation += frameDelta * (0.007 + progress24 * 0.008) * raySpinDir;
       raysRef.current.material.opacity = Math.min(0.09, 0.032 + progress24 * 0.018 + Math.sin(t * 0.28) * 0.003 + pulse * 0.025) * macroFade * preSplitFade;
       const rayScale = 4.55 * (1 + progress24 * 0.01 + Math.sin(t * 0.28) * 0.003 + pulse * 0.012);
       raysRef.current.scale.set(rayScale, rayScale, 1);
       raysRef.current.visible = (preSplitFade > 0.001 && macroVisible) || warming;
-      blendJourneyThemeColor(depth, 'primary', raysRef.current.material.color);
+      raysRef.current.material.color.copy(themeFollower.color.primary);
     }
     if (glowRef.current) {
       glowRef.current.material.opacity = Math.min(0.13, 0.078 + progress24 * 0.018 + Math.sin(t * 0.46) * 0.003 + pulse * 0.022) * macroFade * preSplitFade;
       const glowScale = 3.65 * (1 + progress24 * 0.01 + Math.sin(t * 0.46) * 0.003 + pulse * 0.012);
       glowRef.current.scale.set(glowScale, glowScale, 1);
       glowRef.current.visible = (preSplitFade > 0.001 && macroVisible) || warming;
-      blendJourneyThemeColor(depth, 'primary', glowRef.current.material.color);
+      glowRef.current.material.color.copy(themeFollower.color.primary);
     }
     const ringKeys = ['primary', 'secondary', 'accent'] as const;
     const ringBase = [0.09, 0.04, 0.035];
     const ringGain = [0.018, 0.012, 0.01];
     baguaRingMatRefs.current.forEach((mat, i) => {
       if (!mat) return;
-      blendJourneyThemeColor(depth, ringKeys[i], mat.color);
+      mat.color.copy(themeFollower.color[ringKeys[i]]);
       mat.opacity = ringBase[i] + progress24 * ringGain[i];
     });
+    /* 【轉場｜2026-11-25】星塵顏色原本跟著整數段跳色；改在原有 11 顆的顏色緩衝區內就地混色
+       （數量不變、不重建幾何，只有顏色真的變了才標記上傳 33 個浮點數）。 */
+    const sparkleColor = sparklesRef.current?.geometry?.getAttribute('color') as THREE.BufferAttribute | undefined;
+    if (sparkleColor && macroVisible) {
+      sparkleBlend.copy(themeFollower.color.primary);
+      const arr = sparkleColor.array as Float32Array;
+      if (Math.abs(arr[0] - sparkleBlend.r) > 1e-4 || Math.abs(arr[1] - sparkleBlend.g) > 1e-4 || Math.abs(arr[2] - sparkleBlend.b) > 1e-4) {
+        for (let i = 0; i < arr.length; i += 3) { arr[i] = sparkleBlend.r; arr[i + 1] = sparkleBlend.g; arr[i + 2] = sparkleBlend.b; }
+        sparkleColor.needsUpdate = true;
+      }
+    }
     sixiangStoneMatRefs.current.forEach((mat) => {
       if (!mat) return;
-      blendJourneyThemeColor(depth, 'accent', mat.emissive);
+      mat.emissive.copy(themeFollower.color.accent);
       mat.emissiveIntensity = 0.18 + progress24 * 0.1;
     });
 
@@ -2388,9 +2561,9 @@ function TaijiCore({
       yangRef.current.rotation.y -= frameDelta * 0.13 * spinBoost;
     }
     if (baguaOrbitRef.current) {
-      const showBagua = baguaPresence(depth) > 0.04 && macroVisible;
+      const showBagua = baguaPresence(depth) > 0.002 && macroVisible;
       baguaOrbitRef.current.visible = showBagua || warming;
-      baguaOrbitRef.current.scale.setScalar(showBagua ? baguaPresence(depth) : warmScale);
+      baguaOrbitRef.current.scale.setScalar(showBagua ? Math.max(0.0001, baguaPresence(depth) * macroTail) : warmScale);
       baguaOrbitRef.current.rotation.z += frameDelta * (0.008 + progress24 * 0.004);
       baguaOrbitRef.current.rotation.x = Math.sin(t * 0.045) * 0.012;
       baguaOrbitRef.current.rotation.y = Math.cos(t * 0.04) * 0.009;
@@ -2449,6 +2622,7 @@ function TaijiCore({
             （每次點擊配置新的 Float32Array → GC 壓力 → 掉幀）。
             「越點星塵越盛」的感受改由尺寸、速度與亮度表現，視覺不減、成本歸零。 */}
         <Sparkles
+          ref={sparklesRef}
           count={11}
           scale={2.45}
           size={0.72}
@@ -2457,6 +2631,9 @@ function TaijiCore({
           color={activeTheme.primary}
         />
       </group>
+
+      {/* 第五輪百萬級：深層背霧（煙墨→墨靛→墨），畫在所有深層粒子之後，提供後景暗階與景深 */}
+      <TaijiInkHaze journeyRef={journeyRef} />
 
       {/* 量子層：光子與粒子的糾纏（×100 起浮現，×10,000 之後接管整個畫面） */}
       <group ref={quantumGroupRef}>
@@ -2531,8 +2708,8 @@ function TaijiCore({
           <meshPhysicalMaterial
             ref={ballMatRef}
             map={ballTexture}
-            emissiveMap={ballTexture}
-            emissive={TAIJI_BENCHMARK_THEME.accent}
+            emissiveMap={ballEmissiveTexture ?? ballTexture}
+            emissive={ballEmissiveTexture ? '#ffffff' : TAIJI_BENCHMARK_THEME.accent}
             emissiveIntensity={separate ? 0.035 : 0.052}
             metalness={0.12}
             roughness={0.28}
@@ -2583,7 +2760,8 @@ function TaijiCore({
             <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.moon} metalness={0.04} roughness={0.3} clearcoat={0.94} clearcoatRoughness={0.14} envMapIntensity={1.24} emissive={TAIJI_BENCHMARK_THEME.primary} emissiveIntensity={0.024 + progress24 * 0.025} bumpMap={surfaceNoise ?? undefined} bumpScale={0.016} sheen={0.28} sheenColor={TAIJI_BENCHMARK_THEME.primary} sheenRoughness={0.68} />
           </mesh>
           <mesh geometry={dotGeo} position={[0, -0.4, 0.72]}>
-            <meshPhysicalMaterial color={TAIJI_OBSIDIAN_BODY} metalness={0.32} roughness={0.18} clearcoat={1} clearcoatRoughness={0.09} envMapIntensity={1.36} />
+            {/* 【視覺｜2026-11-25】墨眼珠：原本高金屬感＋近黑本體，球心整片 RGB 0；改成低金屬黑曜石＋冷色 sheen，球心保有墨靛層次，清漆高光不變。 */}
+            <meshPhysicalMaterial color={TAIJI_OBSIDIAN_BODY} metalness={0.12} roughness={0.26} clearcoat={1} clearcoatRoughness={0.09} envMapIntensity={1.36} sheen={0.35} sheenColor="#46527a" sheenRoughness={0.5} emissive={TAIJI_INK_FLOOR} emissiveIntensity={0.04} />
           </mesh>
         </group>
       )}

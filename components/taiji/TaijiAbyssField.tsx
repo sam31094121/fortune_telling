@@ -35,6 +35,8 @@ import {
   sampleNumericKeyframes,
   type TaijiJourneyRef,
 } from '@/lib/taiji-journey-depth';
+import { applyTaijiHighlightRolloff } from '@/lib/taiji-highlight';
+import { beginRevealFrame, createBandFollower, createRevealLimiter, followBandPresence, followColorLab, limitKeyframes, limitReveal } from '@/lib/taiji-band-follower';
 import { type WarmRef } from './taijiMagnifier';
 
 const NO_RAYCAST = () => null;
@@ -421,8 +423,9 @@ export default function TaijiAbyssField({
     });
 
     // 黑洞與白洞不是外加的行星，而是同一批粒子在吸入／噴出兩個瞬間的中心狀態。
+    // 第四輪：黑洞本體由 #010108（色調映射後 RGB 0）抬到墨靛最深階 #0b0e1a，仍是全場最暗，但不再死黑
     const blackHoleMaterial = new THREE.MeshBasicMaterial({
-      color: '#010108',
+      color: '#0b0e1a',
       transparent: true,
       opacity: 0,
       depthWrite: false,
@@ -460,7 +463,8 @@ export default function TaijiAbyssField({
       blending: THREE.AdditiveBlending,
     });
 
-    return { fieldGeometry, fieldMaterial, finaleGeometry, finaleQuantumGeometry, finaleCoreMaterial, blackHoleMaterial, whiteHoleMaterial, softPhotonTexture, blackHoleJetGeometry, blackHoleJetMaterial, whiteHoleJetGeometry, whiteHoleJetMaterial };
+    // 深淵層粒子稀疏，肩部放寬（0.55 起滾、最高 0.88），保住噴流與旋臂的亮度；重疊上限仍是 0.9
+    return applyTaijiHighlightRolloff({ fieldGeometry, fieldMaterial, finaleGeometry, finaleQuantumGeometry, finaleCoreMaterial, blackHoleMaterial, whiteHoleMaterial, softPhotonTexture, blackHoleJetGeometry, blackHoleJetMaterial, whiteHoleJetGeometry, whiteHoleJetMaterial }, { knee: 0.55, ceiling: 0.88 });
   }, [armed, yinColor, yangColor, sparkColor]);
 
   useEffect(
@@ -481,23 +485,38 @@ export default function TaijiAbyssField({
     [built],
   );
 
+  const bandFollowerRef = useRef(createBandFollower());
+  const revealLimiterRef = useRef(createRevealLimiter());
+  const tintFollowRef = useRef({ color: new THREE.Color(), ready: false });
+
   useFrame((state, delta) => {
     const depth = readJourneyDepth(journeyRef);
-    const presence = bandWeight(
+    // 第四輪：出現量每幀最多變 0.018（見 lib/taiji-band-follower.ts），停在整數段時與原值相同
+    const presence = followBandPresence(
+      bandFollowerRef.current,
+      bandWeight(depth, TAIJI_BANDS.abyss.enter, TAIJI_BANDS.abyss.full, TAIJI_BANDS.abyss.exitStart, TAIJI_BANDS.abyss.exitEnd),
       depth,
-      TAIJI_BANDS.abyss.enter,
-      TAIJI_BANDS.abyss.full,
-      TAIJI_BANDS.abyss.exitStart,
-      TAIJI_BANDS.abyss.exitEnd,
+      journeyRef.current.target,
+      delta,
     );
+    const limiter = revealLimiterRef.current;
+    beginRevealFrame(limiter, depth, journeyRef.current.target, delta);
     if (!armed || !built) {
       if (presence > 0.002 || journeyRef.current.target >= TAIJI_BANDS.abyss.enter || warmRef.current.warming) setArmed(true);
       return;
     }
 
-    const cut = sampleNumericKeyframes(depth, ABYSS_FRAMES);
+    // 第四輪：keyframe 形狀參數每幀限速（見 lib/taiji-band-follower.ts）
+    const cut = limitKeyframes(limiter, sampleNumericKeyframes(depth, ABYSS_FRAMES));
+    // 第四輪：最終淡入量逐項限速（每幀 ≤0.018）；全部淡完才關整層
+    const fieldReveal = limitReveal(limiter, 'field', (cut.field ?? 0) * presence);
+    const blackHoleReveal = limitReveal(limiter, 'blackHole', (cut.blackHole ?? 0) * presence);
+    const whiteHoleReveal = limitReveal(limiter, 'whiteHole', (cut.whiteHole ?? 0) * presence);
+    const blackJetReveal = limitReveal(limiter, 'blackJet', (cut.blackJet ?? 0) * presence);
+    const whiteJetReveal = limitReveal(limiter, 'whiteJet', (cut.whiteJet ?? 0) * presence);
+    const finaleReveal = limitReveal(limiter, 'finale', (cut.finale ?? 0) * presence);
     const root = rootRef.current;
-    const showLayer = presence > 0.002;
+    const showLayer = presence > 0.002 || Math.max(fieldReveal, blackHoleReveal, blackJetReveal, whiteJetReveal, finaleReveal) > 0.002;
     if (root) {
       root.visible = showLayer;
       root.scale.setScalar(showLayer ? 1 : 0.0001);
@@ -512,15 +531,12 @@ export default function TaijiAbyssField({
     const tintIndex = Math.min(TIER_TINT_COLORS.length - 2, Math.floor(tintFloat));
     const tintFrac = tintFloat - tintIndex;
     const tint = tintScratchRef.current.copy(TIER_TINT_COLORS[tintIndex]).lerp(TIER_TINT_COLORS[tintIndex + 1], tintFrac);
-    built.fieldMaterial.uniforms.uTierTint.value.copy(tint);
+    // 第四輪：層級色每幀在 Lab 空間最多走 ΔE 0.8（見 lib/taiji-band-follower.ts）
+    followColorLab(limiter, tintFollowRef.current.color, tint, tintFollowRef.current.ready);
+    tintFollowRef.current.ready = true;
+    built.fieldMaterial.uniforms.uTierTint.value.copy(tintFollowRef.current.color);
 
-    const fieldReveal = (cut.field ?? 0) * presence;
-    const blackHoleReveal = (cut.blackHole ?? 0) * presence;
-    const whiteHoleReveal = (cut.whiteHole ?? 0) * presence;
-    const blackJetReveal = (cut.blackJet ?? 0) * presence;
-    const whiteJetReveal = (cut.whiteJet ?? 0) * presence;
     const swirl = cut.swirl ?? 0;
-    const finaleReveal = (cut.finale ?? 0) * presence;
 
     const field = fieldRef.current;
     if (field) {

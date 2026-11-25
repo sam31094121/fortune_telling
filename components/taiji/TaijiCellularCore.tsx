@@ -33,6 +33,8 @@ import {
   sampleNumericKeyframes,
   type TaijiJourneyRef,
 } from '@/lib/taiji-journey-depth';
+import { applyTaijiHighlightRolloff } from '@/lib/taiji-highlight';
+import { beginRevealFrame, createBandFollower, createRevealLimiter, followBandPresence, limitKeyframes, limitReveal } from '@/lib/taiji-band-follower';
 import { type WarmRef } from './taijiMagnifier';
 
 const NO_RAYCAST = () => null;
@@ -426,7 +428,7 @@ export default function TaijiCellularCore({
       depthWrite: false,
     });
 
-    return {
+    return applyTaijiHighlightRolloff({
       sphereGeometry,
       filamentGeometry,
       gateHaloGeometry,
@@ -437,7 +439,7 @@ export default function TaijiCellularCore({
       sourceMaterial,
       gateHaloMaterial,
       gateCoreMaterial,
-    };
+    });
   }, [armed, yinColor, yangColor, sparkColor]);
 
   useEffect(
@@ -464,24 +466,37 @@ export default function TaijiCellularCore({
     built.gateCoreMaterial.needsUpdate = true;
   }, [built, coreTexture, coreBumpMap]);
 
+  const bandFollowerRef = useRef(createBandFollower());
+  const revealLimiterRef = useRef(createRevealLimiter());
+
   useFrame((state, delta) => {
     const depth = readJourneyDepth(journeyRef);
-    const presence = bandWeight(
+    // 第四輪：出現量每幀最多變 0.018（見 lib/taiji-band-follower.ts），停在整數段時與原值相同
+    const presence = followBandPresence(
+      bandFollowerRef.current,
+      bandWeight(depth, TAIJI_BANDS.cellular.enter, TAIJI_BANDS.cellular.full, TAIJI_BANDS.cellular.exitStart, TAIJI_BANDS.cellular.exitEnd),
       depth,
-      TAIJI_BANDS.cellular.enter,
-      TAIJI_BANDS.cellular.full,
-      TAIJI_BANDS.cellular.exitStart,
-      TAIJI_BANDS.cellular.exitEnd,
+      journeyRef.current.target,
+      delta,
     );
+    const limiter = revealLimiterRef.current;
+    beginRevealFrame(limiter, depth, journeyRef.current.target, delta);
     const warming = warmRef.current.warming;
     if (!armed || !built) {
       if (warming || presence > 0.002 || journeyRef.current.target >= TAIJI_BANDS.cellular.enter) setArmed(true);
       return;
     }
 
-    const cut = sampleNumericKeyframes(depth, CELL_FRAMES);
+    // 第四輪：keyframe 形狀參數每幀限速（見 lib/taiji-band-follower.ts）
+    const cut = limitKeyframes(limiter, sampleNumericKeyframes(depth, CELL_FRAMES));
+    // 第四輪：最終淡入量逐項限速（每幀 ≤0.018）；全部淡完才關整層
+    const membraneReveal = limitReveal(limiter, 'membrane', (cut.membrane ?? 0) * presence);
+    const nucleiReveal = limitReveal(limiter, 'nuclei', (cut.nuclei ?? 0) * presence);
+    const filamentReveal = limitReveal(limiter, 'filament', (cut.filament ?? 0) * presence);
+    const sourceReveal = limitReveal(limiter, 'source', (cut.source ?? 0) * presence);
+    const particlesReveal = limitReveal(limiter, 'particles', (cut.particles ?? 0) * presence);
     const root = rootRef.current;
-    const showLayer = presence > 0.002;
+    const showLayer = presence > 0.002 || Math.max(membraneReveal, nucleiReveal, filamentReveal, sourceReveal, particlesReveal) > 0.002;
     if (root) {
       root.visible = showLayer || warming;
       root.scale.setScalar(showLayer ? 1 : 0.0001);
@@ -542,23 +557,23 @@ export default function TaijiCellularCore({
 
     const membraneUniforms = built.membraneMaterial.uniforms;
     membraneUniforms.uTime.value = t;
-    membraneUniforms.uReveal.value = (cut.membrane ?? 0) * presence;
+    membraneUniforms.uReveal.value = membraneReveal;
 
     const yinUniforms = built.nucleusYinMaterial.uniforms;
     const yangUniforms = built.nucleusYangMaterial.uniforms;
     yinUniforms.uTime.value = t;
     yangUniforms.uTime.value = t;
-    yinUniforms.uReveal.value = (cut.nuclei ?? 0) * presence;
-    yangUniforms.uReveal.value = (cut.nuclei ?? 0) * presence;
+    yinUniforms.uReveal.value = nucleiReveal;
+    yangUniforms.uReveal.value = nucleiReveal;
 
     built.filamentMaterial.uniforms.uTime.value = t;
-    built.filamentMaterial.uniforms.uReveal.value = (cut.filament ?? 0) * presence;
+    built.filamentMaterial.uniforms.uReveal.value = filamentReveal;
 
     built.sourceMaterial.uniforms.uTime.value = t;
-    built.sourceMaterial.uniforms.uReveal.value = (cut.source ?? 0) * presence;
+    built.sourceMaterial.uniforms.uReveal.value = sourceReveal;
 
     built.gateHaloMaterial.uniforms.uTime.value = t;
-    built.gateHaloMaterial.uniforms.uReveal.value = (cut.particles ?? 0) * presence;
+    built.gateHaloMaterial.uniforms.uReveal.value = particlesReveal;
     built.gateCoreMaterial.opacity = 0;
   });
 

@@ -27,6 +27,8 @@ import {
   sampleNumericKeyframes,
   type TaijiJourneyRef,
 } from '@/lib/taiji-journey-depth';
+import { applyTaijiHighlightRolloff } from '@/lib/taiji-highlight';
+import { beginRevealFrame, createBandFollower, createRevealLimiter, followBandPresence, limitKeyframes, limitReveal } from '@/lib/taiji-band-follower';
 import { type WarmRef } from './taijiMagnifier';
 
 export type QuantumBudget = {
@@ -347,7 +349,7 @@ export default function TaijiQuantumField({
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
-    return { pointMaterial, linkMaterial };
+    return applyTaijiHighlightRolloff({ pointMaterial, linkMaterial });
   }, [armed, yinColor, yangColor, sparkColor]);
 
   useEffect(
@@ -366,21 +368,28 @@ export default function TaijiQuantumField({
     [materials],
   );
 
+  const bandFollowerRef = useRef(createBandFollower());
+  const revealLimiterRef = useRef(createRevealLimiter());
+
   useFrame((state, delta) => {
     const depth = readJourneyDepth(journeyRef);
-    const presence = bandWeight(
+    // 第四輪：出現量每幀最多變 0.018（見 lib/taiji-band-follower.ts），停在整數段時與原值相同
+    const presence = followBandPresence(
+      bandFollowerRef.current,
+      bandWeight(depth, TAIJI_BANDS.quantum.enter, TAIJI_BANDS.quantum.full, TAIJI_BANDS.quantum.exitStart, TAIJI_BANDS.quantum.exitEnd),
       depth,
-      TAIJI_BANDS.quantum.enter,
-      TAIJI_BANDS.quantum.full,
-      TAIJI_BANDS.quantum.exitStart,
-      TAIJI_BANDS.quantum.exitEnd,
+      journeyRef.current.target,
+      delta,
     );
+    const limiter = revealLimiterRef.current;
+    beginRevealFrame(limiter, depth, journeyRef.current.target, delta);
     const warming = warmRef.current.warming;
     if (!armed || !materials) {
       if (warming || presence > 0.002 || journeyRef.current.target >= TAIJI_BANDS.quantum.enter) setArmed(true);
       return;
     }
-    const cut = sampleNumericKeyframes(depth, QUANTUM_FRAMES);
+    // 第四輪：keyframe 形狀參數每幀限速（見 lib/taiji-band-follower.ts）
+    const cut = limitKeyframes(limiter, sampleNumericKeyframes(depth, QUANTUM_FRAMES));
     const pointUniforms = materials.pointMaterial.uniforms;
     const linkUniforms = materials.linkMaterial.uniforms;
 
@@ -388,8 +397,9 @@ export default function TaijiQuantumField({
     const links = linksRef.current;
     const group = groupRef.current;
 
-    const reveal = (cut.points ?? 0) * presence;
-    const linkReveal = (cut.links ?? 0) * presence;
+    // 第四輪：最終淡入量逐項限速（每幀 ≤0.018）
+    const reveal = limitReveal(limiter, 'points', (cut.points ?? 0) * presence);
+    const linkReveal = limitReveal(limiter, 'links', (cut.links ?? 0) * presence);
     const visible = reveal > 0.002;
     if (group) {
       group.visible = visible || warming;

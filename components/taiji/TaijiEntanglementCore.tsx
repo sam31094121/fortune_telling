@@ -27,6 +27,8 @@ import {
   sampleNumericKeyframes,
   type TaijiJourneyRef,
 } from '@/lib/taiji-journey-depth';
+import { applyTaijiHighlightRolloff } from '@/lib/taiji-highlight';
+import { beginRevealFrame, createBandFollower, createRevealLimiter, followBandPresence, limitKeyframes, limitReveal } from '@/lib/taiji-band-follower';
 import { type WarmRef } from './taijiMagnifier';
 
 /* 純視覺層：兩顆 128×128 的球加上管狀通道，逐面射線檢測太貴，直接退出檢測名單 */
@@ -245,13 +247,13 @@ export default function TaijiEntanglementCore({
       blending: THREE.AdditiveBlending,
     });
 
-    return {
+    return applyTaijiHighlightRolloff({
       packetGeometry,
       bridgeGeometry,
       yinMaterial: makePacketMaterial(yinColor, 1),
       yangMaterial: makePacketMaterial(yangColor, -1),
       bridgeMaterial,
-    };
+    });
   }, [armed, yinColor, yangColor, sparkColor]);
 
   useEffect(
@@ -265,25 +267,36 @@ export default function TaijiEntanglementCore({
     [built],
   );
 
+  const bandFollowerRef = useRef(createBandFollower());
+  const revealLimiterRef = useRef(createRevealLimiter());
+
   useFrame((state, delta) => {
     const depth = readJourneyDepth(journeyRef);
     const warming = warmRef.current.warming;
-    const presence = bandWeight(
+    // 第四輪：出現量每幀最多變 0.018（見 lib/taiji-band-follower.ts），停在整數段時與原值相同
+    const presence = followBandPresence(
+      bandFollowerRef.current,
+      bandWeight(depth, TAIJI_BANDS.entanglement.enter, TAIJI_BANDS.entanglement.full, TAIJI_BANDS.entanglement.exitStart, TAIJI_BANDS.entanglement.exitEnd),
       depth,
-      TAIJI_BANDS.entanglement.enter,
-      TAIJI_BANDS.entanglement.full,
-      TAIJI_BANDS.entanglement.exitStart,
-      TAIJI_BANDS.entanglement.exitEnd,
+      journeyRef.current.target,
+      delta,
     );
+    const limiter = revealLimiterRef.current;
+    beginRevealFrame(limiter, depth, journeyRef.current.target, delta);
     if (!armed || !built) {
       if (warming || presence > 0.002 || journeyRef.current.target >= TAIJI_BANDS.entanglement.enter) setArmed(true);
       return;
     }
 
-    const cut = sampleNumericKeyframes(depth, ENTANGLE_FRAMES);
+    // 第四輪：keyframe 形狀參數每幀限速（見 lib/taiji-band-follower.ts）
+    const cut = limitKeyframes(limiter, sampleNumericKeyframes(depth, ENTANGLE_FRAMES));
     const root = rootRef.current;
     const reveal = presence;
-    const showDeep = reveal > 0.002;
+    // 第四輪：最終淡入量逐項限速（每幀 ≤0.018）；全部淡完才關整層
+    const yinReveal = limitReveal(limiter, 'yin', reveal * (cut.yin ?? 1));
+    const yangReveal = limitReveal(limiter, 'yang', reveal * (cut.yang ?? 1));
+    const bridgeReveal = limitReveal(limiter, 'bridge', reveal * (cut.bridge ?? 1));
+    const showDeep = reveal > 0.002 || Math.max(yinReveal, yangReveal, bridgeReveal) > 0.002;
     if (root) {
       root.visible = showDeep || warming;
       root.scale.setScalar(showDeep ? 1 : 0.0001);
@@ -329,14 +342,14 @@ export default function TaijiEntanglementCore({
     const yangUniforms = built.yangMaterial.uniforms;
     yinUniforms.uTime.value = t;
     yangUniforms.uTime.value = t;
-    yinUniforms.uReveal.value = reveal * (cut.yin ?? 1);
-    yangUniforms.uReveal.value = reveal * (cut.yang ?? 1);
+    yinUniforms.uReveal.value = yinReveal;
+    yangUniforms.uReveal.value = yangReveal;
     yinUniforms.uTaiji.value = 0;
     yangUniforms.uTaiji.value = 0;
     yinUniforms.uFlash.value = flash * outcome;
     yangUniforms.uFlash.value = flash * -outcome;
     built.bridgeMaterial.uniforms.uTime.value = t;
-    built.bridgeMaterial.uniforms.uReveal.value = reveal * (cut.bridge ?? 1);
+    built.bridgeMaterial.uniforms.uReveal.value = bridgeReveal;
   });
 
   if (!built) return null;
