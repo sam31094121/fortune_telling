@@ -496,6 +496,9 @@ await t('#8 e2e: --only typo exits 2 without creating a run', async () => {
     const kinds = x.rep.blockedWrites.map((b) => `${b.method} ${new URL(b.url).pathname}`);
     for (const k of ['POST /beacon', 'PUT /xhr', 'POST /w-post', 'POST /api/view', 'POST /form']) assert.ok(kinds.includes(k), `${k} 應列在被攔清單：${kinds.join(',')}`);
     assert.equal(x.row('writes-all').checks.errors.status, 'PASS', x.row('writes-all').checks.errors.summary);
+    // #O1 頁面重量：快取命中時仍量得到（encodedBodySize），只當資訊
+    const w = x.row('ok2').metrics.weight; assert.ok(w && w.requests >= 2 && w.totalKB >= 0 && w.jsKB >= 0, JSON.stringify(w));
+    assert.match(x.md, /頁面重量（資訊，不計分）/);
   });
   await t('#M2 穩定即止：正常頁提早結束；晚到錯誤條（3.3s 後才出現）仍抓得到', async () => {
     const x = await extraRun('m2-out', ['--only', 'ok,late-banner', '--widths', '390', '--settle-ms', '8000', '--no-early-swipe', '--extras', 'none']);

@@ -155,11 +155,15 @@ export function metricsScript(opts) {
   // 6. 可見錯誤字
   const errMatch = (bodyText.match(new RegExp(o.visibleErrorRe)) || [])[0] || null;
   window.__hcMarks = marks;
+  // 7. 頁面重量（資訊，不計分）：encodedBodySize 不受快取影響；跨站沒有 Timing-Allow-Origin 的資源會是 0
+  const res = performance.getEntriesByType('resource'), nav0 = performance.getEntriesByType('navigation')[0];
+  const kb = (xs) => Math.round(xs.reduce((a, e) => a + (e.encodedBodySize || 0), 0) / 1024);
+  const weight = { requests: res.length + 1, jsKB: kb(res.filter((e) => e.initiatorType === 'script' || /\\.m?js(\\?|$)/.test(e.name))), totalKB: kb(res) + Math.round((nav0?.encodedBodySize || 0) / 1024) };
   return { tap: { total: tapTotal, small: smallN, under24, samples: small.list(8) },
     font: { chars, smallChars, share: chars ? smallChars / chars : 0, minPx: minPx === 99 ? null : minPx, tinyRuns: tiny.list(8), tinyCount: tinyN, tinyBy, sizes },
     a11y: { noName: noNameN, noLabel: noLabelN, noAlt: noAltN, dupIds: dupIds.length, lang, samples: [...noName.list(4), ...noLabel.list(3), ...noAlt.list(2), ...dupIds.slice(0, 2).map((x) => '重複 id ' + x)] },
     i18n: { lang, readingLang: document.documentElement.getAttribute('data-reading-lang'), rawTokens: rawTok, hanShare: letters ? Math.round(han / letters * 1000) / 1000 : 0 },
-    marks: marks.length,
+    marks: marks.length, weight,
     contrast: { checked: cChecked, gradient: cGrad, unknown: Object.values(cUnknown).reduce((a, b) => a + b, 0), unknownBy: cUnknown, low: cLow, partial: cPartial, samples: lowC.list(8), partialSamples: partC.list(5) },
     overflow: { vw, cw, scrollWidth: sw, samples: wide.list(5), clipped: clippedN, clippedSamples: clipped.list(6) },
     images: { total: imgTotal, broken: brokenN, samples: broken.list(6) }, media, visibleError: errMatch,

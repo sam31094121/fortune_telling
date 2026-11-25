@@ -14,7 +14,7 @@ import { judge, judgeEarlySwipe, mkCheck, judgeTap, judgeFont, tbtFrom, judgeI18
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '..', '..');
-export const TOOL_VERSION = 'mingli-health-v2';
+export const TOOL_VERSION = 'mingli-health-v3'; // v3：瀏覽器層攔截＋快取、穩定即止、觸控早滑、13 項／頁＋extras、手機合併計分（和 v2 分數不能直接比）
 
 export class UsageError extends Error {}
 export const EXTRAS_ALL = ['i18n', 'rm', 'nav']; // 五語、減少動態、返回重進＋捲到底
@@ -287,7 +287,7 @@ async function checkPage(ctx, base, card, vp, a, shotsDir, ro, homeCards) {
       await (status === 'FAIL' ? shotWithMarks(page, shot) : page.screenshot({ path: shot, type: 'jpeg', quality: 50 })).catch(() => { shot = null; });
     }
     return { n: card.n, id: card.id, name: card.name, href: card.href, width: vp.width, status, nav, checks, shot: shot && path.basename(shot), whatIf,
-      metrics: { fontSizes: m.font.sizes, chars: m.font.chars, tapTotal: m.tap.total, contrastChecked: m.contrast.checked, contrastUnknown: m.contrast.unknown, contrastGradient: m.contrast.gradient || 0, contrastUnknownBy: m.contrast.unknownBy || null, images: m.images?.total || 0, tbtMs, marks: m.marks || 0 } };
+      metrics: { fontSizes: m.font.sizes, chars: m.font.chars, tapTotal: m.tap.total, contrastChecked: m.contrast.checked, contrastUnknown: m.contrast.unknown, contrastGradient: m.contrast.gradient || 0, contrastUnknownBy: m.contrast.unknownBy || null, images: m.images?.total || 0, tbtMs, marks: m.marks || 0, weight: m.weight || null } };
   } finally { await page.close().catch(() => {}); }
 }
 

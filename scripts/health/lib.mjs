@@ -502,6 +502,8 @@ export function renderMarkdown(rep) {
   L.push('- 計分方式：同一頁的 360／390 合併成一列、每項取最差（手機不重複加權）' + (rep.michelinUnmerged ? `；若不合併：品質 ${rep.michelinUnmerged.quality ?? '—'}、穩定 ${rep.michelinUnmerged.stability ?? '—'}、服務 ${rep.michelinUnmerged.service ?? '—'}、整體 ${rep.michelinUnmerged.overall ?? '—'}` : ''));
   if (rep.concurrency) L.push(`- 並行 ${rep.concurrency} 頁；機器 ${rep.host?.cpus ?? '?'} 核，負載 開始 ${rep.host?.loadAvgAtStart?.join('/') ?? '—'} → 結束 ${rep.host?.loadAvgAtEnd?.join('/') ?? '—'}${rep.host?.platform === 'win32' ? '（Windows 沒有 loadavg，顯示 0）' : ''}；額外檢查 ${rep.extras?.length ? rep.extras.join('、') + ' @' + rep.extrasWidth : '未跑'}`);
   const st = rep.rows.filter((r) => r.nav?.settleMs !== undefined);
+  const wt = (rep.rows || []).filter((r) => r.metrics?.weight && r.page !== false).sort((a, b) => a.metrics.weight.jsKB - b.metrics.weight.jsKB);
+  if (wt.length) { const mid = wt[Math.floor(wt.length / 2)], top = wt[wt.length - 1]; L.push(`- 頁面重量（資訊，不計分）：JS 中位數 ${mid.metrics.weight.jsKB} KB、最大 ${top.metrics.weight.jsKB} KB（${top.id}@${top.width}，全部 ${top.metrics.weight.totalKB} KB／${top.metrics.weight.requests} 個請求）`); }
   if (st.length) { const q = st.filter((r) => r.nav.settleReason === 'quiet'); L.push(`- 穩定即止：${q.length}/${st.length} 頁提早結束（平均等待 ${Math.round(st.reduce((a, r) => a + r.nav.settleMs, 0) / st.length)}ms，上限 ${rep.thresholds?.settleMs ?? '—'}ms）`); }
   if (rep.coverage) {
     const cv = rep.coverage;
