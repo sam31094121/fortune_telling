@@ -7,7 +7,7 @@ import net from 'node:net';
 import { spawn, execFileSync } from 'node:child_process';
 
 export function parseColor(s) {
-  const m = /rgba?\(\s*([\d.]+)[ ,]+([\d.]+)[ ,]+([\d.]+)(?:\s*[,/]\s*([\d.]+%?))?\s*\)/.exec(String(s || ''));
+  const m = /^\s*rgba?\(\s*([\d.]+)[ ,]+([\d.]+)[ ,]+([\d.]+)(?:\s*[,/]\s*([\d.]+%?))?\s*\)\s*$/.exec(String(s || ''));
   if (!m) return null;
   let a = m[4] === undefined ? 1 : m[4].endsWith('%') ? parseFloat(m[4]) / 100 : parseFloat(m[4]);
   return { r: +m[1], g: +m[2], b: +m[3], a };
@@ -34,13 +34,25 @@ export function isLargeText(px, weight) {
   return px >= 24 || (px >= 18.66 && Number(weight) >= 700);
 }
 
-// 漸層背景：取出所有色標（computed style 已轉成 rgb/rgba）。含圖片或無法解析的色彩函式 → 不判定。
-export function gradientStops(bgImage) {
+// 從 CSS 值裡切出每個顏色函式（含巢狀括號，例如 color-mix(in oklab, oklch(0.7 0.1 200) 40%, white)）。
+export function colorTokens(s) {
+  const out = []; const str = String(s || ''); const re = /(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color-mix|color)\(/gi; let m;
+  while ((m = re.exec(str))) {
+    let depth = 0, i = m.index + m[0].length - 1;
+    for (; i < str.length; i++) { if (str[i] === '(') depth++; else if (str[i] === ')' && --depth === 0) break; }
+    out.push(str.slice(m.index, i + 1)); re.lastIndex = i + 1;
+  }
+  return out;
+}
+
+// 漸層背景：取出所有色標。含圖片 → 不判定。resolve（瀏覽器內用 canvas 轉色）有給時，oklch／color-mix 等也能解析。
+export function gradientStops(bgImage, resolve) {
   const s = String(bgImage || '');
   if (!s || s === 'none') return { ok: true, colors: [] };
   if (/url\(|image-set\(|element\(|cross-fade\(|paint\(/i.test(s)) return { ok: false, reason: 'image' };
-  if (/\b(oklch|oklab|lab|lch|color|color-mix|hwb)\(/i.test(s)) return { ok: false, reason: 'color-fn' };
-  const colors = (s.match(/rgba?\([^)]*\)/g) || []).map(parseColor).filter(Boolean);
+  const toks = colorTokens(s);
+  const colors = toks.map((t) => parseColor(t) || (resolve ? resolve(t) : null));
+  if (colors.some((c) => !c)) return { ok: false, reason: 'color-fn' };
   if (!colors.length) return { ok: false, reason: 'unparsed' };
   return { ok: true, colors };
 }
@@ -75,17 +87,17 @@ export function round(n, d = 1) { const p = 10 ** d; return Math.round(n * p) / 
 // ---- 分數：名稱對應實際量了什麼；缺業主定義中的項目就標「不完整」，不判定是否達標 ----
 const W = { PASS: 1, WARN: 0.5, FAIL: 0 };
 export const CHECK_GROUPS = {
-  quality: ['cls', 'tap', 'font', 'contrast', 'overflow', 'images', 'beadSize'],
-  stability: ['content', 'errors', 'load', 'earlySwipe', 'homeCards'],
-  service: ['lcp', 'visibleError'],
+  quality: ['cls', 'tap', 'font', 'contrast', 'overflow', 'images', 'beadSize', 'a11y', 'scroll'],
+  stability: ['content', 'errors', 'load', 'earlySwipe', 'homeCards', 'reducedMotion', 'backForward'],
+  service: ['lcp', 'visibleError', 'tbt', 'i18n'],
 };
 // 業主米其林定義（品質：截圖＋CLS＋點擊＋寶珠不縮；穩定：tsc＋測試＋build＋90 FPS；服務：誠實文案＋清楚下一步）中，本工具量不到的部分。
 export const GROUP_META = {
-  quality: { name: '品質（頁面量測）', measures: 'CLS、點擊目標、字級、對比、溢出／裁切、破圖、寶珠大小', needChecks: ['beadSize'], alwaysMissing: [] },
-  stability: { name: '穩定（頁面層）', measures: '頁面有內容、載入、console／網路錯誤、早滑、首頁順序', needGates: ['tsc', 'test', 'build', 'audit'], alwaysMissing: ['真機 90 FPS'] },
-  service: { name: '服務（技術代理）', measures: 'LCP 與頁面錯誤字樣', alwaysMissing: ['文案是否誠實、下一步是否清楚（需人工）'] },
+  quality: { name: '品質（頁面量測）', measures: 'CLS、點擊目標、字級、對比、溢出／裁切、破圖、寶珠大小、無障礙、捲到底位移', needChecks: ['beadSize'], alwaysMissing: [] },
+  stability: { name: '穩定（頁面層）', measures: '頁面有內容、載入、console／網路錯誤、早滑、首頁順序、減少動態、返回重進', needGates: ['tsc', 'test', 'build', 'audit'], alwaysMissing: ['真機 90 FPS'] },
+  service: { name: '服務（技術代理）', measures: 'LCP、頁面錯誤字樣、長任務（TBT 代理）、五語切換', alwaysMissing: ['文案是否誠實、下一步是否清楚（需人工）'] },
 };
-export const PAGE_KEYS = ['content', 'cls', 'tap', 'font', 'contrast', 'overflow', 'images', 'errors', 'load', 'lcp', 'visibleError'];
+export const PAGE_KEYS = ['content', 'cls', 'tap', 'font', 'contrast', 'overflow', 'images', 'errors', 'load', 'lcp', 'visibleError', 'a11y', 'tbt'];
 
 // gate 名稱 → 業主穩定定義中的哪一關。只有「完整」的那一關才算：test 只認 `npm test`（不是隨便一支 test:xxx）。
 export function gateKind(name) {
@@ -108,7 +120,20 @@ export function auditVerdict(json) {
   return { status, summary: `正式相依套件弱點：critical ${n('critical')}、high ${n('high')}、moderate ${n('moderate')}、low ${n('low')}`, samples: names, counts: { critical: n('critical'), high: n('high'), moderate: n('moderate'), low: n('low'), info: n('info') } };
 }
 
-export function michelin(rows, targets, groups = CHECK_GROUPS, { gatesRun = [], meta = GROUP_META } = {}) {
+// 360 與 390 幾乎每列都一樣：計分時同一頁的手機寬度合併成一列，每項取最差（避免手機權重加倍）。
+const RANK = { FAIL: 0, WARN: 1, PASS: 2, SKIP: 3 };
+export function mergeMobileRows(rows) {
+  const out = [], byId = new Map();
+  for (const r of rows) {
+    if (!(typeof r.width === 'number' && r.width < 800) || r.page === false) { out.push(r); continue; }
+    const m = byId.get(r.id);
+    if (!m) { const c = { ...r, width: 'mobile', checks: { ...r.checks } }; byId.set(r.id, c); out.push(c); continue; }
+    for (const [k, c] of Object.entries(r.checks || {})) { const p = m.checks[k]; if (!p || (RANK[c.status] ?? 9) < (RANK[p.status] ?? 9)) m.checks[k] = c; }
+  }
+  return out;
+}
+export function michelin(rows, targets, groups = CHECK_GROUPS, { gatesRun = [], meta = GROUP_META, mergeMobile = false } = {}) {
+  if (mergeMobile) rows = mergeMobileRows(rows);
   const out = {};
   // 有跑出結果（PASS／WARN／FAIL）就算「量到了」並計入分數；沒跑或 SKIP 才列為缺項
   let allNum = 0, allDen = 0;
@@ -402,7 +427,8 @@ export function listProcesses() {
       return out;
     }
     if (process.platform === 'win32') {
-      const json = execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match "next" } | Select-Object ProcessId,CommandLine | ConvertTo-Json -Compress'], { encoding: 'utf8', timeout: 20000, stdio: ['ignore', 'pipe', 'ignore'], windowsHide: true }).trim();
+      // 只看 node／bun 本身（cmd.exe、powershell 這類外殼的命令列也含 "next build"，會把同一個建置算兩次）
+      const json = execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match "next" -and $_.Name -match "^(node|bun|deno)(\\.exe)?$" } | Select-Object ProcessId,CommandLine | ConvertTo-Json -Compress'], { encoding: 'utf8', timeout: 20000, stdio: ['ignore', 'pipe', 'ignore'], windowsHide: true }).trim();
       const arr = json ? [].concat(JSON.parse(json)) : [];
       return arr.map((p) => ({ pid: p.ProcessId, cmd: p.CommandLine || '', cwd: null }));
     }
@@ -420,9 +446,12 @@ export function findNextConflicts(procs, repo, selfPid = process.pid) {
     const m = NEXT_BIN.exec(p.cmd || '');
     if (!m) continue;
     const kind = m[1];
-    const inRepo = (p.cwd && norm(p.cwd) === r) || (r && String(p.cmd).toLowerCase().includes(r));
-    if (kind === 'build') builds.push({ ...p, inRepo: !!inRepo });
-    else if (inRepo) sameRepoServers.push({ ...p, kind });
+    // inRepo：true＝確定同 repo；false＝確定別處；null＝不知道（Windows 拿不到別人的 cwd，命令列又是相對路徑 node_modules\next…）
+    const cmdL = String(p.cmd).toLowerCase();
+    const absBin = /(?:^|[\s"'])(?:[a-z]:[\\/]|\/)[^"'\s]*node_modules[\\/]/i.test(p.cmd || '');
+    const inRepo = (p.cwd && norm(p.cwd) === r) || (r && cmdL.includes(r)) ? true : (p.cwd || absBin) ? false : null;
+    if (kind === 'build') builds.push({ ...p, inRepo });
+    else if (inRepo !== false) sameRepoServers.push({ ...p, kind, inRepo });
   }
   return { builds, sameRepoServers };
 }
@@ -470,6 +499,10 @@ export function renderMarkdown(rep) {
   }
   if (m.overall) L.push(`| ${m.overall.name} | ${m.overall.score ?? '—'} | — | ${m.overall.checks} | — |`);
   L.push('');
+  L.push('- 計分方式：同一頁的 360／390 合併成一列、每項取最差（手機不重複加權）' + (rep.michelinUnmerged ? `；若不合併：品質 ${rep.michelinUnmerged.quality ?? '—'}、穩定 ${rep.michelinUnmerged.stability ?? '—'}、服務 ${rep.michelinUnmerged.service ?? '—'}、整體 ${rep.michelinUnmerged.overall ?? '—'}` : ''));
+  if (rep.concurrency) L.push(`- 並行 ${rep.concurrency} 頁；機器 ${rep.host?.cpus ?? '?'} 核，負載 開始 ${rep.host?.loadAvgAtStart?.join('/') ?? '—'} → 結束 ${rep.host?.loadAvgAtEnd?.join('/') ?? '—'}${rep.host?.platform === 'win32' ? '（Windows 沒有 loadavg，顯示 0）' : ''}；額外檢查 ${rep.extras?.length ? rep.extras.join('、') + ' @' + rep.extrasWidth : '未跑'}`);
+  const st = rep.rows.filter((r) => r.nav?.settleMs !== undefined);
+  if (st.length) { const q = st.filter((r) => r.nav.settleReason === 'quiet'); L.push(`- 穩定即止：${q.length}/${st.length} 頁提早結束（平均等待 ${Math.round(st.reduce((a, r) => a + r.nav.settleMs, 0) / st.length)}ms，上限 ${rep.thresholds?.settleMs ?? '—'}ms）`); }
   if (rep.coverage) {
     const cv = rep.coverage;
     L.push(`- 涵蓋率：${cv.judged}/${cv.total} 項已判定（${pct(cv.pct)}）${rep.contrastCoverage ? `；對比：${rep.contrastCoverage.checked}/${rep.contrastCoverage.checked + rep.contrastCoverage.unknown} 段文字已判定（${pct(rep.contrastCoverage.pct)}，其中漸層底 ${rep.contrastCoverage.gradient} 段）` : ''}`);
@@ -500,6 +533,15 @@ export function renderMarkdown(rep) {
     L.push('', '## 閘門（gates）', '', '| 閘門 | 結果 | 耗時 | 說明 |', '|---|---|---|---|');
     for (const g of rep.gates) L.push(`| ${g.name} | ${g.status} | ${Math.round((g.ms || 0) / 1000)}s | ${String(g.summary || '').replace(/\|/g, '/')}${g.status === 'FAIL' && g.tail ? '；尾段：' + String(g.tail).replace(/\s+/g, ' ').replace(/\|/g, '/').slice(-200) : ''} |`);
   }
+  const wi = rep.desktopWhatIf;
+  if (wi) {
+    L.push('', `## 桌機 1280 門檻試算（待擁有者決定；本次判定用：${wi.appliedNow}）`, '');
+    L.push(`- 試算用：${wi.alternative}（點擊 ≥${wi.profile.tapMinPx}px；正文 <${wi.profile.fontMinBodyPx}px 字數 ≤${Math.round(wi.profile.fontSmallShareMax * 100)}%；<${wi.profile.fontHardMinPx}px 文字段 0）`);
+    L.push(`- 點擊（${wi.pages} 頁）：現在 PASS ${wi.tap.now.PASS}／WARN ${wi.tap.now.WARN}／FAIL ${wi.tap.now.FAIL} → 試算 PASS ${wi.tap.alt.PASS}／WARN ${wi.tap.alt.WARN}／FAIL ${wi.tap.alt.FAIL}`);
+    L.push(`- 字級：現在 PASS ${wi.font.now.PASS}／WARN ${wi.font.now.WARN}／FAIL ${wi.font.now.FAIL} → 試算 PASS ${wi.font.alt.PASS}／WARN ${wi.font.alt.WARN}／FAIL ${wi.font.alt.FAIL}`);
+    L.push(`- 品質分 ${wi.quality.now ?? '—'} → ${wi.quality.alt ?? '—'}；整體 ${wi.overall.now ?? '—'} → ${wi.overall.alt ?? '—'}`);
+    if (wi.changed.length) L.push(`- 會改變的頁：${wi.changed.slice(0, 16).join('；')}`);
+  }
   L.push('');
   L.push('## 失敗明細（每項最多 3 筆樣本）');
   for (const r of rep.rows) {
@@ -508,6 +550,9 @@ export function renderMarkdown(rep) {
       L.push(`- ${r.n}.${r.name} @${r.width} **${k}**：${c.summary}${c.samples?.length ? ' — ' + c.samples.slice(0, 3).map((s) => (typeof s === 'string' ? s : JSON.stringify(s))).join('；') : ''}`);
     }
   }
+  const warnLines = [];
+  for (const r of rep.rows) for (const [k, c] of Object.entries(r.checks)) if (c.status === 'WARN') warnLines.push(`- ${r.n}.${r.name} @${r.width} ${k}：${c.summary}${c.samples?.length ? ' — ' + c.samples.slice(0, 1).map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join('') : ''}`);
+  if (warnLines.length) { L.push('', '## 警告明細（每項一行）'); L.push(...warnLines.slice(0, 80)); if (warnLines.length > 80) L.push(`- …另 ${warnLines.length - 80} 項見 report.json`); }
   if (rep.blockedWrites?.length) {
     L.push('');
     L.push('## 進頁時就送出的寫入請求（唯讀模式已攔下）');
@@ -520,6 +565,7 @@ export function renderMarkdown(rep) {
   if (c?.fixed.length) { L.push(''); L.push('## 修好'); c.fixed.forEach((x) => L.push(`- ${x}`)); }
   if (c?.newFindings?.length) { L.push(''); L.push('## 新量到的問題（上次未判定或沒有這項）'); c.newFindings.slice(0, 40).forEach((x) => L.push(`- ${x}`)); if (c.newFindings.length > 40) L.push(`- …另 ${c.newFindings.length - 40} 項見 report.json`); }
   if (c?.coverageLost?.length) { L.push(''); L.push('## 這次變成未判定'); c.coverageLost.slice(0, 20).forEach((x) => L.push(`- ${x}`)); }
+  if (rep.notCovered?.length) { L.push('', '## 本工具未涵蓋（需另外驗）'); rep.notCovered.forEach((x) => L.push(`- ${x}`)); }
   L.push('');
   L.push('判定：PASS=1、WARN=0.5、FAIL=0、SKIP 不計；分數 = 10 × 加權通過數 ÷ 已判定數。分數標「不完整」時只代表本工具量到的部分，不能當成業主米其林定義已達標。原始數據見同目錄 report.json。');
   return L.join('\n') + '\n';

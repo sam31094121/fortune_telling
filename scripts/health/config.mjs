@@ -57,7 +57,28 @@ export const THRESHOLDS = {
   earlySwipeWatchMs: 6000,
   earlySwipePullbackPx: 200,
   earlySwipeRuns: 2, // 拉回是時序問題，跑兩次、任一次被拉回就算 FAIL
+  // 穩定即止：載入後至少等 settleMinMs；之後 DOM、版面位移、網路都安靜 settleQuietMs 就結束；最多 settleMs。
+  // 晚到的錯誤條通常跟著一個請求（失敗才出現），請求進行中不算安靜，所以仍抓得到。
+  settleMinMs: 2500,
+  settleQuietMs: 1500,
+  tbtGoodMs: 200,
+  tbtPoorMs: 600,
+  extrasSettleMs: 3500, // 五語／減少動態／返回重進那一輪的最長等待
+  minCoverage: 0.9, // 涵蓋率低於這個就在報告標注意；--strict 時 exit 1
 };
+
+// 桌機（≥800px）門檻。擁有者尚未決定：預設 enabled=false＝桌機沿用手機標準（現狀）。
+// 報告會另列「若用下列桌機提案值」的結果，等擁有者決定後把 enabled 改成 true（或執行時加 --desktop-profile）。
+export const DESKTOP_PROFILE = {
+  enabled: false,
+  tapMinPx: 24, // WCAG 2.5.8（AA）最小 24px；手機維持 44
+  fontMinBodyPx: 12, // 桌機看得較近，正文小字門檻提案 12px
+  fontHardMinPx: 10,
+  fontSmallShareMax: 0.15,
+};
+
+// 五語（台灣・中國・美國・日本・韓國）：網站以 localStorage 這個鍵記住閱讀語言（components/I18nDisplayLayer.tsx）。
+export const I18N = { storageKey: 'interface-reading-language-v1', langs: ['zh-Hans', 'en', 'ja', 'ko'] };
 
 export const MICHELIN_TARGETS = { quality: 9.5, stability: 9, service: 8.5 };
 

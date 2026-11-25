@@ -8,12 +8,12 @@ import http from 'node:http';
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { parseColor, blendOver, contrastRatio, isLargeText, gradientStops, contrastRange, clsFromEntries, michelin, coverage, overallStatus, acquireLock, releaseLock, lockVerdict, procStartToken, lockPath, pruneOwnRuns, findBaseline, scopeKey, isFullScope, compareRuns, renderMarkdown, diskGuard, pickPort, startServer, findNextConflicts, listProcesses, GROUP_META, auditVerdict, gateKind, RUN_DIR_RE, localStamp, makeRunDir } from '../scripts/health/lib.mjs';
-import { judge, judgeEarlySwipe, filterBlockedConsole, DOM_KEYS } from '../scripts/health/judge.mjs';
+import { mergeMobileRows, colorTokens, parseColor, blendOver, contrastRatio, isLargeText, gradientStops, contrastRange, clsFromEntries, michelin, coverage, overallStatus, acquireLock, releaseLock, lockVerdict, procStartToken, lockPath, pruneOwnRuns, findBaseline, scopeKey, isFullScope, compareRuns, renderMarkdown, diskGuard, pickPort, startServer, findNextConflicts, listProcesses, GROUP_META, auditVerdict, gateKind, RUN_DIR_RE, localStamp, makeRunDir } from '../scripts/health/lib.mjs';
+import { judge, judgeEarlySwipe, filterBlockedConsole, DOM_KEYS, judgeFont, judgeTap, judgeTbt, tbtFrom, judgeOneLang, judgeI18n, langMatches } from '../scripts/health/judge.mjs';
 import { CARDS, THRESHOLDS, MICHELIN_TARGETS, VIEWPORTS, LOCAL_ENV_GAP_APIS } from '../scripts/health/config.mjs';
 import { metricsScript, INIT_SCRIPT } from '../scripts/health/probe.mjs';
-import { parseArgs, selectCards, UsageError, childEnv, GATE_ALL } from '../scripts/health/run.mjs';
-import { startFixture, FIXTURE_CARDS } from '../scripts/health/fixture-server.mjs';
+import { parseArgs, selectCards, UsageError, childEnv, GATE_ALL, distBusy, beadSize, EXTRAS_ALL } from '../scripts/health/run.mjs';
+import { startFixture, FIXTURE_CARDS, EXTRA_CARDS } from '../scripts/health/fixture-server.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '..');
@@ -100,7 +100,50 @@ await t('#1 load fail / empty page → SKIP, content FAIL', () => {
   assert.equal(judge(m({ tap: { total: 0, small: 0, under24: 0, samples: [] }, font: { chars: 0, smallChars: 0, share: 0, minPx: null, tinyRuns: [] }, media: 1 }), noErr(), okNav, THRESHOLDS, open).content.status, 'PASS');
   // 涵蓋率：SKIP 與缺少的項目都算未判定
   const cv = coverage([{ checks: dead }, { checks: { load: { status: 'SKIP', summary: '崩潰' } } }, { checks: judge(m(), noErr(), okNav, THRESHOLDS, open) }]);
-  assert.equal(cv.total, 33); assert.equal(cv.judged, 2 + 0 + 11); assert.equal(cv.perCheck.cls.judged, 1);
+  assert.equal(cv.total, 39, "每頁 13 項（含 a11y、tbt）"); assert.equal(cv.judged, 2 + 0 + 11); assert.equal(cv.perCheck.cls.judged, 1);
+});
+// 中優先／可選項的純函式
+await t('#M3 只有程式捲動時早滑最多 WARN', () => {
+  const ys = [[0, 0], [100, 400], [200, 900]];
+  assert.equal(judgeEarlySwipe(ys, 0, THRESHOLDS).status, 'PASS');
+  assert.equal(judgeEarlySwipe(ys, 0, THRESHOLDS, { programmatic: true }).status, 'WARN');
+  assert.equal(judgeEarlySwipe([[0, 0], [100, 900], [200, 100]], 0, THRESHOLDS, { programmatic: true }).status, 'FAIL', '被拉回仍是 FAIL');
+});
+await t('#M6 寶珠唯讀時不開頁面（不白跑）', async () => {
+  const ctx = { newPage: () => { throw new Error('唯讀時不應開頁'); } };
+  const r = await beadSize(ctx, 'http://x', { cellSelector: '.c' }, { readOnly: true });
+  assert.equal(r.status, 'SKIP'); assert.match(r.summary, /唯讀/);
+});
+await t('#M16 桌機門檻可設定：同一份量測，手機標準 vs 桌機提案值', () => {
+  const mm = { tap: { total: 10, small: 4, under24: 0, samples: [] }, font: { chars: 1000, smallChars: 400, share: 0.4, minPx: 13, tinyRuns: [], sizes: { 13: 400, 16: 600 }, tinyBy: {} } };
+  assert.equal(judgeTap(mm, THRESHOLDS).status, 'WARN'); assert.equal(judgeFont(mm, THRESHOLDS).status, 'FAIL');
+  const desk = { ...THRESHOLDS, tapMinPx: 24, fontMinBodyPx: 12, fontHardMinPx: 10 };
+  assert.equal(judgeTap({ tap: { ...mm.tap, small: 0 } }, desk).status, 'PASS'); assert.equal(judgeFont(mm, desk).status, 'PASS');
+});
+await t('#O9 360／390 合併成「手機」再算分（取較差者），1280 不合併', () => {
+  const rows = [{ id: 'a', width: 360, checks: { tap: { status: 'PASS' }, font: { status: 'WARN' } } }, { id: 'a', width: 390, checks: { tap: { status: 'FAIL' }, font: { status: 'PASS' } } }, { id: 'a', width: 1280, checks: { tap: { status: 'PASS' } } }];
+  const mr = mergeMobileRows(rows);
+  assert.equal(mr.length, 2); assert.deepEqual([mr[0].checks.tap.status, mr[0].checks.font.status], ['FAIL', 'WARN']); assert.equal(mr[1].width, 1280);
+  assert.equal(rows[0].checks.tap.status, 'PASS', '不可改到原始列');
+});
+await t('#M17 color-mix／oklch 斷詞', () => {
+  assert.deepEqual(colorTokens('linear-gradient(90deg, color-mix(in srgb, red 50%, blue) 0%, oklch(0.5 0.1 200 / 0.5) 100%)'), ['color-mix(in srgb, red 50%, blue)', 'oklch(0.5 0.1 200 / 0.5)']);
+  assert.equal(parseColor('rgb(1, 2, 3) junk'), null, '不完整比對不可誤判');
+});
+await t('#O2 TBT 代理值、#O1 單一語言判定', () => {
+  const lt = [{ t: 100, d: 120 }, { t: 900, d: 300 }, { t: 5000, d: 900 }];
+  assert.equal(tbtFrom(lt, 0, 2000), 70 + 250);
+  assert.equal(judgeTbt(320, THRESHOLDS, 3000).status, 'WARN'); assert.equal(judgeTbt(100, THRESHOLDS, 3000).status, 'PASS'); assert.equal(judgeTbt(900, THRESHOLDS, 3000).status, 'FAIL');
+  assert.equal(judgeTbt(null, THRESHOLDS, 3000).status, 'SKIP');
+  assert.deepEqual(EXTRAS_ALL, ['i18n', 'rm', 'nav']);
+  // 正式站英文用 <html lang="en-US">，不可判成 WARN；繁簡不可互認
+  assert.ok(langMatches('en', 'en-US')); assert.ok(langMatches('zh-Hans', 'zh-CN')); assert.ok(!langMatches('zh-Hans', 'zh-TW')); assert.ok(!langMatches('ja', 'zh-TW')); assert.ok(!langMatches('ko', ''));
+  const ok1 = judgeOneLang('en', { font: { chars: 50 }, i18n: { lang: 'en-US', rawTokens: [], hanShare: 0 } }, { ok: true }, 0);
+  assert.equal(ok1.status, 'PASS');
+});
+await t('#M15 主控台的「Failed to load resource … status of 404」與 HTTP 404 只算一次', () => {
+  const r = judge(m(), { ...noErr(), http: [{ status: 404, url: 'http://x/a.png', type: 'image' }], console: ['Failed to load resource: the server responded with a status of 404 (Not Found)'] }, okNav, THRESHOLDS, open);
+  assert.match(r.errors.summary, /console\.error 0、/); assert.match(r.errors.summary, /HTTP≥400 1/);
 });
 // 第 5 項：被攔的寫入只抵銷該筆
 await t('#5 blocked writes absorb only their own messages', () => {
@@ -321,6 +364,12 @@ await t('#10 next build / same-repo server detection', () => {
   assert.equal(c.builds.find((p) => p.pid === 14).inRepo, true); assert.equal(c.builds.find((p) => p.pid === 10).inRepo, false);
   assert.deepEqual(c.sameRepoServers.map((p) => p.pid), [11]);
   assert.deepEqual(findNextConflicts(procs, repo, 14).builds.map((p) => p.pid).sort(), [10, 15], '不把自己算進去');
+  // Windows 拿不到別人的 cwd：相對路徑 → 位置不明（null）；絕對路徑但不是本 repo → false
+  const w = findNextConflicts([{ pid: 21, cmd: 'node node_modules\\next\\dist\\bin\\next build', cwd: null }, { pid: 22, cmd: '"C:\\nodejs\\node.exe" C:\\other\\node_modules\\next\\dist\\bin\\next build', cwd: null }, { pid: 23, cmd: 'node node_modules\\next\\dist\\bin\\next start -p 3400', cwd: null }], 'C:\\Users\\D\\repo', 99);
+  assert.deepEqual(w.builds.map((b) => [b.pid, b.inRepo]), [[21, null], [22, false]]);
+  assert.deepEqual(w.sameRepoServers.map((b) => [b.pid, b.inRepo]), [[23, null]]);
+  const dd = path.join(tmp, 'dist-busy'); fs.mkdirSync(dd); fs.writeFileSync(path.join(dd, 'trace'), 'x');
+  assert.equal(distBusy(dd), true); assert.equal(distBusy(dd, 60000, Date.now() + 120000), false); assert.equal(distBusy(path.join(tmp, 'no-such-dist')), false);
   const live = listProcesses();
   assert.ok(Array.isArray(live), `listProcesses 在 ${process.platform} 失敗`);
   if (process.platform === 'linux') assert.ok(live.some((p) => p.pid === process.pid), 'listProcesses 應包含本行程');
@@ -352,7 +401,7 @@ function findPlaywright() {
   for (const c of [process.env.HC_PLAYWRIGHT_MODULE, process.env.PLAYWRIGHT_MODULE, 'playwright'].filter(Boolean)) { try { req.resolve(c); return true; } catch {} }
   return false;
 }
-const runTool = (args, env = {}) => new Promise((res) => { const p = spawn(process.execPath, [RUN, ...args], { env: { ...process.env, HC_LOCK_FILE: path.join(tmp, 'e2e.lock'), ...env } }); let out = ''; p.stdout.on('data', (d) => (out += d)); p.stderr.on('data', (d) => (out += d)); p.on('exit', (code) => res({ code, out })); });
+const runTool = (args, env = {}) => new Promise((res) => { const p = spawn(process.execPath, [RUN, ...args, ...(args.includes('--extras') || args.includes('--serve') ? [] : ['--extras', 'none'])], { env: { ...process.env, HC_LOCK_FILE: path.join(tmp, 'e2e.lock'), ...env } }); let out = ''; p.stdout.on('data', (d) => (out += d)); p.stderr.on('data', (d) => (out += d)); p.on('exit', (code) => res({ code, out })); });
 let e2e = 'SKIP（找不到 playwright；設 PLAYWRIGHT_MODULE 後可跑）';
 if (findPlaywright()) {
   await t('#M10 --serve 起不來時寫 error.json（不留空殼、不冒充 build PASS）', async () => {
@@ -417,6 +466,83 @@ await t('#8 e2e: --only typo exits 2 without creating a run', async () => {
       e2e = `ok（${rep.rows.length} 頁，${rep.elapsedSec}s）`;
     } finally { await f.close(); }
   });
+  const extraRun = async (name, args, env) => {
+    const f = await startFixture();
+    try {
+      const cf = path.join(tmp, 'extra-cards.json'); fs.writeFileSync(cf, JSON.stringify(EXTRA_CARDS));
+      const out = path.join(tmp, name);
+      const r = await runTool(['--base', f.base, '--cards', cf, '--shots', 'none', '--out', out, ...args], env);
+      const dir = fs.existsSync(out) ? fs.readdirSync(out).find((d) => fs.existsSync(path.join(out, d, 'report.json'))) : null;
+      const rep = dir ? JSON.parse(fs.readFileSync(path.join(out, dir, 'report.json'), 'utf8')) : null;
+      return { r, rep, f, row: (id, w) => rep.rows.find((x) => x.id === id && (w == null || x.width === w)), md: dir ? fs.readFileSync(path.join(out, dir, 'report.md'), 'utf8') : '' };
+    } finally { await f.close(); }
+  };
+  await t('#M1 攔截在瀏覽器層：beacon／XHR PUT／worker／跨站 iframe／表單 POST 都到不了伺服器，且 HTTP 快取仍開著', async () => {
+    const x = await extraRun('m1-out', ['--only', 'writes-all,ok2', '--widths', '390', '--concurrency', '1', '--no-early-swipe', '--extras', 'none']);
+    assert.ok(x.rep, x.r.out);
+    assert.deepEqual(x.f.writes, [], '伺服器不可收到任何寫入：' + x.f.writes.join(','));
+    assert.equal(x.f.hits['/cached.js'], 1, '可快取的腳本第二頁應走快取（攔截不可停用快取）');
+    const kinds = x.rep.blockedWrites.map((b) => `${b.method} ${new URL(b.url).pathname}`);
+    for (const k of ['POST /beacon', 'PUT /xhr', 'POST /w-post', 'POST /api/view', 'POST /form']) assert.ok(kinds.includes(k), `${k} 應列在被攔清單：${kinds.join(',')}`);
+    assert.equal(x.row('writes-all').checks.errors.status, 'PASS', x.row('writes-all').checks.errors.summary);
+  });
+  await t('#M2 穩定即止：正常頁提早結束；晚到錯誤條（3.3s 後才出現）仍抓得到', async () => {
+    const x = await extraRun('m2-out', ['--only', 'ok,late-banner', '--widths', '390', '--settle-ms', '8000', '--no-early-swipe', '--extras', 'none']);
+    assert.ok(x.rep, x.r.out);
+    const ok = x.row('ok'), lb = x.row('late-banner');
+    assert.ok(ok.nav.settleMs < 5000 && ok.nav.settleReason !== 'max', `正常頁應提早穩定：${ok.nav.settleMs}ms ${ok.nav.settleReason}`);
+    assert.ok(lb.nav.settleMs > 3300, `晚到錯誤條要等到出現：${lb.nav.settleMs}ms`);
+    assert.equal(lb.checks.visibleError.status, 'FAIL', lb.checks.visibleError.summary);
+    assert.ok(lb.checks.cls.value > 0, '錯誤條插在最上面造成的位移要算進 CLS');
+    assert.match(x.md, /穩定即止/);
+  });
+  await t('#M17 oklch／color-mix 顏色解析得出來（不再 unknown）、#O2 a11y、#M16 桌機門檻試算', async () => {
+    const x = await extraRun('m17-out', ['--only', 'colors,a11y,desk-small', '--widths', '390,1280', '--no-early-swipe', '--extras', 'none']);
+    assert.ok(x.rep, x.r.out);
+    const c = x.row('colors', 390);
+    assert.equal(c.checks.contrast.status, 'FAIL', c.checks.contrast.summary); assert.match(c.checks.contrast.samples.join(' '), /深灰字/);
+    assert.doesNotMatch(c.checks.contrast.samples.join(' '), /淺字/); assert.match(c.checks.contrast.summary, /另 0 段未判定/);
+    const y = x.row('a11y', 390).checks.a11y;
+    assert.equal(y.status, 'FAIL', y.summary); assert.match(y.summary, /沒有名稱的按鈕／連結 1、沒有標籤的欄位 1/); assert.match(y.summary, /缺 alt 的圖 1/);
+    assert.ok(y.samples.some((s) => /button/.test(s)), '樣本要附位置／選擇器：' + y.samples.join('|'));
+    const d = x.row('desk-small', 1280);
+    assert.equal(d.checks.tap.status, 'WARN'); assert.equal(d.checks.font.status, 'FAIL', '預設維持手機標準');
+    assert.deepEqual([d.whatIf.tap, d.whatIf.font], ['PASS', 'PASS'], '桌機提案值下應通過');
+    assert.equal(x.rep.desktopWhatIf.appliedNow, '手機標準（現狀，擁有者未決定）');
+    assert.ok(x.rep.desktopWhatIf.changed.some((s) => s.startsWith('desk-small@1280')));
+    assert.match(x.md, /## 桌機 1280 門檻試算/);
+    const y2 = await extraRun('m16b-out', ['--only', 'desk-small', '--widths', '1280', '--no-early-swipe', '--extras', 'none', '--desktop-profile']);
+    assert.equal(y2.row('desk-small', 1280).checks.font.status, 'PASS'); assert.equal(y2.row('desk-small', 1280).whatIf.profile, 'mobile');
+  });
+  await t('#O1 五語、#O3 減少動態、#O4 返回重進與慢捲到底', async () => {
+    const x = await extraRun('ext-out', ['--only', 'i18n-ok,i18n-bad,rm-blank,lazy-shift', '--widths', '390', '--no-early-swipe', '--extras', 'all']);
+    assert.ok(x.rep, x.r.out);
+    const ck = (id, k) => x.row(id, 390).checks[k];
+    assert.equal(ck('i18n-ok', 'i18n').status, 'PASS', '沒翻到的句子保留繁中是設計，不扣分：' + ck('i18n-ok', 'i18n').summary);
+    assert.match(ck('i18n-ok', 'i18n').summary, /ja PASS（仍為中文字 100%）/);
+    assert.match(ck('i18n-ok', 'i18n').summary, /en PASS/);
+    assert.equal(ck('i18n-bad', 'i18n').status, 'FAIL', ck('i18n-bad', 'i18n').summary); assert.match(ck('i18n-bad', 'i18n').summary, /en FAIL（程式值外露 1/); assert.match(ck('i18n-bad', 'i18n').samples.join(' '), /en: .*undefined/);
+    assert.equal(ck('rm-blank', 'reducedMotion').status, 'FAIL', ck('rm-blank', 'reducedMotion').summary);
+    assert.equal(ck('i18n-ok', 'reducedMotion').status, 'PASS');
+    assert.equal(ck('lazy-shift', 'scroll').status === 'PASS', false, '捲到底才插入大區塊要被抓到：' + ck('lazy-shift', 'scroll').summary);
+    for (const id of ['i18n-ok', 'rm-blank', 'lazy-shift']) assert.equal(ck(id, 'backForward').status, 'PASS', id + ' ' + ck(id, 'backForward').summary);
+  });
+  await t('#M3 早滑用真的觸控手勢（不是 scrollBy）', async () => {
+    const x = await extraRun('swipe-out', ['--only', 'home', '--widths', '390', '--extras', 'none']);
+    assert.ok(x.rep, x.r.out);
+    const es = x.row('home', 390).checks.earlySwipe;
+    assert.equal(es.status, 'PASS', es.summary); assert.match(es.summary, /\(touch/); assert.doesNotMatch(es.summary, /scrollBy/);
+  });
+  await t('#O5 --min-coverage／--strict', async () => {
+    // 只有畫布的頁：對比、LCP 判不出來 → 涵蓋率 11/13（84.6%）
+    const x = await extraRun('strict-out', ['--only', 'canvas-only', '--widths', '390', '--no-early-swipe', '--extras', 'none', '--strict']);
+    assert.equal(x.r.code, 1, '涵蓋率未達門檻＋--strict 要 exit 1：' + x.r.out.slice(-400)); assert.match(x.r.out, /涵蓋率/);
+    assert.equal(x.rep.coverage.pct, 0.846);
+    const y = await extraRun('nostrict-out', ['--only', 'canvas-only', '--widths', '390', '--no-early-swipe', '--extras', 'none']);
+    assert.equal(y.r.code, 0, '沒有 --strict 只警告不失敗'); assert.match(y.r.out, /低於門檻 90%/);
+    const z = await extraRun('lowmin-out', ['--only', 'canvas-only', '--widths', '390', '--no-early-swipe', '--extras', 'none', '--strict', '--min-coverage', '0.8']);
+    assert.equal(z.r.code, 0, z.r.out.slice(-400));
+  });
 }
 
 // 中斷：Ctrl+C／SIGINT 後鎖要被清掉、exit 130（Windows 的 process.kill 是強制結束、送不了 SIGINT，改在 MSI 用 GenerateConsoleCtrlEvent 手動驗）
@@ -426,11 +552,11 @@ if (findPlaywright() && process.platform !== 'win32') {
     const f = await startFixture();
     try {
       const lockFile = path.join(tmp, 'sig.lock');
-      const p = spawn(process.execPath, [RUN, '--base', f.base, '--only', 'ok', '--cards', path.join(tmp, 'fixture-cards.json'), '--widths', '390', '--settle-ms', '20000', '--no-early-swipe', '--shots', 'none', '--out', path.join(tmp, 'sig-out')], { env: { ...process.env, HC_LOCK_FILE: lockFile } });
+      const p = spawn(process.execPath, [RUN, '--base', f.base, '--only', 'ok', '--cards', path.join(tmp, 'fixture-cards.json'), '--widths', '390', '--settle-ms', '20000', '--no-early-swipe', '--extras', 'none', '--shots', 'none', '--out', path.join(tmp, 'sig-out')], { env: { ...process.env, HC_LOCK_FILE: lockFile } });
       let out = ''; p.stdout.on('data', (d) => (out += d)); p.stderr.on('data', (d) => (out += d));
       const exited = new Promise((res) => p.on('exit', (code, signal) => res({ code, signal })));
       const t0 = Date.now(); while (!/寬度 390/.test(out) && Date.now() - t0 < 15000) await new Promise((r) => setTimeout(r, 100));
-      await new Promise((r) => setTimeout(r, 1500));
+      await new Promise((r) => setTimeout(r, 800)); // 穩定即止最少 2.5s，0.8s 時一定還在量
       assert.ok(fs.existsSync(lockFile), '執行中應持有鎖');
       p.kill('SIGINT');
       const r = await Promise.race([exited, new Promise((res) => setTimeout(() => res({ code: 'timeout' }), 10000))]);
