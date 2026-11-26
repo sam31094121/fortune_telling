@@ -437,9 +437,13 @@ function buildStrengthFactors(pillars: BaziPillars, counts: Record<TraditionalEl
   ];
 }
 
-function buildStructurePattern(pillars: BaziPillars, distribution: BaziTenGodDistribution, strength: BaziProfessionalChart['strengthAnalysis']): BaziStructurePattern {
+function buildStructurePattern(pillars: BaziPillars, hourKnown: boolean, distribution: BaziTenGodDistribution, strength: BaziProfessionalChart['strengthAnalysis']): BaziStructurePattern {
   const top = distribution.ranked[0]?.tenGod ?? '平衡';
-  const monthMain = pillars.month.hiddenStems[0]?.tenGod ?? pillars.month.stemTenGod;
+  // 格局（本派固定取法，業主定案 2026-11-26「透干取格」）：
+  //   依《子平真詮》以月令為主、看月令藏干透出天干者取格——藏干依本氣、中氣、餘氣順序，
+  //   第一個在年干、月干、時干透出者為格；都沒透出，取月令本氣。（日干是自己，不算透出。）
+  const exposedStems = new Set<string>([pillars.year.stem, pillars.month.stem, ...(hourKnown ? [pillars.hour.stem] : [])]); // 時辰未知時時柱是替代資料，不算透出
+  const monthMain = (pillars.month.hiddenStems.find((h) => exposedStems.has(h.stem)) ?? pillars.month.hiddenStems[0])?.tenGod ?? pillars.month.stemTenGod;
   const mixed = distribution.dominant.length >= 3;
   const brokenBy = distribution.ranked.filter((item) => item.score >= 1.6 && item.tenGod !== top).map((item) => item.tenGod);
   return {
@@ -450,7 +454,7 @@ function buildStructurePattern(pillars: BaziPillars, distribution: BaziTenGodDis
     brokenBy,
     specialNotes: [
       '第一層僅建立格局資料，不輸出吉凶斷語。',
-      '月令取' + monthMain + '作格局核心，十神分布以' + top + '為主要訊號。',
+      '月令藏干透出取' + monthMain + '作格局核心（無透出則取本氣），十神分布以' + top + '為主要訊號。',
     ],
   };
 }
@@ -773,7 +777,7 @@ function strengthAnalysisFromCore(core: ReturnType<typeof createBaziCore>): Bazi
     supportScore: core.seasonalStrength.score,
     pressureScore: Math.max(0, 100 - core.seasonalStrength.score),
     verdict,
-    explanation: `新版八字核心依節氣月令、藏干權重與日主扶抑訊號判定，日主為${verdict}。`,
+    explanation: `依同黨（比劫＋印星）占五行加權比例（含全部藏干與月令加權）${Math.round(core.seasonalStrength.partyShare * 1000) / 10}%判定，52%以上偏旺、42%以下偏弱，日主為${verdict}。`,
   };
 }
 
@@ -819,7 +823,7 @@ function buildCoreProfessionalChart(input: BaziAnalysisInput, core: ReturnType<t
   const elementStatistics = elementStatisticsFromCore(core, pillars);
   const strengthAnalysis = strengthAnalysisFromCore(core);
   const tenGodDistribution = buildTenGodDistribution(pillars);
-  const structurePattern = buildStructurePattern(pillars, tenGodDistribution, strengthAnalysis);
+  const structurePattern = buildStructurePattern(pillars, hourKnown, tenGodDistribution, strengthAnalysis);
   const gods = chooseGods(elementStatistics.total, strengthAnalysis.verdict, pillars.day.stemElement);
   const luckCycles = luckCyclesFromCore(core, pillars.day.stem);
   const annualFortunes = annualFortunesFromCore(core);

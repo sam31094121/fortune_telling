@@ -166,6 +166,8 @@ export interface BaziProfessionalResult {
     controlSignals: string[];
     tendency: 'STRONG' | 'WEAK' | 'BALANCED';
     score: number;
+    /** 同黨（比劫＋印）占五行加權總量的比例（含全部藏干與月令加權）；旺衰以此判定 */
+    partyShare: number;
   };
   interactions: BaziInteraction[];
   /** 空亡（旬空）：年柱旬空 + 日柱旬空 */
@@ -355,7 +357,15 @@ export function createBaziCore(input: BaziBirthInput): BaziProfessionalResult {
   }
   const supportScore = (lifeStage === '旺' ? 30 : lifeStage === '相' ? 20 : lifeStage === '休' ? -8 : lifeStage === '囚' ? -16 : -24)
     + supportSignals.length * 9 - drainSignals.length * 7 - controlSignals.length * 9;
-  const tendency: 'STRONG' | 'WEAK' | 'BALANCED' = supportScore >= 14 ? 'STRONG' : supportScore <= -14 ? 'WEAK' : 'BALANCED';
+  // 旺衰（本派固定取法，業主定案 2026-11-26「同黨占比法」）：
+  //   同黨＝比劫＋印星，異黨＝食傷＋財＋官殺；用上面 weighted（天干 1.0＋全部藏干權重，月令另加權）算同黨占比。
+  //   門檻：≤42% 偏弱、≥52% 偏旺、其間中和。校準依據＝業主提供的兩張紙本（1974-06-28 男 占比 40.3% 偏弱；1987-08-12 女 占比 35.8% 身弱）都須判偏弱；
+  //   3000 組隨機生辰（1940–2019、男女、全時辰）實測中位數 45.5%，此門檻約四成偏弱、三成偏旺、其餘中和。
+  //   （同黨只占五行中的兩行，隨機命盤平均約 45%，所以門檻不能取 50%。）舊版只看天干與日主本氣根，漏掉月令與日支藏干裡的印星，同一張盤與他牌紙本「身弱」不一致。
+  const sealElement = (Object.keys(GENERATES) as Element[]).find((el) => GENERATES[el] === dmElement) as Element;
+  const weightedTotal = (Object.values(weighted) as number[]).reduce((a, b) => a + b, 0);
+  const partyShare = weightedTotal > 0 ? Math.round(((weighted[dmElement] + weighted[sealElement]) / weightedTotal) * 1000) / 1000 : 0.5;
+  const tendency: 'STRONG' | 'WEAK' | 'BALANCED' = partyShare >= 0.52 ? 'STRONG' : partyShare <= 0.42 ? 'WEAK' : 'BALANCED';
 
   // ---- 7. StemBranchInteractionEngine ----
   const interactions = computeInteractions(activePillars);
@@ -453,7 +463,7 @@ export function createBaziCore(input: BaziBirthInput): BaziProfessionalResult {
     pillars: { year: yearPillar, month: monthPillar, day: dayPillar, hour: hourPillar },
     dayMaster: { stem: dayMasterStem, element: dmElement, yinYang: STEM_YINYANG[dayMasterStem] },
     fiveElements: { rawCount, weightedStrength: weighted, weightRule: BAZI_ENGINE.hiddenStemWeights + `_MONTHx${BAZI_ENGINE.monthQiMultiplier}` },
-    seasonalStrength: { monthQi, lifeStage, seasonalSignals, supportSignals, drainSignals, controlSignals, tendency, score: supportScore },
+    seasonalStrength: { monthQi, lifeStage, seasonalSignals, supportSignals, drainSignals, controlSignals, tendency, score: supportScore, partyShare },
     interactions,
     kongWang,
     mingGong,

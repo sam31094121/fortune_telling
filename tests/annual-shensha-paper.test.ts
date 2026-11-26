@@ -25,3 +25,18 @@ console.log('annual shensha paper golden: ok');
   assert.ok(lunarDate.includes('閏六月') && !lunarDate.includes('闰'), `lunar date shows 閏: ${lunarDate}`);
   console.log('lunar leap month traditional char: ok');
 }
+
+// 旺衰、格局、喜用忌（本派固定取法：同黨占比法、透干取格；2026-11-26）。紙本 1987-08-12 08:00 女：身弱、正官格、喜用水金、忌火土。
+{
+  const r = calculateDualChart({ birthDate: '1987-08-12', birthTime: '08:00', gender: 'female', calendarType: 'solar', timezone: 'Asia/Taipei' });
+  const pc = r.bazi.professionalChart as any;
+  assert.equal(pc.strengthAnalysis.verdict, '偏弱', '1987 female: 身弱');
+  assert.equal(pc.structurePattern.primaryPattern, '正官格', '1987 female: 月令申藏戊透月干→正官格');
+  assert.deepEqual([pc.gods.joyGod, pc.gods.usefulGod], ['水', '金'], '1987 female: 喜用水金');
+  assert.equal(pc.gods.avoidGod, '火', '1987 female: 忌神含火（紙本火土，本站五神定義另列仇神木、閒神土）');
+  // 紙本一：1974-06-28 18:00 男——偏弱、正官格（既有參考：喜金、用土、忌木）
+  const m = calculateDualChart({ birthDate: '1974-06-28', birthTime: '18:00', gender: 'male', calendarType: 'solar', timezone: 'Asia/Taipei' });
+  const mp = m.bazi.professionalChart as any;
+  assert.deepEqual([mp.strengthAnalysis.verdict, mp.structurePattern.primaryPattern, mp.gods.joyGod, mp.gods.usefulGod, mp.gods.avoidGod], ['偏弱', '正官格', '金', '土', '木'], '1974 male paper');
+  console.log('strength / pattern / gods vs paper: ok');
+}

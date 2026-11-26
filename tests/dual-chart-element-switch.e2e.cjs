@@ -11,7 +11,7 @@ const {chromium}=require('playwright');
   const page=await context.newPage();
   await page.goto((process.env.DUAL_CHART_TEST_URL||'http://localhost:8888')+'/dual-chart');
   await page.getByRole('button',{name:'國曆生日',exact:true}).click();
-  const cases=[['63','6','28','酉','偏弱','金、土','木','正官格','水','巨蟹座'],['79','5','20','亥','偏弱','木、水','金','傷官格','土','金牛座'],['77','11','3','辰','偏弱','水、金','土','七殺格','木','天蠍座'],['63','6','28','酉','偏弱','金、土','木','正官格','水','巨蟹座'],['63','5','9','酉','偏弱','金、土','木','正官格','水','巨蟹座']];
+  const cases=[['63','6','28','酉','偏弱','金、土','木','正官格','水','巨蟹座'],['79','5','20','亥','偏弱','木、水','金','正官格','土','金牛座'],['77','11','3','辰','偏弱','水、金','土','七殺格','木','天蠍座'],['63','6','28','酉','偏弱','金、土','木','正官格','水','巨蟹座'],['63','5','9','酉','偏弱','金、土','木','正官格','水','巨蟹座']];
   fs.mkdirSync('.tmp/element-switch',{recursive:true});
   for(let i=0;i<cases.length;i++){
    if(i) await page.getByRole('button',{name:'← 返回命盤',exact:true}).click();
