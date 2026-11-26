@@ -193,6 +193,8 @@ export interface AsuraDisplay {
         wave?: "好事" | "壞事";
       };
       /** 三波之三「愛情」：只放後端算出的事實（流年夫妻宮位置），解讀無來源時誠實標示 */
+      /** 一眼三句：好事／壞事／愛情，每句一行；沒有來源就誠實標示 */
+      threeWaves?: Array<{ label: "好事" | "壞事" | "愛情"; line: string; available: boolean }>;
       love?: { palace: string; facts: string[]; message: string };
       readingSourceIds?: string[];
       annualLineAudit?: Array<{ year: number; resultId: string; scope: 'flow'; text: string; wordingSource: string; interpretationBasis: 'BAZI_ONLY' | 'ZIWEI_PRODUCT_REMINDER'; sourceStatus?: string; referenceMethod?: boolean }>;

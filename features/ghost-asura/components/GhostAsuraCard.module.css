@@ -2441,3 +2441,9 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 .annualStar .annualStarAction{margin-top:10px;padding-top:10px;border-top:1px solid #d9aa4c33;color:#FFF6C8}
 .annualStar .annualStarClose{font-style:italic;color:#c9b27a}
 .annualStar small{display:block;margin-top:10px;font-size:12px;line-height:1.6;color:#a89868}
+
+.annualWaves{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+.annualWaves li{display:flex;gap:12px;align-items:baseline;padding:10px 14px;border-radius:10px;border:1px solid #d9aa4c40;background:#2a1f0c59}
+.annualWaves b{flex:none;min-width:2.6em;font-size:14px;letter-spacing:.12em;color:#d9aa4c}
+.annualWaves span{font-size:17px;line-height:1.5;color:#FFE9A0}
+.annualWaves li[data-available="false"] span{font-size:14px;color:#a89868}

@@ -790,6 +790,7 @@ function AsuraAnnualReading({ data }: { data: NonNullable<AsuraDisplay['annualRe
     {selected && <div key={selected.year} className={styles.annualReadingBody} aria-live="polite" aria-atomic="true">
       {selected.starLabel && <p className={styles.annualStarLabel}>{selected.starLabel}</p>}
       <h3>{selected.heading}</h3><p>{selected.message}</p>
+      {selected.threeWaves && <ul className={styles.annualWaves} data-annual-waves>{selected.threeWaves.map(w => <li key={w.label} data-available={w.available}><b>{w.label}</b><span>{w.line}</span></li>)}</ul>}
       {selected.yearStar && <div className={styles.annualStar} data-annual-star={selected.yearStar.name} title={selected.yearStar.rule}>
         <h4>{selected.yearStar.wave ? `${selected.yearStar.wave}・` : ""}本年星象・{selected.yearStar.name}</h4>
         {selected.yearStar.available ? <>

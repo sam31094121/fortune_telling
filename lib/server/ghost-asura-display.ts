@@ -849,6 +849,10 @@ export function buildAsuraAnnualReading(result: DualChartResult, now: Date, hour
         message: hasReading ? '目前僅有部分解讀，完整解讀暫時無法取得。' : '解讀暫時無法取得。',
         yearStar,
         love: buildAnnualLove(ziweiAnnualAudit),
+        threeWaves: (["好事", "壞事"] as const).map(label => yearStar?.available && yearStar.wave === label
+          ? { label, line: yearStar.headline ?? "", available: true }
+          : { label, line: yearStar?.available ? "這一年的星象沒有提示這一類" : "暫時無法取得", available: false })
+          .concat([{ label: "愛情" as never, line: "暫時無法取得", available: false }]),
         facts: [
           { label: '年度干支（立春換年）', value: ganZhi },
           { label: '年干十神', value: calculateTenGod(result.core.dayMaster.stem, stem) },
