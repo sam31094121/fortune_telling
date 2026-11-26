@@ -706,7 +706,7 @@ export function buildAsuraZiweiAnnualContext(result: DualChartResult, targetDate
     targetDate,
     birthInput: { ...result.ziwei.birthInput },
     solarDate: scope.solarDate,
-    lunarDate: scope.lunarDate,
+    lunarDate: String(scope.lunarDate).replace(/闰/g, '閏'),
     yearly: { ...scope.yearly, mutagen },
     // Existing engine positions only; no inferred auspiciousness or new copy.
     annualSurroundingPalaceIndices: [surrounded.target, surrounded.opposite, surrounded.wealth, surrounded.career].map(palace => palace.index),
