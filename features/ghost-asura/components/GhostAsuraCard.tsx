@@ -10,7 +10,7 @@
 
 'use client';
 
-import { Fragment, useEffect, useMemo, useRef, useState, type SyntheticEvent, type CSSProperties } from 'react';
+import { Fragment, useEffect, useId, useMemo, useRef, useState, type SyntheticEvent, type CSSProperties } from 'react';
 import { animationConfig } from '@/lib/ghost-asura-animation';
 import type { AsuraDisplay, AsuraDisplaySeal } from '@/lib/ghost-asura-display-contract';
 import type { GhostAsuraReading } from '../types';
@@ -757,8 +757,55 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
       {display.ageTimeline && (
         <AsuraAgeTimeline data={display.ageTimeline} focusRequest={focusRequest} />
       )}
+      {display.annualReading && <AsuraAnnualReading key={JSON.stringify(display.annualReading)} data={display.annualReading} />}
     </section>
   );
+}
+
+function AsuraAnnualReading({ data }: { data: NonNullable<AsuraDisplay['annualReading']> }) {
+  const gradientId = useId();
+  const [selectedYear, setSelectedYear] = useState(data.selectedYear);
+  const selected = data.years.find(item => item.year === selectedYear);
+  return <section className={styles.annualReading} aria-label={data.title}>
+    <h2>{data.title}</h2>
+    <div className={styles.annualConstellation} role="group" aria-label="選擇年份">
+      {data.years.map((item, index) => <button key={item.year} type="button" aria-pressed={selectedYear === item.year}
+        style={{ '--star-color': ['#45c7ae', '#599fe9', '#d9aa4c', '#d77b9f', '#9978dc'][index] } as CSSProperties}
+        aria-label={`${item.year}年，${item.ageLabel}${item.isCurrent ? '，當年' : ''}`} onClick={() => setSelectedYear(item.year)}>
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <defs><linearGradient id={`${gradientId}-${item.year}`} x1="0" y1="0" x2=".8" y2="1">
+            <stop offset="0" stopColor="color-mix(in srgb, var(--star-color), white 65%)" />
+            <stop offset=".38" stopColor="var(--star-color)" />
+            <stop offset=".58" stopColor="color-mix(in srgb, var(--star-color), white 25%)" />
+            <stop offset="1" stopColor="color-mix(in srgb, var(--star-color), #151023 48%)" />
+          </linearGradient></defs>
+          <path className={styles.starSilhouette} fill={`url(#${gradientId}-${item.year})`} d="M24 3 30 16 45 18 34 29 37 44 24 36 11 44 14 29 3 18 18 16Z" />
+          <path className={styles.starLight} d="M24 3 24 25 18 16ZM45 18 24 25 30 16ZM37 44 24 25 34 29ZM11 44 24 25 24 36ZM3 18 24 25 14 29Z" />
+          <path className={styles.starShade} d="M24 3 30 16 24 25ZM45 18 34 29 24 25ZM37 44 24 36 24 25ZM11 44 14 29 24 25ZM3 18 18 16 24 25Z" />
+          <path className={styles.starRidge} d="M24 3 24 25 45 18M24 25 37 44M24 25 11 44M24 25 3 18" />
+        </svg>
+        <strong>{item.year}</strong><span>{item.ageLabel}</span>
+      </button>)}
+    </div>
+    {selected && <div key={selected.year} className={styles.annualReadingBody} aria-live="polite" aria-atomic="true">
+      {selected.starLabel && <p className={styles.annualStarLabel}>{selected.starLabel}</p>}
+      <h3>{selected.heading}</h3><p>{selected.message}</p>
+      {selected.yearStar && <div className={styles.annualStar} data-annual-star={selected.yearStar.name} title={selected.yearStar.rule}>
+        <h4>本年星象・{selected.yearStar.name}</h4>
+        {selected.yearStar.available ? <>
+          <strong>{selected.yearStar.headline}</strong>
+          {selected.yearStar.lines?.map((text, index) => <p key={index}>{text}</p>)}
+          {selected.yearStar.action && <p className={styles.annualStarAction}>{selected.yearStar.action}</p>}
+          {selected.yearStar.close && <p className={styles.annualStarClose}>{selected.yearStar.close}</p>}
+          {selected.yearStar.sourceNote && <small>{selected.yearStar.sourceNote}</small>}
+        </> : <p>{selected.yearStar.message}</p>}
+      </div>}
+      {selected.focus && <div className={styles.annualSpeech}><h4>第一層・命魂戰局</h4><p>{selected.focus}</p></div>}
+      {Boolean(selected.paragraphs?.length) && <details className={styles.annualLayer}><summary>第二層・阿修羅秘卷</summary><div className={styles.annualSpeech}>
+        {selected.paragraphs?.map((text, index) => <p key={index}>{text}</p>)}
+      </div></details>}
+    </div>}
+  </section>;
 }
 
 function LegacyReadingCard({ reading }: { reading: GhostAsuraReading }) {

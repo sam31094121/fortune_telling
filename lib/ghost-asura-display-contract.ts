@@ -165,6 +165,42 @@ export interface AsuraDisplayAudit {
 }
 
 export interface AsuraDisplay {
+  annualReading?: {
+    title: string;
+    selectedYear: number;
+    years: Array<{
+      year: number; ageLabel: string; isCurrent: boolean; heading: string;
+      status: 'PARTIAL' | 'UNAVAILABLE'; message: string;
+      facts?: Array<{ label: string; value: string }>;
+      relations?: Array<{ name: string; participants: string; pillars: string; sourceRule: string }>;
+      natalRelations?: Array<{ name: string; participants: string; pillars: string; sourceRule: string }>;
+      paragraphs?: string[];
+      focus?: string;
+      /** 五星連珠：這是第幾顆星（第一顆星…第五顆星（未來）），後端排好，前端照印。 */
+      starLabel?: string;
+      /** 本年度星象（後端以本命年支落流年十二位算出，話術取自阿修羅技能檔）。 */
+      yearStar?: {
+        name: string;
+        rule: string;
+        available: boolean;
+        headline?: string;
+        lines?: string[];
+        action?: string;
+        close?: string;
+        message?: string;
+        sourceNote?: string;
+      };
+      readingSourceIds?: string[];
+      annualLineAudit?: Array<{ year: number; resultId: string; scope: 'flow'; text: string; wordingSource: string; interpretationBasis: 'BAZI_ONLY' | 'ZIWEI_PRODUCT_REMINDER'; sourceStatus?: string; referenceMethod?: boolean }>;
+      /** Audit data only; never rendered as customer-facing annual interpretation. */
+      ziweiAnnualAudit?: {
+        targetDate: string;
+        source: string;
+        interpretationStatus: 'UNAVAILABLE_ANNUAL_MAPPING';
+        yearly: { heavenlyStem: string; earthlyBranch: string; mutagen: string[] };
+      } | null;
+    }>;
+  };
   /** 客人不知道時辰時，後端以子時（早子 00:00）排；此旗標誠實標示 */
   hourAssumed: boolean;
   assumedHour: '子時' | null;

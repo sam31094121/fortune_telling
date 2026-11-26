@@ -305,6 +305,7 @@ export type PastReading = TimeReading;
 const ORDER: AsuraPillarKey[] = ['year', 'month', 'day', 'hour', 'luck', 'flow'];
 
 export interface ComposeTimeOptions {
+  scope?: 'single-year';
   name?: string | null;
   target?: 'self' | 'guest' | null;
 }
@@ -317,6 +318,26 @@ export function composeTime(
 ): TimeReading | null {
   if (marks.length === 0) return null;
   const tv = TIME_VOICE[when];
+  if (options?.scope === 'single-year') {
+    const annual = marks.filter(mark => mark.pillar === 'flow');
+    if (!annual.length) return null;
+    const ids = annual.map(mark => mark.resultId);
+    const pair = ids.length === 2 ? tv.pair[[...ids].sort().join('+')] : undefined;
+    const candidates = pair
+      ? pair.map(text => ({ text, ids }))
+      : annual.flatMap(mark => (tv.beat[mark.resultId] ?? mark.fallback).map(text => ({ text, ids: [mark.resultId] })));
+    const blocks: TimeReading['blocks'] = [];
+    for (const block of candidates) {
+      // Keep natal traits and advice anchored to "now" out of other years.
+      // Withhold the original sentence rather than rewriting its time scope.
+      if (/天生|一生|本命|性格|你愛獨處/.test(block.text)) continue;
+      if (when !== 'present' && /今天|今日|這週|本週|下個月|這個月/.test(block.text)) continue;
+      const existing = blocks.find(item => item.text === block.text);
+      if (existing) existing.ids = [...new Set([...existing.ids, ...block.ids])];
+      else blocks.push({ text: block.text, ids: [...block.ids] });
+    }
+    return { narrative: blocks.map(block => block.text).join('\n'), blocks, coda: '', composedIds: [...new Set(blocks.flatMap(block => block.ids))] };
+  }
   const groups = ORDER.map((pillar) => ({ pillar, marks: marks.filter((m) => m.pillar === pillar) })).filter((g) => g.marks.length > 0);
   const rawOpening = tv.opening[groups[0].pillar];
   const trimmedName = options?.name?.trim();

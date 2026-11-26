@@ -2405,3 +2405,39 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 .card[data-display-contract] .asuraTiles .tileSquare:not(:disabled):active {
   filter: brightness(1.12);
 }
+
+/* Five annual choices; scoped to the new reading footer. */
+.annualReading{margin-top:28px;padding:24px 20px;border:1px solid #7cb34273;border-radius:18px;background:linear-gradient(145deg,#1A2E14,#0C140A);color:#E8F0D8}
+.annualReading>h2{text-align:center;font-size:23px;letter-spacing:.12em;color:#FFE14A;margin:0 0 24px}
+.annualConstellation{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;isolation:isolate}
+.annualConstellation::before{content:'';position:absolute;top:27px;left:10%;right:10%;height:1px;background:linear-gradient(90deg,#65d7bc55,#72bafa66,#edc47788,#ec99b866,#b29af455);z-index:-1}
+.annualConstellation button{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;min-width:0;min-height:100px;padding:0 2px 8px;border:0;border-radius:10px;background:transparent;color:#c4ceb7;cursor:pointer;font:inherit}
+.annualConstellation svg{width:54px;height:54px;max-width:100%;padding:5px;box-sizing:border-box;overflow:visible;transition:transform .18s}
+.starSilhouette{stroke:color-mix(in srgb,var(--star-color),white 40%);stroke-width:.7;stroke-linejoin:round}
+.starLight{fill:#fff;fill-opacity:.26}
+.starShade{fill:#130c25;fill-opacity:.30}
+.starRidge{fill:none;stroke:#fff;stroke-opacity:.46;stroke-width:.35}
+.annualConstellation strong{font-size:16px;font-variant-numeric:tabular-nums}
+.annualConstellation span{font-size:13px;white-space:nowrap}
+.annualConstellation button[aria-pressed='true']{color:#FFF6C8;background:linear-gradient(180deg,#ffe14a24,#ffe14a08);box-shadow:inset 0 -2px 0 var(--star-color)}
+.annualConstellation button[aria-pressed='true'] svg{transform:translateY(-2px)}
+.annualConstellation button[aria-pressed='true'] .starSilhouette{stroke:#fff4d9;stroke-width:1}
+.annualConstellation button:focus-visible{outline:2px solid #FFE14A;outline-offset:3px}
+.annualReadingBody{margin-top:14px;padding:18px;border:1px solid #7cb34273;border-radius:10px;background:#0a160873;min-height:110px}
+.annualReadingBody h3{margin:0 0 10px;font-size:18px;color:#FFE14A}
+.annualReadingBody p{margin:0;font-size:15px;line-height:1.8;color:#E8F0D8;overflow-wrap:anywhere}
+@media(max-width:540px){.annualReading{padding:20px 10px;border-radius:14px}.annualConstellation{gap:2px}.annualConstellation strong{font-size:14px}.annualConstellation span{font-size:12px}.annualReadingBody{padding:14px}.annualReading>h2{font-size:21px}}
+@media(prefers-reduced-motion:reduce){.annualConstellation svg{transition:none}}
+.annualFacts{margin:18px 0;display:grid;gap:8px}.annualFacts>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;border-bottom:1px solid #ffffff0c;padding-bottom:8px}.annualFacts dt{font-size:13px;color:#baaeca}.annualFacts dd{margin:0;font-size:15px;color:#eedab0;overflow-wrap:anywhere}
+.annualRelations{margin-top:18px}.annualRelations h4,.annualSpeech h4{font-size:16px;color:#FFE14A;margin:0 0 12px}.annualRelations>p{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:10px 0;border-bottom:1px solid #ffffff12}.annualRelations strong{font-size:15px;color:#ead8b2}.annualRelations small{grid-column:1/-1;font-size:13px;color:#bfb3cd}.annualRelations summary{font-size:14px;color:#c1b2cf;cursor:pointer;min-height:44px;line-height:44px}.annualSpeech{margin-top:22px;padding-top:16px;border-top:1px solid #7cb34273}.annualSpeech p+p{margin-top:14px}
+.annualLayer{margin-top:16px;border:1px solid #7cb34273;border-radius:10px;padding:0 12px}.annualLayer>summary{min-height:48px;display:list-item;align-content:center;font-size:15px;color:#FFE14A;cursor:pointer;line-height:1.6;padding:12px 0}.annualLayer[open]{padding-bottom:14px}.annualLayer .annualSpeech{margin-top:6px;padding-top:8px}
+
+/* 五星連珠：本年星象（只改外觀；文字全由後端送出） */
+.annualStarLabel{margin:0 0 4px;font-size:13px;letter-spacing:.18em;color:#d9aa4c}
+.annualStar{margin:14px 0 4px;padding:14px 16px;border:1px solid #d9aa4c66;border-radius:10px;background:linear-gradient(160deg,#2a1f0c80,#0a160866 70%);box-shadow:inset 0 1px 0 #ffe9a926,0 6px 18px #00000040}
+.annualStar h4{margin:0 0 8px;font-size:13px;letter-spacing:.14em;color:#d9aa4c;font-weight:600}
+.annualStar strong{display:block;margin:0 0 8px;font-size:19px;line-height:1.5;color:#FFE9A0}
+.annualStar p+p{margin-top:6px}
+.annualStar .annualStarAction{margin-top:10px;padding-top:10px;border-top:1px solid #d9aa4c33;color:#FFF6C8}
+.annualStar .annualStarClose{font-style:italic;color:#c9b27a}
+.annualStar small{display:block;margin-top:10px;font-size:12px;line-height:1.6;color:#a89868}

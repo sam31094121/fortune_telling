@@ -14,11 +14,14 @@ import 'server-only';
 import { buildReadingGuidance } from './asura-reading-guidance';
 import { Solar } from 'lunar-typescript';
 import { calculateDualChart, type DualChartResult } from '@/lib/dual-chart';
-import { buildFlowYearShenSha } from '@/lib/dual-chart-iching-shensha';
+import { createZiweiAstrolabe, hourToTimeIndex } from '@/lib/ziwei/engine';
+import { buildFlowYearShenSha, buildAnnualShenSha } from '@/lib/dual-chart-iching-shensha';
+import { computeInteractions, calculateTenGod, HIDDEN_STEM_DICTIONARY, type BaziInteraction, type BaziPillarModel, type Stem, type Branch } from '@/lib/bazi/engine';
 import { asuraDeepScrub } from '@/lib/asura-display-alias';
 import { AsuraSkillError, asuraPlainLineOf, resolveAsuraInterpretation } from '@/features/ghost-asura/skill';
-import { ASURA_PLAIN, ASURA_TIMELINE, ASURA_VOICE, composeTime, type AsuraPillarKey, type AsuraWhen, voiceLead } from '@/lib/server/ghost-asura-voice';
+import { ASURA_PLAIN, ASURA_TIMELINE, ASURA_VOICE, TIME_VOICE, composeTime, type AsuraPillarKey, type AsuraWhen, voiceLead } from '@/lib/server/ghost-asura-voice';
 import { analyzePersona, runNatureGates } from '@/lib/server/ghost-asura-persona';
+import { PALACE_VERSE_ONION, PALACE_VERSE_SUIQIAN } from '@/lib/server/ghost-asura-translation-layer';
 import { asuraLinkStory, asuraTranslateDisplay, buildAgeTimeline, buildDecreeAnchors, buildPinnedSummary, buildTimelineDecree, sanitizeViewerName, toPublic, translateAsNature, type AgeTimelineViewer, type PalaceVerseCell } from '@/lib/server/ghost-asura-translation-layer';
 import type { AsuraNatureCardServer } from '@/lib/ghost-asura-nature-contract';
 import { goldWordingViewFor } from '@/lib/ghost-asura-gold-wording';
@@ -681,6 +684,176 @@ export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): 
     timelineDecree: buildTimelineDecree(),
     ...ageTimelineFields(ageGate.status === 'WITHHELD' ? null : computeAgeTimeline(result, now, viewer.name), viewer),
     viewer,
+    annualReading: buildAsuraAnnualReading(result, now, hourAssumed === true, ageGate),
+  };
+}
+
+/** Five annual choices; never substitute natal/decadal prose for unverified annual interpretation. */
+/** Annual audit only: never relabel natal palace copy as an annual interpretation. */
+export function buildAsuraZiweiAnnualContext(result: DualChartResult, targetDate: string) {
+  if (!result.ziwei.validation.passed) return null;
+  const chart = createZiweiAstrolabe(result.ziwei.birthInput);
+  const scope = chart.horoscope(targetDate);
+  const surrounded = scope.surroundPalaces('命宮', 'yearly');
+  if (!surrounded) return null;
+  const mutagen = [...scope.yearly.mutagen];
+  // Same approved Quanshu rule as lib/ziwei/engine.ts; scoped to this adapter.
+  if (String(scope.yearly.heavenlyStem) === '壬') mutagen[2] = '天府';
+  return {
+    targetDate,
+    birthInput: { ...result.ziwei.birthInput },
+    solarDate: scope.solarDate,
+    lunarDate: scope.lunarDate,
+    yearly: { ...scope.yearly, mutagen },
+    // Existing engine positions only; no inferred auspiciousness or new copy.
+    annualSurroundingPalaceIndices: [surrounded.target, surrounded.opposite, surrounded.wealth, surrounded.career].map(palace => palace.index),
+    decadalPalaceIndex: scope.decadal.index,
+    minorLimitPalaceIndex: scope.age.index,
+    palaces: chart.palaces.map((palace, index) => ({
+      annualName: scope.yearly.palaceNames[index],
+      natalName: palace.name,
+      earthlyBranch: palace.earthlyBranch,
+      majorStars: palace.majorStars.map(star => ({ name: star.name, brightness: star.brightness })),
+      minorStars: palace.minorStars.map(star => ({ name: star.name, brightness: star.brightness })),
+    })),
+    source: 'docs/技能戰鬥檔案/紫微斗數/紫微斗數.json; lib/ziwei/engine.ts; iztro@2.5.8',
+    interpretationStatus: 'UNAVAILABLE_ANNUAL_MAPPING' as const,
+  };
+}
+
+/** 流年十二位神煞名 → 阿修羅技能檔「歲前」層已有話術的名稱。沒有對應者一律誠實顯示暫時無法取得。 */
+const ANNUAL_STAR_TO_SUIQIAN: Readonly<Record<string, string>> = { 太歲: '歲建', 喪門: '喪門', 龍德: '龍德', 白虎: '白虎', 病符: '病符', 歲破: '大耗' };
+const ANNUAL_STAR_LABELS = ['第一顆星', '第二顆星', '第三顆星（現在）', '第四顆星（未來）', '第五顆星（未來）'] as const;
+
+function buildAnnualYearStar(name: string, rule: string): NonNullable<NonNullable<AsuraDisplay['annualReading']>['years'][number]['yearStar']> {
+  const key = ANNUAL_STAR_TO_SUIQIAN[name];
+  const row = key ? PALACE_VERSE_ONION.decree[key] : undefined;
+  if (!key || !row) return { name, rule, available: false, message: '這一年的星象解讀暫時無法取得。' };
+  const verse = PALACE_VERSE_SUIQIAN[key];
+  return {
+    name, rule, available: true,
+    headline: row.headline,
+    lines: [row.depth.basis.text, row.depth.basis.hook].filter(Boolean),
+    action: row.depth.action[0],
+    close: row.depth.close,
+    sourceNote: verse ? `${verse.note}${verse.sourceLevel === 'later' ? '（後世整理）' : '（古籍有載）'}` : undefined,
+  };
+}
+
+export function buildAsuraAnnualReading(result: DualChartResult, now: Date, hourAssumed: boolean, ageGate: AsuraAgeGate): NonNullable<AsuraDisplay['annualReading']> {
+  const today = taipeiYmd(now);
+  const [currentYear, month, day] = today.split('-').map(Number);
+  const birth = result.bazi.input.birthDate;
+  const gate = result.bazi.professionalChart.traditionalInterpretationGate;
+  const reading = buildGhostAsuraReading({ result });
+  const labels: Record<string, string> = { YEAR: '年柱', MONTH: '月柱', DAY: '日柱', HOUR: '時柱', FLOW: '流年' };
+  const relationView = (row: BaziInteraction) => ({ name: row.interactionType, participants: row.participants.join('、'), pillars: row.affectedPillars.map(key => labels[key] ?? key).join('、'), sourceRule: row.sourceRule });
+  // The existing scanner reads only stem, branch and opaque placement keys. Keep
+  // all four natal keys intact; FLOW is a separate placement, never a fake hour.
+  const scan = computeInteractions as unknown as (pillars: Array<Pick<BaziPillarModel, 'heavenlyStem' | 'earthlyBranch'> & { key: string }>) => BaziInteraction[];
+  return {
+    title: '阿修羅秘卷',
+    selectedYear: currentYear,
+    years: [-2, -1, 0, 1, 2].map(offset => {
+      const year = currentYear + offset;
+      const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+      const referenceDate = `${year}-${String(month).padStart(2, '0')}-${String(Math.min(day, lastDay)).padStart(2, '0')}`;
+      const age = calcCompletedAge(birth, referenceDate).age;
+      const message = hourAssumed
+        ? '暫時無法取得：請補齊出生時辰，才能核對這一年的解盤。'
+        : ageGate.status === 'WITHHELD' || age < ASURA_MIN_AGE
+        ? ASURA_AGE_WITHHELD_MESSAGE
+        : '解讀暫時無法取得。';
+      const base = { year, ageLabel: `${age}實歲`, isCurrent: offset === 0, heading: `${year} 年`, starLabel: ANNUAL_STAR_LABELS[offset + 2], status: 'UNAVAILABLE' as const, message };
+      if (hourAssumed || ageGate.status === 'WITHHELD' || age < ASURA_MIN_AGE || !gate?.coreReady || reading.guard.status !== 'PASSED' || result.core.pillars.hour === 'UNKNOWN') return base;
+      // Annual Bazi interval follows the existing Li-Chun convention. July is
+      // only an in-interval lookup anchor, not a substitute birth/consultation date.
+      const axis = computeTimeAxis(result, result.bazi.input.gender === 'female' ? 'female' : 'male', new Date(`${year}-07-01T04:00:00Z`));
+      if (!axis || axis.flowYear !== year) return base;
+      const ganZhi = axis.flowGanZhi;
+      const stem = ganZhi[0] as Stem, branch = ganZhi[1] as Branch;
+      const check = { passed: result.specialStars.flow.state === 'READY', mismatches: [] as string[] };
+      if (!check.passed) return base;
+      const annualStar = buildAnnualShenSha(result.core, gate, check, ganZhi);
+      const ziweiInput = result.ziwei.birthInput;
+      if (ziweiInput.calendarType !== 'solar' || ziweiInput.date !== result.bazi.input.birthDate
+        || ziweiInput.gender !== (result.bazi.input.gender === 'female' ? '女' : '男')
+        || ziweiInput.timeIndex !== hourToTimeIndex(Number(result.bazi.input.birthTime.slice(0, 2)))) return base;
+      const ziweiAnnualAudit = buildAsuraZiweiAnnualContext(result, `${year}-07-01`);
+      // July lies inside both year conventions; this does not merge their boundaries.
+      if (!ziweiAnnualAudit || `${ziweiAnnualAudit.yearly.heavenlyStem}${ziweiAnnualAudit.yearly.earthlyBranch}` !== ganZhi) return base;
+      const pillars = PILLAR_ORDER.map(key => result.core.pillars[key] as BaziPillarModel);
+      const relations = scan([...pillars, { key: 'FLOW', heavenlyStem: stem, earthlyBranch: branch }])
+        .filter(row => row.affectedPillars.includes('FLOW')).map(relationView);
+      const marks: Parameters<typeof composeTime>[1][number][] = [];
+      for (const trigger of axis.present.triggers) {
+        // Luck remains audit context; only this year's flow can select annual copy.
+        if (trigger.source !== 'flow') continue;
+        const rule = result.specialStars.rules[trigger.id];
+        // Match the established annual shensha producer's output gate; selected
+        // editions remain reference evidence, never promoted to VERIFIED.
+        if (!rule?.ready || rule.outputStatus !== 'READY' || (rule.status !== 'VERIFIED' && !rule.referenceMethod)
+          || marks.some(mark => mark.resultId === trigger.id)) continue;
+        try {
+          const copy = resolveAsuraInterpretation(trigger.id, { pillars: [] });
+          const fallback = [realCopy(copy.meaningStrong), realCopy(copy.advice)].filter((line): line is string => Boolean(line));
+          if (fallback.length) marks.push({ resultId: trigger.id, name: copy.displayName, pillar: 'flow', fallback });
+        } catch (error) { if (!(error instanceof AsuraSkillError)) throw error; }
+      }
+      const annualWhen = offset < 0 ? 'past' : offset > 0 ? 'future' : 'present';
+      const annualSpeech = composeTime(annualWhen, marks, { scope: 'single-year' });
+      const annualWordingSource = (text: string, resultId: string): string => {
+        const voice = TIME_VOICE[annualWhen];
+        const pairKey = marks.map(mark => mark.resultId).sort().join('+');
+        const pairIndex = marks.length === 2 ? (voice.pair[pairKey]?.indexOf(text) ?? -1) : -1;
+        if (pairIndex >= 0) return `TIME_VOICE.${annualWhen}.pair[${pairKey}][${pairIndex}]`;
+        const beatIndex = voice.beat[resultId]?.indexOf(text) ?? -1;
+        if (beatIndex >= 0) return `TIME_VOICE.${annualWhen}.beat.${resultId}[${beatIndex}]`;
+        const copy = resolveAsuraInterpretation(resultId, { pillars: [] });
+        const fields = (['meaningStrong', 'advice'] as const).filter(field => realCopy(copy[field]) === text);
+        if (!fields.length) throw new Error('Annual wording has no matching source field');
+        return `resolveAsuraInterpretation(${resultId}, pillars=[]).${fields.join('+')}`;
+      };
+      const annualLineAudit: NonNullable<NonNullable<AsuraDisplay['annualReading']>['years'][number]['annualLineAudit']> = (annualSpeech?.blocks ?? []).flatMap(block => block.ids.map(resultId => ({
+        year, resultId, scope: 'flow' as const, text: asuraDeepScrub(block.text),
+        wordingSource: annualWordingSource(block.text, resultId),
+        interpretationBasis: 'BAZI_ONLY' as const,
+        sourceStatus: result.specialStars.rules[resultId]?.status,
+        referenceMethod: result.specialStars.rules[resultId]?.referenceMethod === true,
+      })));
+      // Quanshu's explicit example only; editorial reminder, not an annual verdict.
+      const palaceIndex = (branch: string) => ziweiAnnualAudit.palaces.findIndex(palace => palace.earthlyBranch === branch);
+      const hasAnnualStar = (branch: string, name: string) => ziweiAnnualAudit.yearly.stars?.[palaceIndex(branch)]?.some(star => String(star.name) === name) === true;
+      const youPalace = ziweiAnnualAudit.palaces[palaceIndex('酉')];
+      if (result.ziwei.raw.chineseDate.startsWith('庚') && result.ziwei.lifePalace.earthlyBranch === '卯'
+        && youPalace?.natalName === '遷移' && youPalace.minorStars.some(star => String(star.name) === '擎羊')
+        && ziweiAnnualAudit.yearly.heavenlyStem === '庚'
+        && hasAnnualStar('申', '流祿') && hasAnnualStar('酉', '流羊') && hasAnnualStar('未', '流陀')) {
+        annualLineAudit.push({ year, resultId: 'ZW-ANNUAL-YANGTUO-EXAMPLE-01', scope: 'flow',
+          text: TIME_VOICE.present.pair['yangren+yuanchen'][2],
+          wordingSource: 'TIME_VOICE.present.pair.yangren+yuanchen[2]; ZW-RESEARCH-QUANSHU-V3-YANGTUO-01',
+          interpretationBasis: 'ZIWEI_PRODUCT_REMINDER' });
+      }
+      const annualLines = [...new Set(annualLineAudit.map(line => line.text))];
+      const yearStar = annualStar ? buildAnnualYearStar(annualStar.name, annualStar.rule) : undefined;
+      const hasReading = annualLines.length > 0 || yearStar?.available === true;
+      return { ...base, status: hasReading ? 'PARTIAL' as const : 'UNAVAILABLE' as const,
+        message: hasReading ? '目前僅有部分解讀，完整解讀暫時無法取得。' : '解讀暫時無法取得。',
+        yearStar,
+        facts: [
+          { label: '年度干支（立春換年）', value: ganZhi },
+          { label: '年干十神', value: calculateTenGod(result.core.dayMaster.stem, stem) },
+          { label: '年支主氣十神', value: calculateTenGod(result.core.dayMaster.stem, HIDDEN_STEM_DICTIONARY[branch].primary) },
+          { label: '年度神煞（原取法待原頁核對）', value: annualStar?.name ?? '暫時無法取得' },
+          { label: '大運（既有年度區間）', value: axis.present.luck.join('、') || '此年尚無適用大運' },
+        ], relations, natalRelations: result.core.interactions.map(relationView),
+        paragraphs: annualLines.slice(1),
+        focus: annualLines[0],
+        readingSourceIds: [...new Set(annualLineAudit.map(line => line.resultId))],
+        ziweiAnnualAudit,
+        annualLineAudit,
+      };
+    }),
   };
 }
 
