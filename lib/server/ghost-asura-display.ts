@@ -21,6 +21,7 @@ import { asuraDeepScrub } from '@/lib/asura-display-alias';
 import { AsuraSkillError, asuraPlainLineOf, resolveAsuraInterpretation } from '@/features/ghost-asura/skill';
 import { ASURA_PLAIN, ASURA_TIMELINE, ASURA_VOICE, TIME_VOICE, composeTime, type AsuraPillarKey, type AsuraWhen, voiceLead } from '@/lib/server/ghost-asura-voice';
 import { analyzePersona, runNatureGates } from '@/lib/server/ghost-asura-persona';
+import ownerGold from "@/docs/技能戰鬥檔案/鬼魅阿修羅/業主含金量話術-100句.json";
 import { AGE_BRIDGE_KIND, PALACE_VERSE_ONION, PALACE_VERSE_SUIQIAN } from '@/lib/server/ghost-asura-translation-layer';
 import { asuraLinkStory, asuraTranslateDisplay, buildAgeTimeline, buildDecreeAnchors, buildPinnedSummary, buildTimelineDecree, sanitizeViewerName, toPublic, translateAsNature, type AgeTimelineViewer, type PalaceVerseCell } from '@/lib/server/ghost-asura-translation-layer';
 import type { AsuraNatureCardServer } from '@/lib/ghost-asura-nature-contract';
@@ -741,6 +742,19 @@ function buildAnnualYearStar(name: string, rule: string): NonNullable<NonNullabl
   };
 }
 
+/** 業主 2026-11-26 提供的含金量話術：好事／壞事／愛情各取固定子集（編號見 JSON），依「日柱＋年份」穩定輪替，同一人同一年永遠同一句。 */
+const OWNER_GOLD_POOL: Readonly<Record<"好事" | "壞事" | "愛情", readonly number[]>> = {
+  壞事: [1, 2, 4, 6, 13, 14, 17, 18, 20, 5],
+  好事: [81, 82, 92, 93, 94, 9, 19, 79],
+  愛情: [83, 84, 85, 86, 88, 89, 90, 91, 95, 96],
+};
+function pickOwnerGold(wave: "好事" | "壞事" | "愛情", dayPillar: string, year: number): { id: string; line: string } | undefined {
+  const pool = OWNER_GOLD_POOL[wave];
+  const seed = [...dayPillar].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) + year * 7 + ["好事", "壞事", "愛情"].indexOf(wave) * 3;
+  const entry = ownerGold.lines[pool[seed % pool.length] - 1];
+  return entry ? { id: entry.id, line: entry.line } : undefined;
+}
+
 function buildAnnualLove(audit: NonNullable<ReturnType<typeof buildAsuraZiweiAnnualContext>>): NonNullable<NonNullable<AsuraDisplay["annualReading"]>["years"][number]["love"]> {
   const palace = audit.palaces.find(p => p.annualName === "夫妻");
   if (!palace) return { palace: "暫時無法取得", facts: [], message: "這一年的愛情解讀暫時無法取得。" };
@@ -852,7 +866,8 @@ export function buildAsuraAnnualReading(result: DualChartResult, now: Date, hour
         threeWaves: (["好事", "壞事"] as const).map(label => yearStar?.available && yearStar.wave === label
           ? { label, line: yearStar.headline ?? "", available: true }
           : { label, line: yearStar?.available ? "這一年的星象沒有提示這一類" : "暫時無法取得", available: false })
-          .concat([{ label: "愛情" as never, line: "暫時無法取得", available: false }]),
+          .concat([{ label: "愛情" as never, line: "暫時無法取得", available: false }])
+          .map(w => ({ ...w, gold: pickOwnerGold(w.label, `${(result.core.pillars.day as BaziPillarModel).heavenlyStem}${(result.core.pillars.day as BaziPillarModel).earthlyBranch}`, year) })),
         facts: [
           { label: '年度干支（立春換年）', value: ganZhi },
           { label: '年干十神', value: calculateTenGod(result.core.dayMaster.stem, stem) },

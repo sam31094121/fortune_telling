@@ -2447,3 +2447,5 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 .annualWaves b{flex:none;min-width:2.6em;font-size:14px;letter-spacing:.12em;color:#d9aa4c}
 .annualWaves span{font-size:17px;line-height:1.5;color:#FFE9A0}
 .annualWaves li[data-available="false"] span{font-size:14px;color:#a89868}
+.annualWaves li{flex-wrap:wrap}
+.annualWaves em{flex-basis:100%;margin-top:2px;padding-top:8px;border-top:1px dashed #d9aa4c40;font-style:normal;font-size:16px;line-height:1.6;color:#FFF6C8}
