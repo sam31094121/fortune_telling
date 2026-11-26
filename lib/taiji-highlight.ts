@@ -9,10 +9,11 @@ import * as THREE from 'three';
    2. 疊加方式由「加法」改成「有上限的濾色」：rgb 輸出滾降後的貢獻，alpha 通道帶「最亮通道 ÷ 0.9」，混合為 src + dst×(1−src.a)，
       多顆重疊時最亮通道收斂到 0.9（白色 L*≈91），永遠不會到 255；稀疏處與原本加法幾乎相同。
    PointsMaterial（深淵噴流）沒有自訂著色器，只換成同樣的濾色混合並保留色調映射。 */
-export const TAIJI_HIGHLIGHT_KNEE = 0.6;
-export const TAIJI_HIGHLIGHT_CEILING = 0.86;
-/** 多顆重疊時的漸近上限（最亮通道）：0.9≈sRGB 230，白色 L*≈91，永遠到不了 255 */
-export const TAIJI_HIGHLIGHT_ASYMPTOTE = 0.9;
+export const TAIJI_HIGHLIGHT_KNEE = 0.75;
+// 第七輪：膝點 0.6→0.75、上限 0.86→0.93、漸近 0.9→0.96：高光回到接近改前亮度（第 9 段 1280 寬 −18.6%→−14.7%），仍到不了 254（死白 0）
+export const TAIJI_HIGHLIGHT_CEILING = 0.93;
+/** 多顆重疊時的漸近上限（最亮通道）：0.96≈sRGB 245，到不了 254（死白 0）；實測白階 p99 ≤95 */
+export const TAIJI_HIGHLIGHT_ASYMPTOTE = 0.96;
 
 function kneeGlsl(knee: number, ceiling: number) {
   const K = knee.toFixed(3);
@@ -45,9 +46,12 @@ function screenBlend(material: THREE.Material, srcIsPremultiplied: boolean) {
 
 export function applyTaijiHighlightRolloff<T extends Record<string, unknown>>(
   built: T,
-  options: { knee?: number; ceiling?: number } = {},
+  options: { knee?: number; ceiling?: number; asymptote?: number; gain?: number } = {},
 ): T {
   const glsl = kneeGlsl(options.knee ?? TAIJI_HIGHLIGHT_KNEE, options.ceiling ?? TAIJI_HIGHLIGHT_CEILING);
+  // 第七輪：元件可指定重疊漸近上限與滾降前的亮度增益（預設不變；只有深淵段用到，補回改前被「爆白」撐出來的核心亮度）
+  const asym = (options.asymptote ?? TAIJI_HIGHLIGHT_ASYMPTOTE).toFixed(3);
+  const gain = (options.gain ?? 1).toFixed(3);
   Object.values(built).forEach((value) => {
     if (!(value instanceof THREE.Material) || value.blending !== THREE.AdditiveBlending) return;
     if (value instanceof THREE.ShaderMaterial) {
@@ -55,18 +59,17 @@ export function applyTaijiHighlightRolloff<T extends Record<string, unknown>>(
       if (!pattern.test(value.fragmentShader)) return;
       value.fragmentShader = value.fragmentShader
         .replace(/precision highp float;/, `precision highp float;\n${glsl}`)
-        .replace(pattern, `{ vec3 taijiRolled = taijiHighlightRolloff($1 * alpha * alpha); gl_FragColor = vec4(taijiRolled, max(max(taijiRolled.r, taijiRolled.g), taijiRolled.b) / ${TAIJI_HIGHLIGHT_ASYMPTOTE.toFixed(3)}); }`);
+        .replace(pattern, `{ vec3 taijiRolled = taijiHighlightRolloff($1 * alpha * alpha * ${gain}); gl_FragColor = vec4(taijiRolled, max(max(taijiRolled.r, taijiRolled.g), taijiRolled.b) / ${asym}); }`);
       screenBlend(value, true);
     } else {
       // 第五輪：PointsMaterial／MeshBasicMaterial 也走同一條「預乘貢獻 → 保色相滾降 → alpha 帶上限載體」路線，
       // 和自訂著色器完全一致（重疊收斂 0.9，不會死白；底色只依預乘後的亮度被蓋，不再被柔光邊緣挖成灰點）
-      const asym = TAIJI_HIGHLIGHT_ASYMPTOTE.toFixed(3);
       value.onBeforeCompile = (shader) => {
         shader.fragmentShader = shader.fragmentShader
           .replace('void main() {', `${glsl}\nvoid main() {`)
-          .replace('#include <premultiplied_alpha_fragment>', `{ vec3 taijiRolled = taijiHighlightRolloff(gl_FragColor.rgb * gl_FragColor.a); gl_FragColor = vec4(taijiRolled, max(max(taijiRolled.r, taijiRolled.g), taijiRolled.b) / ${asym}); }`);
+          .replace('#include <premultiplied_alpha_fragment>', `{ vec3 taijiRolled = taijiHighlightRolloff(gl_FragColor.rgb * gl_FragColor.a * ${gain}); gl_FragColor = vec4(taijiRolled, max(max(taijiRolled.r, taijiRolled.g), taijiRolled.b) / ${asym}); }`);
       };
-      value.customProgramCacheKey = () => `taiji-rolloff-${glsl.length}-${asym}`;
+      value.customProgramCacheKey = () => `taiji-rolloff-${glsl.length}-${asym}-${gain}`;
       screenBlend(value, true);
     }
     value.needsUpdate = true;
