@@ -28,7 +28,8 @@
     "rules": [
       "年界以立春",
       "月界以節氣",
-      "晚子時不換日"
+      "晚子時不換日",
+      "晚子時（23:00–23:59）：日柱不換日，時干依次日日干起五鼠遁（通行晚子時法）"
     ]
   },
   "relatedFiles": [
@@ -60,7 +61,12 @@
         "result": "三合一整合層 PASS 136 / FAIL 0"
       }
     ],
-    "lockedSample": "1974-07-02 03:30 女 → 甲寅／庚午／甲辰／丙寅；月柱庚午因小暑（7/7）前仍屬午月；對照組 1974-07-08 → 辛未"
+    "lockedSample": "1974-07-02 03:30 女 → 甲寅／庚午／甲辰／丙寅；月柱庚午因小暑（7/7）前仍屬午月；對照組 1974-07-08 → 辛未",
+    "independentAudit": {
+      "script": "npm run test:bazi-independent-audit",
+      "scope": "日柱（儒略日）、月干（五虎遁）、時干（五鼠遁）、天干十神、藏干與十神、十二運、空亡、胎元、胎息、大運序列與方向、流年干支與十神；隨機 400 組生日逐項比對，另有 1500 組一次性掃描 0 差異（2026-11-26）",
+      "sharedDependency": "年柱立春界與月支節氣界取 lunar-typescript（香港天文台表已證實，見來源登記）"
+    }
   },
   "ironRules": [
     "任何模組需要四柱，一律呼叫 lib/bazi/engine.ts 的 createBaziCore()，禁止另寫一套四柱推算",
@@ -108,5 +114,10 @@
         "guard": "tests/annual-shensha-paper.test.ts；來源查核見 年度單一神煞來源查核.md"
       }
     ]
+  },
+  "sourceReview": {
+    "registry": "docs/技能戰鬥檔案/八字/來源登記.json",
+    "section": "researchNotes.bloodbladeMoonVoidReview",
+    "status": "研究紀錄，未啟用新規則；月空仍指定參考、血刃仍停用、旺衰格局五神仍本派方法。"
   }
 }
