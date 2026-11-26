@@ -17,3 +17,11 @@ assert.deepEqual(female.slice(0, 4), ['2026太陰', '2027五鬼', '2028死符', 
 assert.equal(female[9], '2035太歲', '2035 乙卯年＝本命年支 → 太歲');
 
 console.log('annual shensha paper golden: ok');
+
+// 農曆閏月要寫繁體「閏」，不得出現簡體「闰」（1987-08-12 ＝ 農曆閏六月十八）。
+{
+  const r = calculateDualChart({ birthDate: '1987-08-12', birthTime: '08:00', gender: 'female', calendarType: 'solar', timezone: 'Asia/Taipei' });
+  const lunarDate = (r.bazi.professionalChart as { calendar?: { lunarDate?: string } }).calendar?.lunarDate ?? '';
+  assert.ok(lunarDate.includes('閏六月') && !lunarDate.includes('闰'), `lunar date shows 閏: ${lunarDate}`);
+  console.log('lunar leap month traditional char: ok');
+}

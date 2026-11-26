@@ -444,7 +444,7 @@ export function createBaziCore(input: BaziBirthInput): BaziProfessionalResult {
     calendar: {
       normalizedDateTime: solar.toYmdHms(),
       solarDate: solar.toYmd(),
-      lunarDate: lunar.toString(),
+      lunarDate: lunar.toString().replace(/闰/g, '閏'), // 套件輸出簡體「闰」，客戶畫面一律繁體
       timezone: input.timezone ?? 'Asia/Taipei (UTC+8, STANDARD_TIME)',
       solarTerm,
       solarTermTime,
