@@ -349,7 +349,7 @@ export default function TaijiQuantumField({
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
-    return applyTaijiHighlightRolloff({ pointMaterial, linkMaterial });
+    return applyTaijiHighlightRolloff({ pointMaterial, linkMaterial }, { gain: 1.06 });
   }, [armed, yinColor, yangColor, sparkColor]);
 
   useEffect(

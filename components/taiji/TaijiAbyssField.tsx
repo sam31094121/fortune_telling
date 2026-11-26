@@ -464,7 +464,7 @@ export default function TaijiAbyssField({
     });
 
     // 深淵層粒子稀疏，肩部放寬（0.55 起滾、最高 0.88），保住噴流與旋臂的亮度；重疊上限仍是 0.9
-    return applyTaijiHighlightRolloff({ fieldGeometry, fieldMaterial, finaleGeometry, finaleQuantumGeometry, finaleCoreMaterial, blackHoleMaterial, whiteHoleMaterial, softPhotonTexture, blackHoleJetGeometry, blackHoleJetMaterial, whiteHoleJetGeometry, whiteHoleJetMaterial }, { knee: 0.55, ceiling: 0.88 });
+    return applyTaijiHighlightRolloff({ fieldGeometry, fieldMaterial, finaleGeometry, finaleQuantumGeometry, finaleCoreMaterial, blackHoleMaterial, whiteHoleMaterial, softPhotonTexture, blackHoleJetGeometry, blackHoleJetMaterial, whiteHoleJetGeometry, whiteHoleJetMaterial }, { knee: 0.55, ceiling: 0.88, gain: 1.2 });
   }, [armed, yinColor, yangColor, sparkColor]);
 
   useEffect(
