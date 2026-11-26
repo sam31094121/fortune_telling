@@ -145,6 +145,7 @@
     "test:asura-narrative-consistency": "node tests/asura-narrative-consistency.test.mjs",
     "test:asura-no-fabrication": "node tests/asura-no-fabrication.test.cjs",
     "test:asura-frontend-only": "node tests/asura-frontend-only.test.cjs",
+    "test:annual-shensha-paper": "npx --yes tsx tests/annual-shensha-paper.test.ts",
     "test:ghost-asura-skill-file": "node tests/ghost-asura-skill-file.test.cjs",
     "test:nine-grid-asura-fusion": "node tests/nine-grid-asura-fusion.test.cjs",
     "test:nine-grid-name": "npx --yes tsx tests/nine-grid-name-overlay.test.mjs",

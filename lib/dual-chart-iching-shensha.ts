@@ -454,23 +454,25 @@ export function buildFlowYearShenSha(core: BaziProfessionalResult, gate: BaziTra
 }
 
 // ── 流年單一神煞（業主定案 2026-11-24：採十二位表，流年地支起算、順排）──────────────
-// 流年地支起太歲（位 0），依地支順排十二位；看「本命年支」落在第幾位，該位名稱就是這一年的單一神煞。
+// 流年地支起太歲（位 0），男命逆排、女命順排十二位；看「本命年支」落在第幾位，該位名稱就是這一年的單一神煞。
 // 與上方 FLOW_SUISHEN 同方向（流年支＋位序＝落點支）；本表是獨立的十二位年度單值，不改上方既有歲神。
 // 名稱：太歲、太陽、喪門、太陰、五鬼（官符）、死符（小耗）、歲破、龍德、白虎、福德、天狗（吊客）、病符。
 // 來源登記：《命理探原》流年歌、《星學大成》〈總論駕前神煞歌〉；原掃描頁尚未逐頁核對，故顯示端照實標「待原頁核對」。
 export const ANNUAL_TWELVE = ['太歲', '太陽', '喪門', '太陰', '五鬼', '死符', '歲破', '龍德', '白虎', '福德', '天狗', '病符'] as const;
 /** 純算：本命年支落在流年十二位的第幾位（不看時辰；buildAnnualShenSha 與阿修羅時辰未填路徑共用，只有這一份算法）。 */
-export function annualTwelveAt(natalBranch: string, flowBranch: string): AnnualShenSha | null {
+export function annualTwelveAt(natalBranch: string, flowBranch: string, gender: "male" | "female"): AnnualShenSha | null {
   if (!BRANCHES.includes(natalBranch as Branch) || !BRANCHES.includes(flowBranch as Branch)) return null;
-  const position = (BRANCHES.indexOf(natalBranch as Branch) - BRANCHES.indexOf(flowBranch as Branch) + 12) % 12;
+  // 業主定案 2026-11-26：男命逆、女命順（兩張紙本命盤比對：1974 男、1987 女）。
+  const diff = BRANCHES.indexOf(natalBranch as Branch) - BRANCHES.indexOf(flowBranch as Branch);
+  const position = ((gender === "male" ? diff : -diff) % 12 + 12) % 12;
   const name = ANNUAL_TWELVE[position];
-  return { name, position, rule: `流年${flowBranch}起太歲順排，本命年支${natalBranch}落第${position + 1}位為${name}` };
+  return { name, position, rule: `流年${flowBranch}起太歲，${gender === "male" ? "男命逆排" : "女命順排"}，本命年支${natalBranch}落第${position + 1}位為${name}` };
 }
 export interface AnnualShenSha { name: (typeof ANNUAL_TWELVE)[number]; position: number; rule: string }
-export function buildAnnualShenSha(core: BaziProfessionalResult, gate: BaziTraditionalOutputGate, pillarCheck: BaziZiweiPillarCheck | undefined, flowGanZhi: string): AnnualShenSha | null {
+export function buildAnnualShenSha(core: BaziProfessionalResult, gate: BaziTraditionalOutputGate, pillarCheck: BaziZiweiPillarCheck | undefined, flowGanZhi: string, gender: "male" | "female"): AnnualShenSha | null {
   const ready = gate.coreReady && core.verification.readyForInterpretation && pillarCheck?.passed !== false;
   const flowBranch = flowGanZhi[1] as Branch;
   const natal = (core.pillars.year as BaziPillarModel).earthlyBranch;
   if (!ready) return null;
-  return annualTwelveAt(natal, flowBranch);
+  return annualTwelveAt(natal, flowBranch, gender);
 }

@@ -457,7 +457,7 @@ export default function BaziChart({ result, monochrome = false, language = 'zh',
           <tr>{annual.slice(start, start + 5).reverse().map(a => <td key={a.year}><b>{a.ganzhi}</b><span>{a.stemGod}</span><span>{a.branchGod}</span></td>)}</tr>
           <tr>{annual.slice(start, start + 5).reverse().map(a => <td key={a.year} className={styles.annualShensha} title={a.annualShenSha?.rule}>{a.annualShenSha?.name ?? "暫時無法取得"}</td>)}</tr>
         </tbody></table>)}
-        <p className={styles.micro}>上列依次為干支、干十神、支主氣十神、流年神煞；立春換年。流年神煞以流年地支起太歲順排十二位，看本命年支落位；名稱依《命理探原》《星學大成》，原掃描頁待逐頁核對。</p>
+        <p className={styles.micro}>上列依次為干支、干十神、支主氣十神、流年神煞；立春換年。流年神煞以流年地支起太歲排十二位（男命逆排、女命順排），看本命年支落位；名稱依《命理探原》《星學大成》，原掃描頁待逐頁核對。</p>
       </aside>
       <section className={styles.baziMain}>
         <PillarGrid result={result} language={language} shenshaCards />

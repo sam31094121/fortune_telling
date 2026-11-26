@@ -725,16 +725,21 @@ export function buildAsuraZiweiAnnualContext(result: DualChartResult, targetDate
 }
 
 /** 流年十二位神煞名 → 阿修羅技能檔「歲前」層已有話術的名稱。沒有對應者一律誠實顯示暫時無法取得。 */
-const ANNUAL_STAR_TO_SUIQIAN: Readonly<Record<string, string>> = { 太歲: '歲建', 喪門: '喪門', 龍德: '龍德', 白虎: '白虎', 病符: '病符', 歲破: '大耗' };
+const ANNUAL_STAR_TO_SUIQIAN: Readonly<Record<string, string>> = { 太歲: '歲建', 喪門: '喪門', 龍德: '龍德', 白虎: '白虎', 病符: '病符', 歲破: '大耗', 死符: '小耗' };
 const ANNUAL_STAR_LABELS = ['第一顆星', '第二顆星', '第三顆星（現在）', '第四顆星（未來）', '第五顆星（未來）'] as const;
+
+/** 客人看得到的星名：死符在客戶畫面一律寫小耗（同一位置的另一名稱，來源表「死符（小耗）」，紙本也寫小耗；畫面不出現「死」字）。 */
+const customerStarName = (name: string) => (name === '死符' ? '小耗' : name);
 
 function buildAnnualYearStar(name: string, rule: string): NonNullable<NonNullable<AsuraDisplay['annualReading']>['years'][number]['yearStar']> {
   const key = ANNUAL_STAR_TO_SUIQIAN[name];
   const row = key ? PALACE_VERSE_ONION.decree[key] : undefined;
-  if (!key || !row) return { name, rule, available: false, message: '這一年的星象解讀暫時無法取得。' };
+  const shownName = customerStarName(name);
+  const shownRule = rule.replace(name, shownName);
+  if (!key || !row) return { name: shownName, rule: shownRule, available: false, message: '這一年的星象解讀暫時無法取得。' };
   const verse = PALACE_VERSE_SUIQIAN[key];
   return {
-    name, rule, available: true,
+    name: shownName, rule: shownRule, available: true,
     headline: row.headline,
     lines: [row.depth.basis.text, row.depth.basis.hook].filter(Boolean),
     action: row.depth.action[0],
@@ -811,7 +816,7 @@ function buildHourUnknownYear(result: DualChartResult, year: number): Partial<An
   if (early.getYearInGanZhiExact() !== late.getYearInGanZhiExact() || early.getMonthInGanZhiExact() !== late.getMonthInGanZhiExact()) return null;
   const natalYear = result.core.pillars.year as BaziPillarModel;
   const flowGanZhi = Solar.fromYmd(year, 7, 1).getLunar().getYearInGanZhiExact();
-  const star = annualTwelveAt(natalYear.earthlyBranch, flowGanZhi[1]);
+  const star = annualTwelveAt(natalYear.earthlyBranch, flowGanZhi[1], result.bazi.input.gender === "female" ? "female" : "male");
   if (!star) return null;
   const natal = (["year", "month", "day"] as const).map(key => ({ key: key.toUpperCase(), pillar: result.core.pillars[key] as BaziPillarModel }));
   const labels: Record<string, string> = { YEAR: "年柱", MONTH: "月柱", DAY: "日柱", FLOW: "流年" };
@@ -866,7 +871,7 @@ export function buildAsuraAnnualReading(result: DualChartResult, now: Date, hour
       const stem = ganZhi[0] as Stem, branch = ganZhi[1] as Branch;
       const check = { passed: result.specialStars.flow.state === 'READY', mismatches: [] as string[] };
       if (!check.passed) return base;
-      const annualStar = buildAnnualShenSha(result.core, gate, check, ganZhi);
+      const annualStar = buildAnnualShenSha(result.core, gate, check, ganZhi, result.bazi.input.gender === "female" ? "female" : "male");
       const ziweiInput = result.ziwei.birthInput;
       if (ziweiInput.calendarType !== 'solar' || ziweiInput.date !== result.bazi.input.birthDate
         || ziweiInput.gender !== (result.bazi.input.gender === 'female' ? '女' : '男')
@@ -941,7 +946,7 @@ export function buildAsuraAnnualReading(result: DualChartResult, now: Date, hour
           { label: '年度干支（立春換年）', value: ganZhi },
           { label: '年干十神', value: calculateTenGod(result.core.dayMaster.stem, stem) },
           { label: '年支主氣十神', value: calculateTenGod(result.core.dayMaster.stem, HIDDEN_STEM_DICTIONARY[branch].primary) },
-          { label: '年度神煞（原取法待原頁核對）', value: annualStar?.name ?? '暫時無法取得' },
+          { label: '年度神煞（原取法待原頁核對）', value: annualStar ? customerStarName(annualStar.name) : '暫時無法取得' },
           { label: '大運（既有年度區間）', value: axis.present.luck.join('、') || '此年尚無適用大運' },
         ], relations, natalRelations: result.core.interactions.map(relationView),
         paragraphs: annualLines.slice(1),

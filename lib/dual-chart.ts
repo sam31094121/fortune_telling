@@ -126,7 +126,7 @@ export function calculateDualChart(body: unknown, options: { revealSealedGhost?:
     bazi: { input: professional.input, professionalChart: dualProfessionalChart, luckCycles: professional.luckCycles },
     core: dualCore,
     specialStars: { ...specialStars, flow, share: buildShenShaShare(specialStars.card, ichingView, flow) },
-    annual: annual.map(a => ({ ...a, annualShenSha: buildAnnualShenSha(bazi, professional.professionalChart.traditionalInterpretationGate!, flowCheck, a.ganzhi) })),
+    annual: annual.map(a => ({ ...a, annualShenSha: buildAnnualShenSha(bazi, professional.professionalChart.traditionalInterpretationGate!, flowCheck, a.ganzhi, input.gender as "male" | "female") })),
     ziwei: ziweiWithPeriods,
     elementComparison: buildElementComparison(professional.professionalChart.elementStatistics?.percentages as Record<string, number> | undefined, String(raw.fiveElementsClass ?? "")),
     periods,
