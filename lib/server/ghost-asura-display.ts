@@ -21,7 +21,7 @@ import { asuraDeepScrub } from '@/lib/asura-display-alias';
 import { AsuraSkillError, asuraPlainLineOf, resolveAsuraInterpretation } from '@/features/ghost-asura/skill';
 import { ASURA_PLAIN, ASURA_TIMELINE, ASURA_VOICE, TIME_VOICE, composeTime, type AsuraPillarKey, type AsuraWhen, voiceLead } from '@/lib/server/ghost-asura-voice';
 import { analyzePersona, runNatureGates } from '@/lib/server/ghost-asura-persona';
-import { PALACE_VERSE_ONION, PALACE_VERSE_SUIQIAN } from '@/lib/server/ghost-asura-translation-layer';
+import { AGE_BRIDGE_KIND, PALACE_VERSE_ONION, PALACE_VERSE_SUIQIAN } from '@/lib/server/ghost-asura-translation-layer';
 import { asuraLinkStory, asuraTranslateDisplay, buildAgeTimeline, buildDecreeAnchors, buildPinnedSummary, buildTimelineDecree, sanitizeViewerName, toPublic, translateAsNature, type AgeTimelineViewer, type PalaceVerseCell } from '@/lib/server/ghost-asura-translation-layer';
 import type { AsuraNatureCardServer } from '@/lib/ghost-asura-nature-contract';
 import { goldWordingViewFor } from '@/lib/ghost-asura-gold-wording';
@@ -736,8 +736,16 @@ function buildAnnualYearStar(name: string, rule: string): NonNullable<NonNullabl
     lines: [row.depth.basis.text, row.depth.basis.hook].filter(Boolean),
     action: row.depth.action[0],
     close: row.depth.close,
+    wave: ({ rise: "好事", hold: "好事", cut: "壞事", loss: "壞事", clash: "壞事" } as const)[AGE_BRIDGE_KIND.decree[key] ?? "hold"],
     sourceNote: verse ? `${verse.note}${verse.sourceLevel === 'later' ? '（後世整理）' : '（古籍有載）'}` : undefined,
   };
+}
+
+function buildAnnualLove(audit: NonNullable<ReturnType<typeof buildAsuraZiweiAnnualContext>>): NonNullable<NonNullable<AsuraDisplay["annualReading"]>["years"][number]["love"]> {
+  const palace = audit.palaces.find(p => p.annualName === "夫妻");
+  if (!palace) return { palace: "暫時無法取得", facts: [], message: "這一年的愛情解讀暫時無法取得。" };
+  const stars = [...palace.majorStars, ...palace.minorStars].map(s => s.name).join("、");
+  return { palace: palace.earthlyBranch + "宮", facts: [`流年夫妻位落在${palace.earthlyBranch}宮（本命為${palace.natalName}宮）`, stars ? `宮內星：${stars}` : "宮內無星曜"], message: "愛情的解讀暫時無法取得：技能檔尚無這一年的愛情話術。" };
 }
 
 export function buildAsuraAnnualReading(result: DualChartResult, now: Date, hourAssumed: boolean, ageGate: AsuraAgeGate): NonNullable<AsuraDisplay['annualReading']> {
@@ -840,6 +848,7 @@ export function buildAsuraAnnualReading(result: DualChartResult, now: Date, hour
       return { ...base, status: hasReading ? 'PARTIAL' as const : 'UNAVAILABLE' as const,
         message: hasReading ? '目前僅有部分解讀，完整解讀暫時無法取得。' : '解讀暫時無法取得。',
         yearStar,
+        love: buildAnnualLove(ziweiAnnualAudit),
         facts: [
           { label: '年度干支（立春換年）', value: ganZhi },
           { label: '年干十神', value: calculateTenGod(result.core.dayMaster.stem, stem) },

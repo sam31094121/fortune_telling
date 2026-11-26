@@ -791,7 +791,7 @@ function AsuraAnnualReading({ data }: { data: NonNullable<AsuraDisplay['annualRe
       {selected.starLabel && <p className={styles.annualStarLabel}>{selected.starLabel}</p>}
       <h3>{selected.heading}</h3><p>{selected.message}</p>
       {selected.yearStar && <div className={styles.annualStar} data-annual-star={selected.yearStar.name} title={selected.yearStar.rule}>
-        <h4>本年星象・{selected.yearStar.name}</h4>
+        <h4>{selected.yearStar.wave ? `${selected.yearStar.wave}・` : ""}本年星象・{selected.yearStar.name}</h4>
         {selected.yearStar.available ? <>
           <strong>{selected.yearStar.headline}</strong>
           {selected.yearStar.lines?.map((text, index) => <p key={index}>{text}</p>)}
@@ -800,6 +800,7 @@ function AsuraAnnualReading({ data }: { data: NonNullable<AsuraDisplay['annualRe
           {selected.yearStar.sourceNote && <small>{selected.yearStar.sourceNote}</small>}
         </> : <p>{selected.yearStar.message}</p>}
       </div>}
+      {selected.love && <div className={styles.annualStar} data-annual-love><h4>愛情・{selected.love.palace}</h4>{selected.love.facts.map((text, index) => <p key={index}>{text}</p>)}<small>{selected.love.message}</small></div>}
       {selected.focus && <div className={styles.annualSpeech}><h4>第一層・命魂戰局</h4><p>{selected.focus}</p></div>}
       {Boolean(selected.paragraphs?.length) && <details className={styles.annualLayer}><summary>第二層・阿修羅秘卷</summary><div className={styles.annualSpeech}>
         {selected.paragraphs?.map((text, index) => <p key={index}>{text}</p>)}

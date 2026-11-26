@@ -189,7 +189,11 @@ export interface AsuraDisplay {
         close?: string;
         message?: string;
         sourceNote?: string;
+        /** 三波：好事／壞事（依技能檔既有分類 rise/hold→好事；clash/loss/cut→壞事） */
+        wave?: "好事" | "壞事";
       };
+      /** 三波之三「愛情」：只放後端算出的事實（流年夫妻宮位置），解讀無來源時誠實標示 */
+      love?: { palace: string; facts: string[]; message: string };
       readingSourceIds?: string[];
       annualLineAudit?: Array<{ year: number; resultId: string; scope: 'flow'; text: string; wordingSource: string; interpretationBasis: 'BAZI_ONLY' | 'ZIWEI_PRODUCT_REMINDER'; sourceStatus?: string; referenceMethod?: boolean }>;
       /** Audit data only; never rendered as customer-facing annual interpretation. */
