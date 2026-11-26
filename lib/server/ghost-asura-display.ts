@@ -16,7 +16,7 @@ import { Solar } from 'lunar-typescript';
 import { calculateDualChart, type DualChartResult } from '@/lib/dual-chart';
 import { createZiweiAstrolabe, hourToTimeIndex } from '@/lib/ziwei/engine';
 import { buildFlowYearShenSha, buildAnnualShenSha, annualTwelveAt } from '@/lib/dual-chart-iching-shensha';
-import { computeInteractions, calculateTenGod, HIDDEN_STEM_DICTIONARY, type BaziInteraction, type BaziPillarModel, type Stem, type Branch } from '@/lib/bazi/engine';
+import { createBaziCore, computeInteractions, calculateTenGod, HIDDEN_STEM_DICTIONARY, type BaziInteraction, type BaziPillarModel, type Stem, type Branch } from '@/lib/bazi/engine';
 import { asuraDeepScrub } from '@/lib/asura-display-alias';
 import { AsuraSkillError, asuraPlainLineOf, resolveAsuraInterpretation } from '@/features/ghost-asura/skill';
 import { ASURA_PLAIN, ASURA_TIMELINE, ASURA_VOICE, TIME_VOICE, composeTime, type AsuraPillarKey, type AsuraWhen, voiceLead } from '@/lib/server/ghost-asura-voice';
@@ -811,12 +811,15 @@ function buildAnnualLove(audit: NonNullable<ReturnType<typeof buildAsuraZiweiAnn
 
 /** 時辰沒填：年星與沖合只用年、月、日三柱（不看時辰）。生日剛好落在換年、換月交界而時辰會改變柱時，一律不算，維持暫時無法取得。 */
 function buildHourUnknownYear(result: DualChartResult, year: number): Partial<AnnualYear> | null {
-  const [by, bm, bd] = result.bazi.input.birthDate.split("-").map(Number);
-  const early = Solar.fromYmdHms(by, bm, bd, 0, 0, 0).getLunar(), late = Solar.fromYmdHms(by, bm, bd, 23, 59, 59).getLunar();
-  if (early.getYearInGanZhiExact() !== late.getYearInGanZhiExact() || early.getMonthInGanZhiExact() !== late.getMonthInGanZhiExact()) return null;
+  // 四柱與流年干支一律走八字引擎（createBaziCore／既有流年取法），不另算：
+  // 同一天分別以 00:00 與 23:59 排盤，年、月、日柱完全相同才表示時辰不影響這三柱。
+  const gender = result.bazi.input.gender === "female" ? "female" : "male";
+  const at = (birthTime: string) => createBaziCore({ gender, birthDate: result.bazi.input.birthDate, birthTimeKnown: true, birthTime }).pillars;
+  const early = at("00:00"), late = at("23:59");
+  if ((["year", "month", "day"] as const).some(key => (early[key] as BaziPillarModel).ganZhi !== (late[key] as BaziPillarModel).ganZhi)) return null;
   const natalYear = result.core.pillars.year as BaziPillarModel;
-  const flowGanZhi = Solar.fromYmd(year, 7, 1).getLunar().getYearInGanZhiExact();
-  const star = annualTwelveAt(natalYear.earthlyBranch, flowGanZhi[1], result.bazi.input.gender === "female" ? "female" : "male");
+  const flowGanZhi = yearGanZhi(year);
+  const star = annualTwelveAt(natalYear.earthlyBranch, flowGanZhi[1], gender);
   if (!star) return null;
   const natal = (["year", "month", "day"] as const).map(key => ({ key: key.toUpperCase(), pillar: result.core.pillars[key] as BaziPillarModel }));
   const labels: Record<string, string> = { YEAR: "年柱", MONTH: "月柱", DAY: "日柱", FLOW: "流年" };

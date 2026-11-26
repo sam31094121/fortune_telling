@@ -14,9 +14,22 @@
   "engine": {
     "entry": "lib/bazi/engine.ts",
     "function": "createBaziCore()",
-    "outputs": ["年柱", "月柱", "日柱", "時柱", "日主", "十神", "藏干", "大運"],
+    "outputs": [
+      "年柱",
+      "月柱",
+      "日柱",
+      "時柱",
+      "日主",
+      "十神",
+      "藏干",
+      "大運"
+    ],
     "calendarLibrary": "lunar-typescript 1.8.6（MIT，https://github.com/6tail/lunar-typescript）的 Solar",
-    "rules": ["年界以立春", "月界以節氣", "晚子時不換日"]
+    "rules": [
+      "年界以立春",
+      "月界以節氣",
+      "晚子時不換日"
+    ]
   },
   "relatedFiles": [
     "lib/bazi-engine.ts",
@@ -30,10 +43,22 @@
   "verification": {
     "measuredAt": "2026-09-16",
     "tests": [
-      { "script": "npm run test:bazi", "result": "BAZI GOLDEN TESTS PASS 81 / FAIL 0" },
-      { "script": "npm run test:bazi-contract", "result": "BAZI V5 CONTRACT PASS 17 / FAIL 0" },
-      { "script": "npm run test:three-core", "result": "八字→紫微→易經交叉 PASS 103 / FAIL 0" },
-      { "script": "npm run test:three-in-one", "result": "三合一整合層 PASS 136 / FAIL 0" }
+      {
+        "script": "npm run test:bazi",
+        "result": "BAZI GOLDEN TESTS PASS 81 / FAIL 0"
+      },
+      {
+        "script": "npm run test:bazi-contract",
+        "result": "BAZI V5 CONTRACT PASS 17 / FAIL 0"
+      },
+      {
+        "script": "npm run test:three-core",
+        "result": "八字→紫微→易經交叉 PASS 103 / FAIL 0"
+      },
+      {
+        "script": "npm run test:three-in-one",
+        "result": "三合一整合層 PASS 136 / FAIL 0"
+      }
     ],
     "lockedSample": "1974-07-02 03:30 女 → 甲寅／庚午／甲辰／丙寅；月柱庚午因小暑（7/7）前仍屬午月；對照組 1974-07-08 → 辛未"
   },
@@ -56,6 +81,32 @@
       "未知時辰、資料不符、核對失敗不放行",
       "不更動神煞逐項來源閘門",
       "不啟用外部AI生成"
+    ]
+  },
+  "localMethods": {
+    "note": "本派固定取法（業主定案 2026-11-26）。來源衝突尚未解除，不是古籍定論；畫面不得寫成已證實。實作只在後端，前端只照印。",
+    "items": [
+      {
+        "name": "旺衰：同黨占比法",
+        "entry": "lib/bazi/engine.ts createBaziCore → seasonalStrength.partyShare／tendency",
+        "rule": "同黨（比劫＋印）占五行加權總量（全部藏干＋月令加權）的比例；≤42% 偏弱、≥52% 偏旺、其間中和",
+        "calibration": "業主提供兩張紙本：1974-06-28 18:00 男（占比 40.3%）與 1987-08-12 08:00 女（占比 35.8%）皆須判偏弱；3000 組隨機生辰中位數 45.5%",
+        "guard": "tests/annual-shensha-paper.test.ts"
+      },
+      {
+        "name": "格局：透干取格",
+        "entry": "lib/bazi-engine.ts buildStructurePattern",
+        "rule": "月令藏干依本氣、中氣、餘氣順序，第一個在年干、月干、時干透出者為格；都沒透出取本氣；時辰未知時時柱不算",
+        "calibration": "紙本 1987-08-12 女＝正官格、1974-06-28 男＝正官格",
+        "guard": "tests/annual-shensha-paper.test.ts"
+      },
+      {
+        "name": "流年單一神煞：男命逆排、女命順排",
+        "entry": "lib/dual-chart-iching-shensha.ts annualTwelveAt",
+        "rule": "以流年地支起太歲；男命位序＝本命年支−流年支，女命＝流年支−本命年支（各取 12 餘數）",
+        "calibration": "紙本 1974-06-28 男（2026–2034）與 1987-08-12 女（2026–2029）",
+        "guard": "tests/annual-shensha-paper.test.ts；來源查核見 年度單一神煞來源查核.md"
+      }
     ]
   }
 }
