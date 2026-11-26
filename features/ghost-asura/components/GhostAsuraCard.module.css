@@ -2459,3 +2459,17 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 .annualEncounter{margin:12px 0 0;padding:10px 14px;border-left:3px solid #d9aa4c;background:#1a140858;border-radius:0 8px 8px 0}
 .annualEncounter h4{margin:0 0 4px;font-size:13px;letter-spacing:.12em;color:#d9aa4c;font-weight:600}
 .annualEncounter p{margin:0;font-size:15px;line-height:1.7;color:#E8F0D8}
+
+.annualWaves{display:grid;gap:10px;margin:12px 0 0}
+.annualWave{padding:12px 14px;border:1px solid #d9aa4c40;border-radius:10px;background:#2a1f0c59}
+.annualWaveHead{display:flex;gap:12px;align-items:baseline}
+.annualWaveHead b{flex:none;min-width:2.6em;font-size:14px;letter-spacing:.12em;color:#d9aa4c}
+.annualWaveHead span{font-size:17px;line-height:1.5;color:#FFE9A0}
+.annualWaveLayer{margin-top:10px;padding:10px 0 0 12px;border-top:1px dashed #d9aa4c40;border-left:2px solid #d9aa4c55;animation:annualPeelIn .28s ease-out}
+.annualWaveLayer h5{margin:0 0 4px;font-size:12px;letter-spacing:.16em;color:#a89868;font-weight:600}
+.annualWaveLayer p{margin:0;font-size:15px;line-height:1.7;color:#E8F0D8}
+.annualWaveLayer:last-of-type p{color:#FFF6C8}
+.annualPeel{margin-top:10px;min-height:44px;padding:0 16px;border:1px solid #d9aa4c80;border-radius:999px;background:transparent;color:#FFE9A0;font:inherit;font-size:14px;cursor:pointer}
+.annualPeel:focus-visible{outline:2px solid #FFE14A;outline-offset:3px}
+@keyframes annualPeelIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.annualWaveLayer{animation:none}}

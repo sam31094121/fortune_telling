@@ -198,7 +198,9 @@ export interface AsuraDisplay {
       theme?: string;
       /** 什麼時候碰到：本年與本命四柱的沖合刑害（後端 computeInteractions 原樣） */
       encounter?: { lines: string[]; message: string };
-      threeWaves?: Array<{ label: "好事" | "壞事" | "愛情"; line: string; available: boolean; gold?: { id: string; line: string } }>;
+      threeWaves?: Array<{ label: "好事" | "壞事" | "愛情"; line: string; available: boolean; gold?: { id: string; line: string };
+        /** 洋蔥層：由外往內一層一層剝，後端排好順序，前端只照印、一次剝一層 */
+        layers?: Array<{ title: string; texts: string[] }> }>;
       love?: { palace: string; facts: string[]; message: string };
       readingSourceIds?: string[];
       annualLineAudit?: Array<{ year: number; resultId: string; scope: 'flow'; text: string; wordingSource: string; interpretationBasis: 'BAZI_ONLY' | 'ZIWEI_PRODUCT_REMINDER'; sourceStatus?: string; referenceMethod?: boolean }>;

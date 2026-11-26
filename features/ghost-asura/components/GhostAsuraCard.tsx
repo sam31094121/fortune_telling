@@ -768,6 +768,21 @@ export function AsuraGoldClosing({ closing }: { closing?: AsuraDisplay["goldClos
   return <p className={styles.goldClosing} data-asura-gold-closing={closing.id ?? ""}><small>{closing.label}</small><strong>{closing.text}</strong>{closing.basis && <em>{closing.basis}</em>}</p>;
 }
 
+const SHOW_OLD_ANNUAL = false as boolean;
+type AnnualWaveView = NonNullable<NonNullable<AsuraDisplay["annualReading"]>["years"][number]["threeWaves"]>[number];
+/** 洋蔥式：表面一句，客人按「再剝一層」才多看一層；層的內容與順序全由後端排好。 */
+function AnnualWave({ wave }: { wave: AnnualWaveView }) {
+  const layers = wave.layers ?? [];
+  const [peeled, setPeeled] = useState(0);
+  return <section className={styles.annualWave} data-annual-wave={wave.label} data-peeled={peeled} data-available={wave.available}>
+    <div className={styles.annualWaveHead}><b>{wave.label}</b>{wave.line && <span>{wave.line}</span>}</div>
+    {layers.slice(0, peeled).map((layer, index) => <div key={layer.title} className={styles.annualWaveLayer} data-peel-layer={index + 1}>
+      <h5>{layer.title}</h5>{layer.texts.map((text, i) => <p key={i}>{text}</p>)}
+    </div>)}
+    {peeled < layers.length && <button type="button" className={styles.annualPeel} onClick={() => setPeeled(peeled + 1)}>再剝一層（{peeled + 1}/{layers.length}）</button>}
+  </section>;
+}
+
 function AsuraAnnualReading({ data }: { data: NonNullable<AsuraDisplay['annualReading']> }) {
   const gradientId = useId();
   const [selectedYear, setSelectedYear] = useState(data.selectedYear);
@@ -797,8 +812,10 @@ function AsuraAnnualReading({ data }: { data: NonNullable<AsuraDisplay['annualRe
       {selected.starLabel && <p className={styles.annualStarLabel}>{selected.starLabel}</p>}
       <h3>{selected.heading}</h3><p>{selected.message}</p>
       {selected.theme && <p className={styles.annualTheme} data-annual-theme>{selected.theme}</p>}
+      {selected.threeWaves && <div className={styles.annualWaves} data-annual-waves>{selected.threeWaves.map(w => <AnnualWave key={w.label} wave={w} />)}</div>}
+      {/* 舊版長段落（星象框、夫妻位框、碰到的時刻框）業主 2026-11-26 改洋蔥式後暫藏；改 SHOW_OLD_ANNUAL 為 true 即恢復。 */}
+      {SHOW_OLD_ANNUAL && <>
       {selected.encounter && <div className={styles.annualEncounter} data-annual-encounter><h4>{selected.encounter.message}</h4>{selected.encounter.lines.map((text, index) => <p key={index}>{text}</p>)}</div>}
-      {selected.threeWaves && <ul className={styles.annualWaves} data-annual-waves>{selected.threeWaves.map(w => <li key={w.label} data-available={w.available}><b>{w.label}</b>{w.line && <span>{w.line}</span>}{w.gold && <em data-gold-id={w.gold.id}>{w.gold.line}</em>}</li>)}</ul>}
       {selected.yearStar && <div className={styles.annualStar} data-annual-star={selected.yearStar.name} title={selected.yearStar.rule}>
         <h4>{selected.yearStar.wave ? `${selected.yearStar.wave}・` : ""}本年星象・{selected.yearStar.name}</h4>
         {selected.yearStar.available ? <>
@@ -810,6 +827,7 @@ function AsuraAnnualReading({ data }: { data: NonNullable<AsuraDisplay['annualRe
         </> : <p>{selected.yearStar.message}</p>}
       </div>}
       {selected.love && <div className={styles.annualStar} data-annual-love><h4>愛情・{selected.love.palace}</h4>{selected.love.facts.map((text, index) => <p key={index}>{text}</p>)}<small>{selected.love.message}</small></div>}
+      </>}
       {selected.focus && <div className={styles.annualSpeech}><h4>第一層・命魂戰局</h4><p>{selected.focus}</p></div>}
       {Boolean(selected.paragraphs?.length) && <details className={styles.annualLayer}><summary>第二層・阿修羅秘卷</summary><div className={styles.annualSpeech}>
         {selected.paragraphs?.map((text, index) => <p key={index}>{text}</p>)}

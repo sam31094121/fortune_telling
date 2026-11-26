@@ -758,12 +758,31 @@ function pickOwnerGold(wave: "好事" | "壞事" | "愛情", dayPillar: string, 
 }
 
 type AnnualYear = NonNullable<AsuraDisplay["annualReading"]>["years"][number];
-function buildThreeWaves(yearStar: AnnualYear["yearStar"], seed: string, year: number, loveAvailable = false): NonNullable<AnnualYear["threeWaves"]> {
-  const rows = (["好事", "壞事"] as const).map(label => yearStar?.available && yearStar.wave === label
-    ? { label, line: yearStar.headline ?? "", available: true }
-    : { label, line: yearStar?.available ? "" : "暫時無法取得", available: false });
-  return [...rows, { label: "愛情" as const, line: loveAvailable ? "" : "暫時無法取得", available: false }]
-    .map(w => ({ ...w, gold: pickOwnerGold(w.label, seed, year) }));
+function buildThreeWaves(yearStar: AnnualYear["yearStar"], relations: RelationView[], love: AnnualYear["love"], seed: string, year: number): NonNullable<AnnualYear["threeWaves"]> {
+  const goldLayer = (wave: "好事" | "壞事" | "愛情") => { const g = pickOwnerGold(wave, seed, year); return g ? { gold: g, layer: { title: "含金量一句", texts: [g.line] } } : { gold: undefined, layer: null }; };
+  const describe = (r: RelationView) => `${r.name}（${r.participants}）撞上你的${natalOnly(r.pillars)}`;
+  const waveOf = (label: "好事" | "壞事") => {
+    const g = goldLayer(label);
+    const mine = relations.filter(r => (label === "好事") === /合/.test(r.name));
+    const starHere = yearStar?.available === true && yearStar.wave === label;
+    const layers: Array<{ title: string; texts: string[] }> = [];
+    if (starHere && yearStar?.lines?.length) layers.push({ title: "看見", texts: yearStar.lines });
+    if (mine.length) layers.push({ title: "碰到的時刻", texts: mine.map(describe) });
+    if (starHere && yearStar?.action) layers.push({ title: "怎麼做", texts: [yearStar.action] });
+    if (starHere && yearStar?.close) layers.push({ title: "收尾", texts: [yearStar.close] });
+    if (g.layer) layers.push(g.layer);
+    let line = starHere ? (yearStar?.headline ?? "") : mine.length ? describe(mine[0]) : yearStar?.available ? "" : "暫時無法取得";
+    let shown = layers;
+    // 表面沒有星象句時，直接拿含金量一句當表面，不留空白，也不重複放進內層
+    if ((!line || line === "暫時無法取得") && g.gold) { line = g.gold.line; shown = layers.filter(l => l.title !== "含金量一句"); }
+    return { label, line, available: starHere || mine.length > 0, gold: g.gold, layers: shown };
+  };
+  const g = goldLayer("愛情");
+  const loveLayers: Array<{ title: string; texts: string[] }> = [];
+  if (love && love.facts.length > 1) loveLayers.push({ title: "宮內星", texts: love.facts.slice(1) });
+  if (love?.message) loveLayers.push({ title: "解讀", texts: [love.message] });
+  if (g.layer) loveLayers.push(g.layer);
+  return [waveOf("好事"), waveOf("壞事"), { label: "愛情" as const, line: love?.facts[0] ?? "暫時無法取得", available: Boolean(love?.facts.length), gold: g.gold, layers: loveLayers }];
 }
 type RelationView = { name: string; participants: string; pillars: string };
 const natalOnly = (pillars: string) => pillars.split("、").filter(p => p !== "流年").join("、");
@@ -800,11 +819,12 @@ function buildHourUnknownYear(result: DualChartResult, year: number): Partial<An
   const relations: RelationView[] = scan([...natal.map(n => ({ key: n.key, heavenlyStem: n.pillar.heavenlyStem, earthlyBranch: n.pillar.earthlyBranch })), { key: "FLOW", heavenlyStem: flowGanZhi[0], earthlyBranch: flowGanZhi[1] }])
     .filter(row => row.affectedPillars.includes("FLOW")).map(row => ({ name: row.interactionType, participants: row.participants.join("、"), pillars: row.affectedPillars.filter(k => k !== "FLOW").map(k => labels[k] ?? k).join("、") }));
   const yearStar = buildAnnualYearStar(star.name, star.rule);
+  const love = { palace: "暫時無法取得", facts: [] as string[], message: "愛情要補上出生時辰才看得到。" };
   return {
     status: "PARTIAL", message: "時辰未填：先看這一年的星象與沖合，愛情要補上出生時辰才看得到。",
     yearStar, theme: buildYearTheme(yearStar, relations), encounter: buildEncounter(relations),
-    threeWaves: buildThreeWaves(yearStar, `${natalYear.heavenlyStem}${natalYear.earthlyBranch}`, year),
-    love: { palace: "暫時無法取得", facts: [], message: "愛情要補上出生時辰才看得到。" },
+    threeWaves: buildThreeWaves(yearStar, relations, love, `${natalYear.heavenlyStem}${natalYear.earthlyBranch}`, year),
+    love,
   };
 }
 
@@ -908,14 +928,15 @@ export function buildAsuraAnnualReading(result: DualChartResult, now: Date, hour
       }
       const annualLines = [...new Set(annualLineAudit.map(line => line.text))];
       const yearStar = annualStar ? buildAnnualYearStar(annualStar.name, annualStar.rule) : undefined;
+      const love = buildAnnualLove(ziweiAnnualAudit);
       const hasReading = annualLines.length > 0 || yearStar?.available === true;
       return { ...base, status: hasReading ? 'PARTIAL' as const : 'UNAVAILABLE' as const,
         message: hasReading ? '目前僅有部分解讀，完整解讀暫時無法取得。' : '解讀暫時無法取得。',
         yearStar,
-        love: buildAnnualLove(ziweiAnnualAudit),
+        love,
         theme: buildYearTheme(yearStar, relations),
         encounter: buildEncounter(relations),
-        threeWaves: buildThreeWaves(yearStar, `${(result.core.pillars.day as BaziPillarModel).heavenlyStem}${(result.core.pillars.day as BaziPillarModel).earthlyBranch}`, year),
+        threeWaves: buildThreeWaves(yearStar, relations, love, `${(result.core.pillars.day as BaziPillarModel).heavenlyStem}${(result.core.pillars.day as BaziPillarModel).earthlyBranch}`, year),
         facts: [
           { label: '年度干支（立春換年）', value: ganZhi },
           { label: '年干十神', value: calculateTenGod(result.core.dayMaster.stem, stem) },
