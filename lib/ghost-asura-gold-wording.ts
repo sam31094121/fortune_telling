@@ -14,6 +14,7 @@ import { APPROVED_PHRASES, STATUS_WORDING } from './credibility-phrases';
 import type { GateStatus } from './iching-source-gate';
 import { credibilityTier, type CredibilityTier } from './ghost-asura-order';
 import library from '../docs/技能戰鬥檔案/鬼魅阿修羅/候選話術-100句.json';
+import ownerGold from '../docs/技能戰鬥檔案/鬼魅阿修羅/業主含金量話術-100句.json';
 
 export type GoldDimension =
   | 'NATURE' | 'MONTH_STRONG' | 'MONTH_WEAK' | 'HOUR_KNOWN' | 'HOUR_UNKNOWN'
@@ -220,4 +221,56 @@ export function pickGoldWording(core: BaziProfessionalResult, gate?: FourPillarG
     }
   }
   return { status: 'UNAVAILABLE', message: UNAVAILABLE_MESSAGE };
+}
+
+/**
+ * 阿修羅最後一句：業主提供的含金量話術（業主含金量話術-100句.json），依命盤命中的構面配句。
+ * 配句規則是本派自訂（構面→句子子集，編號見下表），不是古籍規則；同一人永遠同一句（以日柱穩定輪替）。
+ * 核對關沒過就停住，不挑句、不補別句。
+ */
+const OWNER_GOLD_BY_DIMENSION: Readonly<Partial<Record<GoldDimension, readonly number[]>>> = {
+  HOUR_UNKNOWN: [79],
+  ELEMENT_EXCESS: [30, 98, 28],
+  ELEMENT_MISSING: [19, 37, 38],
+  MONTH_STRONG: [81, 82, 87],
+  MONTH_WEAK: [12, 13, 15, 10],
+  AUSPICIOUS_STAR: [20, 55, 95],
+};
+const OWNER_GOLD_BY_ELEMENT: Readonly<Record<string, readonly number[]>> = {
+  木: [19, 38, 72], 火: [11, 14, 96], 土: [89, 37, 46], 金: [7, 6, 16], 水: [1, 15, 82],
+};
+const OWNER_GOLD_FACT: Readonly<Partial<Record<GoldDimension, string>>> = {
+  HOUR_UNKNOWN: '時辰未填，這句只依已知資料',
+  ELEMENT_EXCESS: '你身上有一股力量特別旺',
+  ELEMENT_MISSING: '你身上有一塊底子偏缺',
+  MONTH_STRONG: '你出生那一季，替你撐著',
+  MONTH_WEAK: '你出生那一季，沒有替你撐',
+  AUSPICIOUS_STAR: '你帶著貴人的印記',
+};
+const STEM_ELEMENT: Readonly<Record<string, string>> = { 甲: '木', 乙: '木', 丙: '火', 丁: '火', 戊: '土', 己: '土', 庚: '金', 辛: '金', 壬: '水', 癸: '水' };
+
+export function ownerGoldClosingViewFor(engineInput: Record<string, unknown>, hourAssumed: boolean): { label: string; text: string; basis: string | null; id: string | null } {
+  const label = '阿修羅留給你的最後一句';
+  const none = { label, text: UNAVAILABLE_MESSAGE, basis: null, id: null };
+  const { birthDate, birthTime, gender } = engineInput;
+  if (typeof birthDate !== 'string' || (gender !== 'male' && gender !== 'female')) return none;
+  try {
+    const known = !hourAssumed && typeof birthTime === 'string' && birthTime !== '';
+    const core = createBaziCore({ gender, birthDate, birthTimeKnown: known, birthTime: known ? (birthTime as string) : undefined, timezone: typeof engineInput.timezone === 'string' ? engineInput.timezone : undefined });
+    const gate = crossCheckFourPillars({ birthDate, gender, birthTime: known ? (birthTime as string) : null });
+    if (gate.status === 'MISMATCH' || gate.status === 'ZIWEI_UNAVAILABLE' || gate.status === 'ERROR') return { ...none, text: GATE_BLOCK_MESSAGE };
+    const stem = core.dayMaster?.stem;
+    const element = stem ? STEM_ELEMENT[stem] : undefined;
+    if (!stem || !element) return none;
+    const matched = matchDimensions(core);
+    const dimension = matched.find((d) => OWNER_GOLD_BY_DIMENSION[d]);
+    const pool = dimension ? OWNER_GOLD_BY_DIMENSION[dimension]! : OWNER_GOLD_BY_ELEMENT[element];
+    const day = core.pillars.day as { heavenlyStem: string; earthlyBranch: string };
+    const seed = [...`${day.heavenlyStem}${day.earthlyBranch}`].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+    const entry = ownerGold.lines[pool[seed % pool.length] - 1];
+    if (!entry) return none;
+    return { label, text: entry.line, basis: dimension ? OWNER_GOLD_FACT[dimension]! : `你的底色屬${element}`, id: entry.id };
+  } catch {
+    return none;
+  }
 }

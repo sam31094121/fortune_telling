@@ -2449,3 +2449,8 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 .annualWaves li[data-available="false"] span{font-size:14px;color:#a89868}
 .annualWaves li{flex-wrap:wrap}
 .annualWaves em{flex-basis:100%;margin-top:2px;padding-top:8px;border-top:1px dashed #d9aa4c40;font-style:normal;font-size:16px;line-height:1.6;color:#FFF6C8}
+
+.goldClosing{margin:22px 0 4px;padding:20px 18px;text-align:center;border-top:1px solid #d9aa4c66;border-bottom:1px solid #d9aa4c66;background:radial-gradient(120% 140% at 50% 0%,#3a2a0c66,transparent 70%)}
+.goldClosing small{display:block;margin-bottom:10px;font-size:13px;letter-spacing:.2em;color:#d9aa4c}
+.goldClosing strong{display:block;font-size:21px;line-height:1.65;color:#FFE9A0}
+.goldClosing em{display:block;margin-top:10px;font-style:normal;font-size:13px;color:#a89868}

@@ -252,6 +252,8 @@ export interface AsuraDisplay {
    * 後端依客戶資料從句庫挑出一句（lib/ghost-asura-gold-wording.ts）；查無資料時 text 為明確中文狀態。前端只照印。
    */
   goldWording?: AsuraGoldWordingView | null;
+  /** 阿修羅最後一句：業主含金量話術依命盤配句（後端算好，前端照印） */
+  goldClosing?: { label: string; text: string; basis: string | null; id: string | null } | null;
   /** 鬼魅阿修羅 18 歲禁忌守門（同時檢查今日實歲與查詢日期實歲；未達標時回傳 WITHHELD 與後端中性提示） */
   ageGate?: AsuraAgeGate;
   /**

@@ -25,7 +25,7 @@ import ownerGold from "@/docs/技能戰鬥檔案/鬼魅阿修羅/業主含金量
 import { AGE_BRIDGE_KIND, PALACE_VERSE_ONION, PALACE_VERSE_SUIQIAN } from '@/lib/server/ghost-asura-translation-layer';
 import { asuraLinkStory, asuraTranslateDisplay, buildAgeTimeline, buildDecreeAnchors, buildPinnedSummary, buildTimelineDecree, sanitizeViewerName, toPublic, translateAsNature, type AgeTimelineViewer, type PalaceVerseCell } from '@/lib/server/ghost-asura-translation-layer';
 import type { AsuraNatureCardServer } from '@/lib/ghost-asura-nature-contract';
-import { goldWordingViewFor } from '@/lib/ghost-asura-gold-wording';
+import { goldWordingViewFor, ownerGoldClosingViewFor } from '@/lib/ghost-asura-gold-wording';
 import {
   buildGhostAsuraReading,
   GHOST_ASURA_UI,
@@ -657,6 +657,7 @@ export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): 
   const nature = computeNatureCard(engineInput, hourAssumed === true);
   // 話術含金量一句：後端依客戶資料從句庫挑一句，前端只照印（新增欄位，只增不改）。
   const goldWording = goldWordingViewFor(engineInput, hourAssumed === true);
+  const goldClosing = ownerGoldClosingViewFor(engineInput, hourAssumed === true);
   const viewer = computeViewer(engineInput.name, typeof engineInput.birthDate === 'string' ? engineInput.birthDate : undefined, now);
   const ageGate = evaluateAsuraAgeGate(
     typeof engineInput.birthDate === 'string' ? engineInput.birthDate : undefined,
@@ -681,6 +682,7 @@ export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): 
     sections: finalSections,
     nature: nature ? toPublic(nature) : null,
     goldWording,
+    goldClosing,
     ageGate,
     timelineDecree: buildTimelineDecree(),
     ...ageTimelineFields(ageGate.status === 'WITHHELD' ? null : computeAgeTimeline(result, now, viewer.name), viewer),

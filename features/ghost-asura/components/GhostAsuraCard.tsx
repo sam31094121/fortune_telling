@@ -762,6 +762,12 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
   );
 }
 
+/** 阿修羅最後一句：後端依命盤配好，這裡只照印；放在整張卡最後。 */
+export function AsuraGoldClosing({ closing }: { closing?: AsuraDisplay["goldClosing"] }) {
+  if (!closing) return null;
+  return <p className={styles.goldClosing} data-asura-gold-closing={closing.id ?? ""}><small>{closing.label}</small><strong>{closing.text}</strong>{closing.basis && <em>{closing.basis}</em>}</p>;
+}
+
 function AsuraAnnualReading({ data }: { data: NonNullable<AsuraDisplay['annualReading']> }) {
   const gradientId = useId();
   const [selectedYear, setSelectedYear] = useState(data.selectedYear);

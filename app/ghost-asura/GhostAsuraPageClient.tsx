@@ -19,7 +19,7 @@ import {
   IDENTITY_TARGET_UPDATED_EVENT,
   type AnalysisIdentityTarget,
 } from '@/lib/identity-split-client';
-import { GhostAsuraCard } from '@/features/ghost-asura/components/GhostAsuraCard';
+import { GhostAsuraCard, AsuraGoldClosing } from '@/features/ghost-asura/components/GhostAsuraCard';
 import { AsuraVoiceCard } from '@/features/ghost-asura/components/AsuraVoiceCard';
 import { AsuraLayoutPrewarm } from '@/features/ghost-asura/components/AsuraLayoutPrewarm';
 import AsuraConversation, { type CompletedBirthInput } from './skill/AsuraConversation';
@@ -562,6 +562,8 @@ export default function GhostAsuraPageClient({
                 && (voiceBody.gender === 'male' || voiceBody.gender === 'female')
                 && voiceBody.timeUnknown !== true && voiceBody.birthTimeKnown !== false
                 && <AsuraConversation birthInput={voiceBody as CompletedBirthInput} />}
+
+              {reading.ageGate?.status !== "WITHHELD" && <AsuraGoldClosing closing={reading.goldClosing} />}
 
               {/* 💾 下載秘卷 */}
               <div className={styles.downloadSection}>
