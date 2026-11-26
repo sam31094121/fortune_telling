@@ -1,0 +1,121 @@
+{
+  "measuredAt": "2026-11-26T08:58:07.270Z",
+  "gitHead": "389d0b1",
+  "passed": 16,
+  "failed": 0,
+  "hooksOk": false,
+  "checks": [
+    {
+      "label": "排盤黃金測試",
+      "script": "test:bazi",
+      "ok": true,
+      "seconds": 2,
+      "summary": "BAZI GOLDEN TESTS — PASS 81 / FAIL 0"
+    },
+    {
+      "label": "V5 契約",
+      "script": "test:bazi-contract",
+      "ok": true,
+      "seconds": 2,
+      "summary": "BAZI V5 CONTRACT — PASS 31 / FAIL 0"
+    },
+    {
+      "label": "欄位涵蓋",
+      "script": "test:bazi-coverage",
+      "ok": true,
+      "seconds": 1,
+      "summary": "BAZI FIELD COVERAGE — PASS 51 / FAIL 0"
+    },
+    {
+      "label": "傳統閘門",
+      "script": "test:bazi-traditional-gate",
+      "ok": true,
+      "seconds": 2,
+      "summary": "PASS: bazi gate blocks correctly — unverified outputs withheld, nothing leaks (withheld now: 進階判讀／五神、紅鸞). This"
+    },
+    {
+      "label": "功能完整",
+      "script": "test:bazi-feature-complete",
+      "ok": true,
+      "seconds": 1,
+      "summary": "PASS: bazi feature complete — 限定測例的 10 項後端與顯示資料核對通過（非全輸入／真機驗收）"
+    },
+    {
+      "label": "輸出可得性",
+      "script": "test:bazi-output-availability",
+      "ok": true,
+      "seconds": 2,
+      "summary": "PASS: full-card health remains blocked while requested calculations are missing"
+    },
+    {
+      "label": "獨立審查（400 組）",
+      "script": "test:bazi-independent-audit",
+      "ok": true,
+      "seconds": 22,
+      "summary": "{\"charts\":400,\"failureKinds\":{}}"
+    },
+    {
+      "label": "紙本流年神煞與旺衰格局",
+      "script": "test:annual-shensha-paper",
+      "ok": true,
+      "seconds": 2,
+      "summary": "strength / pattern / gods vs paper: ok"
+    },
+    {
+      "label": "技能檔自身一致",
+      "script": "test:bazi-skill-file",
+      "ok": true,
+      "seconds": 0,
+      "summary": "bazi-skill-file: 23 checks passed"
+    },
+    {
+      "label": "其餘八字守門（7 支）",
+      "script": "test:bazi-extra",
+      "ok": true,
+      "seconds": 5,
+      "summary": "PASS: unknown time has no hour pillar; all 12 hours match existing core and are reproducible"
+    },
+    {
+      "label": "八字→紫微→易經交叉",
+      "script": "test:three-core",
+      "ok": true,
+      "seconds": 2,
+      "summary": "三核心交叉驗證（八字 → 紫微 → 易經）— PASS 111 / FAIL 0"
+    },
+    {
+      "label": "三合一整合層",
+      "script": "test:three-in-one",
+      "ok": true,
+      "seconds": 2,
+      "summary": "三合一整合層 — PASS 142 / FAIL 0"
+    },
+    {
+      "label": "八字紫微交叉",
+      "script": "test:bazi-ziwei-cross",
+      "ok": true,
+      "seconds": 1,
+      "summary": "三核心交叉驗證（八字 → 紫微 → 易經）— PASS 111 / FAIL 0"
+    },
+    {
+      "label": "真太陽時",
+      "script": "test:true-solar-time",
+      "ok": true,
+      "seconds": 0,
+      "summary": "true solar time — PASS 3"
+    },
+    {
+      "label": "來源登記閘門",
+      "script": "test:iching-sources",
+      "ok": true,
+      "seconds": 0,
+      "summary": "iching source gate — PASS 18"
+    },
+    {
+      "label": "五神守門",
+      "script": "test:soul-match",
+      "ok": true,
+      "seconds": 3,
+      "summary": "soul match — PASS 14"
+    }
+  ]
+}

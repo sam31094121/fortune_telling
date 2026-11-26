@@ -42,23 +42,71 @@
     "lib/three-in-one.ts"
   ],
   "verification": {
-    "measuredAt": "2026-09-16",
+    "measuredAt": "2026-11-26",
     "tests": [
       {
         "script": "npm run test:bazi",
-        "result": "BAZI GOLDEN TESTS PASS 81 / FAIL 0"
+        "result": "BAZI GOLDEN TESTS — PASS 81 / FAIL 0"
       },
       {
         "script": "npm run test:bazi-contract",
-        "result": "BAZI V5 CONTRACT PASS 17 / FAIL 0"
+        "result": "BAZI V5 CONTRACT — PASS 31 / FAIL 0"
+      },
+      {
+        "script": "npm run test:bazi-coverage",
+        "result": "BAZI FIELD COVERAGE — PASS 51 / FAIL 0"
+      },
+      {
+        "script": "npm run test:bazi-traditional-gate",
+        "result": "PASS: bazi gate blocks correctly — unverified outputs withheld, nothing leaks (withheld now: 進階判讀／五神、紅鸞). This"
+      },
+      {
+        "script": "npm run test:bazi-feature-complete",
+        "result": "PASS: bazi feature complete — 限定測例的 10 項後端與顯示資料核對通過（非全輸入／真機驗收）"
+      },
+      {
+        "script": "npm run test:bazi-output-availability",
+        "result": "PASS: full-card health remains blocked while requested calculations are missing"
+      },
+      {
+        "script": "npm run test:bazi-independent-audit",
+        "result": "{\"charts\":400,\"failureKinds\":{}}"
+      },
+      {
+        "script": "npm run test:annual-shensha-paper",
+        "result": "strength / pattern / gods vs paper: ok"
+      },
+      {
+        "script": "npm run test:bazi-skill-file",
+        "result": "bazi-skill-file: 23 checks passed"
+      },
+      {
+        "script": "npm run test:bazi-extra",
+        "result": "PASS: unknown time has no hour pillar; all 12 hours match existing core and are reproducible"
       },
       {
         "script": "npm run test:three-core",
-        "result": "八字→紫微→易經交叉 PASS 103 / FAIL 0"
+        "result": "三核心交叉驗證（八字 → 紫微 → 易經）— PASS 111 / FAIL 0"
       },
       {
         "script": "npm run test:three-in-one",
-        "result": "三合一整合層 PASS 136 / FAIL 0"
+        "result": "三合一整合層 — PASS 142 / FAIL 0"
+      },
+      {
+        "script": "npm run test:bazi-ziwei-cross",
+        "result": "三核心交叉驗證（八字 → 紫微 → 易經）— PASS 111 / FAIL 0"
+      },
+      {
+        "script": "npm run test:true-solar-time",
+        "result": "true solar time — PASS 3"
+      },
+      {
+        "script": "npm run test:iching-sources",
+        "result": "iching source gate — PASS 18"
+      },
+      {
+        "script": "npm run test:soul-match",
+        "result": "soul match — PASS 14"
       }
     ],
     "lockedSample": "1974-07-02 03:30 女 → 甲寅／庚午／甲辰／丙寅；月柱庚午因小暑（7/7）前仍屬午月；對照組 1974-07-08 → 辛未",

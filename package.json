@@ -145,6 +145,7 @@
     "test:asura-narrative-consistency": "node tests/asura-narrative-consistency.test.mjs",
     "test:asura-no-fabrication": "node tests/asura-no-fabrication.test.cjs",
     "test:asura-frontend-only": "node tests/asura-frontend-only.test.cjs",
+    "test:bazi-skill-file": "node tests/bazi-skill-file.test.cjs",
     "test:bazi-independent-audit": "npx --yes tsx tests/bazi-independent-audit.test.ts",
     "test:annual-shensha-paper": "npx --yes tsx tests/annual-shensha-paper.test.ts",
     "test:ghost-asura-skill-file": "node tests/ghost-asura-skill-file.test.cjs",
@@ -179,7 +180,9 @@
     "test:beast-match3": "node scripts/beast-build.mjs && node tests/beast-match3-core.test.cjs && node tests/beast-match3-outcome.test.cjs && node tests/beast-match3-team.test.cjs && node tests/beast-match3-enemies.test.cjs && node tests/beast-match3-no-old-cards.test.cjs && node tests/beast-match3-hard45.test.cjs && node tests/beast-match3-diagonal.test.cjs && node tests/beast-match3-hard2.test.cjs && node tests/beast-match3-progression.test.cjs && node tests/beast-match3-weighted.test.cjs && node tests/beast-match3-shield-fusion.test.cjs && node tests/beast-match3-hard-campaign.test.cjs && node tests/beast-match3-backup.test.cjs && node tests/beast-match3-skill-capabilities.test.cjs && node tests/beast-match3-skill-runtime.test.cjs && node tests/beast-match3-player-status.test.cjs && node tests/beast-match3-event-history.test.cjs && node tests/beast-match3-rig.test.cjs && node tests/beast-match3-progress-store.test.cjs && node tests/beast-match3-sound.test.cjs && node tests/beast-match3-refill.test.cjs && node tests/beast-match3-refill-runner.test.cjs && node tests/beast-match3-picker-render.test.cjs && node tests/beast-match3-counter-visual.test.cjs && node tests/beast-match3-boss-reserve.test.cjs && node tests/beast-match3-cascade-attack.test.cjs && node tests/beast-match3-player-skills.test.cjs && node tests/beast-match3-enemy-energy.test.cjs && node tests/beast-match3-replay.test.cjs && node tests/beast-match3-hard-link-button.test.cjs && node tests/beast-match3-flow-fixes.test.cjs && node tests/beast-match3-guardian-fusion.test.cjs",
     "test:beast-wallet-recovery": "node tests/beast-wallet-recovery.test.cjs",
     "test:beast-campaign-data-safety": "node tests/beast-campaign-data-safety.test.cjs",
-    "test:beast-no-copy-clutter": "node tests/beast-no-copy-clutter.test.cjs"
+    "test:beast-no-copy-clutter": "node tests/beast-no-copy-clutter.test.cjs",
+    "test:bazi-extra": "npx --yes tsx tests/bazi-engine.test.ts && node tests/bazi-feature-policy.test.cjs && node tests/bazi-reading-boundary.test.cjs && node tests/bazi-reading-provenance.test.cjs && node tests/bazi-registry-completeness.test.cjs && node tests/bazi-reviewed-output.test.cjs && node tests/nameology-bazi-hour.test.cjs",
+    "health:bazi": "node scripts/bazi-health.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",
