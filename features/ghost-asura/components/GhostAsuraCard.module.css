@@ -2454,3 +2454,8 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 .goldClosing small{display:block;margin-bottom:10px;font-size:13px;letter-spacing:.2em;color:#d9aa4c}
 .goldClosing strong{display:block;font-size:21px;line-height:1.65;color:#FFE9A0}
 .goldClosing em{display:block;margin-top:10px;font-style:normal;font-size:13px;color:#a89868}
+
+.annualTheme{margin:10px 0 0;font-size:22px;line-height:1.5;font-weight:700;color:#FFE9A0}
+.annualEncounter{margin:12px 0 0;padding:10px 14px;border-left:3px solid #d9aa4c;background:#1a140858;border-radius:0 8px 8px 0}
+.annualEncounter h4{margin:0 0 4px;font-size:13px;letter-spacing:.12em;color:#d9aa4c;font-weight:600}
+.annualEncounter p{margin:0;font-size:15px;line-height:1.7;color:#E8F0D8}

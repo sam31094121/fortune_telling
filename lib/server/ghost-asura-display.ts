@@ -15,7 +15,7 @@ import { buildReadingGuidance } from './asura-reading-guidance';
 import { Solar } from 'lunar-typescript';
 import { calculateDualChart, type DualChartResult } from '@/lib/dual-chart';
 import { createZiweiAstrolabe, hourToTimeIndex } from '@/lib/ziwei/engine';
-import { buildFlowYearShenSha, buildAnnualShenSha } from '@/lib/dual-chart-iching-shensha';
+import { buildFlowYearShenSha, buildAnnualShenSha, annualTwelveAt } from '@/lib/dual-chart-iching-shensha';
 import { computeInteractions, calculateTenGod, HIDDEN_STEM_DICTIONARY, type BaziInteraction, type BaziPillarModel, type Stem, type Branch } from '@/lib/bazi/engine';
 import { asuraDeepScrub } from '@/lib/asura-display-alias';
 import { AsuraSkillError, asuraPlainLineOf, resolveAsuraInterpretation } from '@/features/ghost-asura/skill';
@@ -757,11 +757,55 @@ function pickOwnerGold(wave: "好事" | "壞事" | "愛情", dayPillar: string, 
   return entry ? { id: entry.id, line: entry.line } : undefined;
 }
 
+type AnnualYear = NonNullable<AsuraDisplay["annualReading"]>["years"][number];
+function buildThreeWaves(yearStar: AnnualYear["yearStar"], seed: string, year: number, loveAvailable = false): NonNullable<AnnualYear["threeWaves"]> {
+  const rows = (["好事", "壞事"] as const).map(label => yearStar?.available && yearStar.wave === label
+    ? { label, line: yearStar.headline ?? "", available: true }
+    : { label, line: yearStar?.available ? "" : "暫時無法取得", available: false });
+  return [...rows, { label: "愛情" as const, line: loveAvailable ? "" : "暫時無法取得", available: false }]
+    .map(w => ({ ...w, gold: pickOwnerGold(w.label, seed, year) }));
+}
+type RelationView = { name: string; participants: string; pillars: string };
+const natalOnly = (pillars: string) => pillars.split("、").filter(p => p !== "流年").join("、");
+function buildEncounter(relations: RelationView[]): NonNullable<AnnualYear["encounter"]> {
+  return relations.length
+    ? { lines: relations.map(r => `${r.name}（${r.participants}）撞上你的${natalOnly(r.pillars)}`), message: "這一年碰到的時刻" }
+    : { lines: [], message: "這一年與你的出生四柱沒有沖、合、刑、害" };
+}
+function buildYearTheme(yearStar: AnnualYear["yearStar"], relations: RelationView[]): string | undefined {
+  if (yearStar?.available && yearStar.headline) return yearStar.headline;
+  const hit = relations.find(r => /沖/.test(r.name)) ?? relations[0];
+  return hit ? `${hit.name}：這一年會撞上你的${natalOnly(hit.pillars)}` : undefined;
+}
+
 function buildAnnualLove(audit: NonNullable<ReturnType<typeof buildAsuraZiweiAnnualContext>>): NonNullable<NonNullable<AsuraDisplay["annualReading"]>["years"][number]["love"]> {
   const palace = audit.palaces.find(p => p.annualName === "夫妻");
   if (!palace) return { palace: "暫時無法取得", facts: [], message: "這一年的愛情解讀暫時無法取得。" };
   const stars = [...palace.majorStars, ...palace.minorStars].map(s => s.name).join("、");
   return { palace: palace.earthlyBranch + "宮", facts: [`流年夫妻位落在${palace.earthlyBranch}宮（本命為${palace.natalName}宮）`, stars ? `宮內星：${stars}` : "宮內無星曜"], message: "愛情的解讀暫時無法取得：技能檔尚無這一年的愛情話術。" };
+}
+
+/** 時辰沒填：年星與沖合只用年、月、日三柱（不看時辰）。生日剛好落在換年、換月交界而時辰會改變柱時，一律不算，維持暫時無法取得。 */
+function buildHourUnknownYear(result: DualChartResult, year: number): Partial<AnnualYear> | null {
+  const [by, bm, bd] = result.bazi.input.birthDate.split("-").map(Number);
+  const early = Solar.fromYmdHms(by, bm, bd, 0, 0, 0).getLunar(), late = Solar.fromYmdHms(by, bm, bd, 23, 59, 59).getLunar();
+  if (early.getYearInGanZhiExact() !== late.getYearInGanZhiExact() || early.getMonthInGanZhiExact() !== late.getMonthInGanZhiExact()) return null;
+  const natalYear = result.core.pillars.year as BaziPillarModel;
+  const flowGanZhi = Solar.fromYmd(year, 7, 1).getLunar().getYearInGanZhiExact();
+  const star = annualTwelveAt(natalYear.earthlyBranch, flowGanZhi[1]);
+  if (!star) return null;
+  const natal = (["year", "month", "day"] as const).map(key => ({ key: key.toUpperCase(), pillar: result.core.pillars[key] as BaziPillarModel }));
+  const labels: Record<string, string> = { YEAR: "年柱", MONTH: "月柱", DAY: "日柱", FLOW: "流年" };
+  const scan = computeInteractions as unknown as (pillars: Array<{ key: string; heavenlyStem: string; earthlyBranch: string }>) => BaziInteraction[];
+  const relations: RelationView[] = scan([...natal.map(n => ({ key: n.key, heavenlyStem: n.pillar.heavenlyStem, earthlyBranch: n.pillar.earthlyBranch })), { key: "FLOW", heavenlyStem: flowGanZhi[0], earthlyBranch: flowGanZhi[1] }])
+    .filter(row => row.affectedPillars.includes("FLOW")).map(row => ({ name: row.interactionType, participants: row.participants.join("、"), pillars: row.affectedPillars.filter(k => k !== "FLOW").map(k => labels[k] ?? k).join("、") }));
+  const yearStar = buildAnnualYearStar(star.name, star.rule);
+  return {
+    status: "PARTIAL", message: "時辰未填：先看這一年的星象與沖合，愛情要補上出生時辰才看得到。",
+    yearStar, theme: buildYearTheme(yearStar, relations), encounter: buildEncounter(relations),
+    threeWaves: buildThreeWaves(yearStar, `${natalYear.heavenlyStem}${natalYear.earthlyBranch}`, year),
+    love: { palace: "暫時無法取得", facts: [], message: "愛情要補上出生時辰才看得到。" },
+  };
 }
 
 export function buildAsuraAnnualReading(result: DualChartResult, now: Date, hourAssumed: boolean, ageGate: AsuraAgeGate): NonNullable<AsuraDisplay['annualReading']> {
@@ -789,6 +833,10 @@ export function buildAsuraAnnualReading(result: DualChartResult, now: Date, hour
         ? ASURA_AGE_WITHHELD_MESSAGE
         : '解讀暫時無法取得。';
       const base = { year, ageLabel: `${age}實歲`, isCurrent: offset === 0, heading: `${year} 年`, starLabel: ANNUAL_STAR_LABELS[offset + 2], status: 'UNAVAILABLE' as const, message };
+      if (hourAssumed && ageGate.status !== 'WITHHELD' && age >= ASURA_MIN_AGE && reading.guard.status === 'PASSED') {
+        const unknownHour = buildHourUnknownYear(result, year);
+        if (unknownHour) return { ...base, ...unknownHour };
+      }
       if (hourAssumed || ageGate.status === 'WITHHELD' || age < ASURA_MIN_AGE || !gate?.coreReady || reading.guard.status !== 'PASSED' || result.core.pillars.hour === 'UNKNOWN') return base;
       // Annual Bazi interval follows the existing Li-Chun convention. July is
       // only an in-interval lookup anchor, not a substitute birth/consultation date.
@@ -865,11 +913,9 @@ export function buildAsuraAnnualReading(result: DualChartResult, now: Date, hour
         message: hasReading ? '目前僅有部分解讀，完整解讀暫時無法取得。' : '解讀暫時無法取得。',
         yearStar,
         love: buildAnnualLove(ziweiAnnualAudit),
-        threeWaves: (["好事", "壞事"] as const).map(label => yearStar?.available && yearStar.wave === label
-          ? { label, line: yearStar.headline ?? "", available: true }
-          : { label, line: yearStar?.available ? "這一年的星象沒有提示這一類" : "暫時無法取得", available: false })
-          .concat([{ label: "愛情" as never, line: "暫時無法取得", available: false }])
-          .map(w => ({ ...w, gold: pickOwnerGold(w.label, `${(result.core.pillars.day as BaziPillarModel).heavenlyStem}${(result.core.pillars.day as BaziPillarModel).earthlyBranch}`, year) })),
+        theme: buildYearTheme(yearStar, relations),
+        encounter: buildEncounter(relations),
+        threeWaves: buildThreeWaves(yearStar, `${(result.core.pillars.day as BaziPillarModel).heavenlyStem}${(result.core.pillars.day as BaziPillarModel).earthlyBranch}`, year),
         facts: [
           { label: '年度干支（立春換年）', value: ganZhi },
           { label: '年干十神', value: calculateTenGod(result.core.dayMaster.stem, stem) },

@@ -459,13 +459,18 @@ export function buildFlowYearShenSha(core: BaziProfessionalResult, gate: BaziTra
 // 名稱：太歲、太陽、喪門、太陰、五鬼（官符）、死符（小耗）、歲破、龍德、白虎、福德、天狗（吊客）、病符。
 // 來源登記：《命理探原》流年歌、《星學大成》〈總論駕前神煞歌〉；原掃描頁尚未逐頁核對，故顯示端照實標「待原頁核對」。
 export const ANNUAL_TWELVE = ['太歲', '太陽', '喪門', '太陰', '五鬼', '死符', '歲破', '龍德', '白虎', '福德', '天狗', '病符'] as const;
+/** 純算：本命年支落在流年十二位的第幾位（不看時辰；buildAnnualShenSha 與阿修羅時辰未填路徑共用，只有這一份算法）。 */
+export function annualTwelveAt(natalBranch: string, flowBranch: string): AnnualShenSha | null {
+  if (!BRANCHES.includes(natalBranch as Branch) || !BRANCHES.includes(flowBranch as Branch)) return null;
+  const position = (BRANCHES.indexOf(natalBranch as Branch) - BRANCHES.indexOf(flowBranch as Branch) + 12) % 12;
+  const name = ANNUAL_TWELVE[position];
+  return { name, position, rule: `流年${flowBranch}起太歲順排，本命年支${natalBranch}落第${position + 1}位為${name}` };
+}
 export interface AnnualShenSha { name: (typeof ANNUAL_TWELVE)[number]; position: number; rule: string }
 export function buildAnnualShenSha(core: BaziProfessionalResult, gate: BaziTraditionalOutputGate, pillarCheck: BaziZiweiPillarCheck | undefined, flowGanZhi: string): AnnualShenSha | null {
   const ready = gate.coreReady && core.verification.readyForInterpretation && pillarCheck?.passed !== false;
   const flowBranch = flowGanZhi[1] as Branch;
   const natal = (core.pillars.year as BaziPillarModel).earthlyBranch;
-  if (!ready || !BRANCHES.includes(flowBranch) || !BRANCHES.includes(natal)) return null;
-  const position = (BRANCHES.indexOf(natal) - BRANCHES.indexOf(flowBranch) + 12) % 12;
-  const name = ANNUAL_TWELVE[position];
-  return { name, position, rule: `流年${flowBranch}起太歲順排，本命年支${natal}落第${position + 1}位為${name}` };
+  if (!ready) return null;
+  return annualTwelveAt(natal, flowBranch);
 }
