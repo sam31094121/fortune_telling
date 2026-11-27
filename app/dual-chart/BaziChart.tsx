@@ -29,6 +29,7 @@ export function PillarGrid({ result, compact = false, language = 'zh', shenshaCa
   const hasData = Array.isArray(result.core.shenSha);
   const row = (title: string, render: (key: typeof order[number]) => ReactNode, className?: string) => <tr className={className}>{order.map(key => <td key={key}>{render(key)}</td>)}<th scope="row">{title}</th></tr>;
   return <table className={`${styles.pillarGrid} ${compact ? styles.compactGrid : ''}`} aria-label={compact ? '中央八字摘要' : '八字四柱時日月年主表'}>
+    {!compact && shenshaCards && result.specialStars?.card?.unavailableNotice && <caption style={{ captionSide: 'bottom', textAlign: 'left', padding: '6px 0', fontSize: '12px', lineHeight: 1.5 }}>{result.specialStars.card.unavailableNotice}</caption>}
     <thead><tr>{order.map(key => <th key={key} scope="col">{labels[key]}柱</th>)}<th>項目</th></tr></thead>
     <tbody>
       {row('主星', key => pc.pillarDetails[key].stemTenGod)}

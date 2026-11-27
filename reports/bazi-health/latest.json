@@ -1,6 +1,6 @@
 {
-  "measuredAt": "2026-11-26T08:58:07.270Z",
-  "gitHead": "389d0b1",
+  "measuredAt": "2026-11-27T08:52:30.903Z",
+  "gitHead": "0fc4aec",
   "passed": 16,
   "failed": 0,
   "hooksOk": false,
@@ -23,7 +23,7 @@
       "label": "欄位涵蓋",
       "script": "test:bazi-coverage",
       "ok": true,
-      "seconds": 1,
+      "seconds": 2,
       "summary": "BAZI FIELD COVERAGE — PASS 51 / FAIL 0"
     },
     {
@@ -65,8 +65,8 @@
       "label": "技能檔自身一致",
       "script": "test:bazi-skill-file",
       "ok": true,
-      "seconds": 0,
-      "summary": "bazi-skill-file: 23 checks passed"
+      "seconds": 1,
+      "summary": "bazi-skill-file: 35 checks passed"
     },
     {
       "label": "其餘八字守門（7 支）",
@@ -93,14 +93,14 @@
       "label": "八字紫微交叉",
       "script": "test:bazi-ziwei-cross",
       "ok": true,
-      "seconds": 1,
+      "seconds": 2,
       "summary": "三核心交叉驗證（八字 → 紫微 → 易經）— PASS 111 / FAIL 0"
     },
     {
       "label": "真太陽時",
       "script": "test:true-solar-time",
       "ok": true,
-      "seconds": 0,
+      "seconds": 1,
       "summary": "true solar time — PASS 3"
     },
     {

@@ -80,7 +80,8 @@ export async function POST(request: NextRequest) {
   }
 
   // 同 IP、同一份生辰：短期內直接回原結果，不扣速率額度。
-  const cacheKey = createHash('sha256').update(`${clientIP(request)}|${JSON.stringify(input)}`).digest('hex');
+  const todayTaipei = new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10);
+  const cacheKey = createHash('sha256').update(`${clientIP(request)}|${todayTaipei}|${JSON.stringify(input)}`).digest('hex');
   const cached = readCache(cacheKey);
   if (cached) return reply({ data: cached }, 200, { 'X-Asura-Cache': 'hit' });
 

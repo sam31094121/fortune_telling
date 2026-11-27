@@ -1,5 +1,34 @@
 {
   "id": "ziwei",
+  "annualResearchArchive": [
+    {
+      "id": "ZW-ANNUAL-YANGTUO-EXAMPLE-01",
+      "domain": "紫微斗數",
+      "status": "LIMITED_PRODUCT_REMINDER",
+      "runtimeEnabled": true,
+      "sourceRef": "ZW-RESEARCH-QUANSHU-V3-YANGTUO-01",
+      "sourceRegistry": "docs/技能戰鬥檔案/紫微斗數/來源登記.json#annualResearchArchive",
+      "conditions": ["庚年生", "本命命宮在卯、遷移宮在酉", "本命擎羊在酉", "所選流年亦庚", "流祿在申、流羊在酉、流陀在未"],
+      "scope": "僅核對〈論羊陀迭並〉所列完整古例的星位條件；不泛化、不推全年吉凶、不推現實事件",
+      "engine": "lib/ziwei/engine.ts:createZiweiAstrolabe → iztro@2.5.8 horoscope；新年度適配層 buildAsuraZiweiAnnualContext",
+      "syntheticEvidence": {
+        "input": {"birthDate":"1970-07-02","birthTime":"05:30","gender":"male","calendarType":"solar","timezone":"Asia/Taipei"},
+        "positive": {"targetDate":"2030-07-01","matched":true},
+        "negative": {"targetDate":"2031-07-01","matched":false},
+        "measuredAt": "2026-11-26",
+        "limit": "工程條件重現；不是第二引擎獨立驗證、不是話術核定或效度證明"
+      },
+      "wordingProposal": {
+        "status": "ENABLED_AS_PRODUCT_REMINDER_NOT_CLASSICAL_VERDICT",
+        "runtimeEnabled": true,
+        "existingEntry": "lib/server/ghost-asura-voice.ts:TIME_VOICE.present.pair['yangren+yuanchen'][2]",
+        "verbatim": "先看清，再出刀。",
+        "limit": "在業主年度映射設計授權內作非預言性產品提醒，非原典斷語；原典僅支持完整古例條件。以獨立紫微條目 ID 追溯，不借用八字印記 ID，不提升原典版本核驗狀態，不代表完整年度吉凶或雙系統綜合結論",
+        "implementation": "lib/server/ghost-asura-display.ts:buildAsuraAnnualReading；逐年確認完整古例後沿用原句",
+        "tests": "合成案例 2030 命中、2031 不命中；改時辰不命中、同人返回一致、單句不重複（2026-11-26）"
+      }
+    }
+  ],
   "name": "紫微斗數",
   "title": "紫微斗數技能正式檔",
   "version": "1.1.0",

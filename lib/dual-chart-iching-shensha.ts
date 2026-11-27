@@ -397,14 +397,17 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
       reason: pillarCheck?.passed === false ? `八字與紫微四柱不一致（${pillarCheck.mismatches.join('；')}）；不判定是否命中。` : !coreReady ? '基礎四柱尚未通過驗證；不判定是否命中。' : dataBlocked ? id === 'waiTaohua' ? '外桃花需要已確認的時柱；資料不足不判定未命中。' : '元辰需要已確認的性別、年柱與時柱；資料不足不判定未命中。' : rule.outputStatus === 'READY' ? `依已採用取法${matchedPillars.length ? '命中' : '未命中'}；不是所有流派皆無。` : rule.reasons.join('；'), matchedPillars };
   });
   // 卡片要顯示的內容在後端一次決定；前端只照印。
-  const card = buildShenShaCardView({ raw, byPillar, coverage }, coreReady, pillarCheck?.passed === false ? pillarCheck.mismatches : undefined, id => SHENSHA_TEACHER_READINGS[id]?.tone ?? null);
+  // 未實作項另列，不混入既有判定集或下游命中；未提供不等於未命中。
+  const unavailableRules = [{ id: 'xueren', name: '血刃', status: 'BLOCKED_SOURCE' as const,
+    reason: '取法與適用柱位尚待核對，本次未判定有無；與月空分別處理。' }];
+  const card = buildShenShaCardView({ raw, byPillar, coverage, unavailableRules }, coreReady, pillarCheck?.passed === false ? pillarCheck.mismatches : undefined, id => SHENSHA_TEACHER_READINGS[id]?.tone ?? null);
   // 原核心規則（袁本）不動，只作來源對照說明用；本卡的正式輸出以 rules 為準。
   // 來源說明句由後端給，前端只照印（前端禁止生成）。
   const sourceNote = {
     zh: '特星神煞依本站太極紫微易經派取法；下方列袁樹珊取法作來源對照。',
     en: 'Special stars follow this site’s own Taiji–Ziwei–I Ching method; Yuan Shushan’s method is listed below for comparison. ',
   };
-  return { version: DUAL_SHENSHA_VERSION, raw, byPillar, coverage, rules, card, sourceComparisonRules: gate.shenShaRules, sourceNote };
+  return { version: DUAL_SHENSHA_VERSION, raw, byPillar, coverage, unavailableRules, rules, card, sourceComparisonRules: gate.shenShaRules, sourceNote };
 }
 
 // ── 流年神煞（業主定案 2026-09-28：兩種取法都做、分兩段顯示；看今年＋明年）──────────

@@ -1565,5 +1565,64 @@
       "verification_scope": "SELECTED_EDITION",
       "comparisons": []
     }
-  ]
+  ],
+  "researchNotes": {
+    "bloodbladeMoonVoidReview": {
+      "checkedAt": "2026-11-26",
+      "status": "RESEARCH_ONLY",
+      "runtimePolicy": "不改既有取法或來源閘門；文獻定位不是公式全面驗證。",
+      "items": [
+        {
+          "id": "YUEKONG_SCOPE_REVIEW",
+          "ruleId": "yuekong",
+          "sources": [
+            {
+              "title": "五行精紀",
+              "location": "識典所錄卷十二：申七月、立秋七月節段",
+              "url": "https://www.shidianguji.com/book/NGJ892411999013122114408/chapter/1lmyja694m97e",
+              "evidence": "原典轉錄記申七月丙為月空；未完成該版本影印逐字校對。"
+            },
+            {
+              "title": "星學大成",
+              "location": "卷一・論月空",
+              "url": "https://www.shidianguji.com/book/SK1609/chapter/1m1qptylcn036",
+              "evidence": "原典轉錄列申子辰月在丙。"
+            }
+          ],
+          "supported": "月支申對天干丙的對照有文獻定位。",
+          "unresolved": "四柱天干皆查及時干適用範圍尚未完整核實；仍為PENDING_POOL參考取法。"
+        },
+        {
+          "id": "XUEREN_SOURCE_REVIEW",
+          "ruleId": "xueren",
+          "sources": [
+            {
+              "title": "五行精紀・國圖抄本",
+              "location": "NLC892-2621-209455，第5冊PDF第21頁，卷二十四第九葉",
+              "url": "https://commons.wikimedia.org/wiki/File:NLC892-2621-209455_五行精紀_第5冊.pdf",
+              "evidence": "已目視影印；以祿起例，字形為下作，與網路不作錄文不一致，不自行校改。"
+            },
+            {
+              "title": "天命理數造化之樞機",
+              "location": "山岸乾順，矢島誠進堂書店，1921，第3卷印頁86，NDL影像52",
+              "url": "https://dl.ndl.go.jp/pid/922482/1/52",
+              "evidence": "已目視影印；血刃月表七月對辰，血支另列；八字四柱及閏月適用範圍未核。"
+            }
+          ],
+          "supported": "存在不同起例，血刃與月空不是同名替代。",
+          "unresolved": "尚不足建立完整本卡公式；保持停用，後端unavailableRules明示未判定，不用NOT_MATCHED。"
+        },
+        {
+          "id": "LOCAL_STRENGTH_PATTERN_GODS_REVIEW",
+          "ruleIds": [
+            "seasonalStrength",
+            "structurePattern",
+            "fiveGods"
+          ],
+          "supported": "沿既有localMethods所登記同黨占比42/52門檻、透干取格與既有五神分類；紙本回歸僅驗產品指定結果。",
+          "unresolved": "百分比門檻與完整五神分類不是上述月空／血刃原典結論；C-BAZI-CLASSICS與C-BAZI-FIVE-GODS維持CONFLICT，不改VERIFIED。"
+        }
+      ]
+    }
+  }
 }

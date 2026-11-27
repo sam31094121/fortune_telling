@@ -12,7 +12,7 @@ const columns = Object.freeze(originalOrder.map(pillar => Object.freeze({
 })));
 const result = {
   specialStars: { card: { state: 'READY', columns } },
-  core: { shenSha: [], twelveStages: Object.fromEntries(originalOrder.map(key => [key, '長生'])) },
+  core: { pillars: Object.fromEntries(originalOrder.map(key => [key, { ganZhi: '甲子', heavenlyStem: '甲', earthlyBranch: '子', stemElement: '木', branchElement: '水' }])), shenSha: [], twelveStages: Object.fromEntries(originalOrder.map(key => [key, '長生'])) },
   shenShaVisibility: { allowed: new Set(), conflicts: [] },
   bazi: { professionalChart: {
     pillarDetails: Object.fromEntries(originalOrder.map(key => [key, { stemTenGod: '比肩', ganzhi: '甲子' }])),
@@ -63,6 +63,14 @@ execFileSync(process.execPath, [require.resolve('typescript/bin/tsc'), 'lib/dual
   '--resolveJsonModule', '--esModuleInterop', '--types', 'node', '--skipLibCheck'], { stdio: 'pipe', windowsHide: true });
 const { calculateDualChart } = require(path.join(compiled, 'lib/dual-chart.js'));
 const actualResult = calculateDualChart({ birthDate: '1990-01-01', birthTime: '05:30', gender: 'male', calendarType: 'solar', timezone: 'Asia/Taipei' });
+for (const key of originalOrder) assert.equal(typeof actualResult.core.pillars[key].ganZhi, 'string', `Real backend supplies ${key} pillar`);
+assert.deepEqual(actualResult.specialStars.unavailableRules.map(item => [item.id, item.status]), [['xueren', 'BLOCKED_SOURCE']]);
+assert(!actualResult.specialStars.raw.some(item => item.id === 'xueren'));
+assert(!actualResult.specialStars.coverage.some(item => item.id === 'xueren' && item.status === 'NOT_MATCHED'));
+for (const compact of [false, true]) {
+  const html = renderToStaticMarkup(React.createElement(PillarGrid, { result: actualResult, shenshaCards: true, compact }));
+  assert.equal(html.split(actualResult.specialStars.card.unavailableNotice).length - 1, compact ? 0 : 1, 'Shared screen/print pillar table discloses once; Ziwei compact table unchanged');
+}
 const { inspectShenShaRow, inspectShenShaDelivery, inspectShenShaCard, inspectShenShaSourceVerification } = require('../scripts/dual-chart-iching-shensha-display-check.cjs');
 const actualGrid = renderToStaticMarkup(React.createElement(PillarGrid, { result: actualResult, shenshaCards: true }));
 const actualTail = renderToStaticMarkup(React.createElement(ShenShaCard, { result: actualResult, hidePillarCards: true }));

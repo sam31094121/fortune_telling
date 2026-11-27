@@ -113,6 +113,8 @@ export default function RootLayout({
         <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" />
         <link
           id="ma-shan-zheng-font"
+          // The loader below intentionally changes media before hydration.
+          suppressHydrationWarning
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap"
           media="print"

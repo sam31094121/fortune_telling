@@ -1,5 +1,20 @@
 {
   "version": "1.0.0",
+  "annualResearchArchive": [
+    {
+      "source_id": "ZW-RESEARCH-QUANSHU-V3-YANGTUO-01",
+      "ruleRef": "ZW-ANNUAL-YANGTUO-EXAMPLE-01",
+      "status": "RESEARCH_PENDING_REVIEW",
+      "runtimeEnabled": false,
+      "title": "《紫微斗數全書》卷三〈論羊陀迭並〉",
+      "locator": "https://zh.wikisource.org/zh-hant/紫微斗數全書/卷三#論羊陀迭並",
+      "edition": "維基文庫繁體轉換錄文，2026-11-26 查閱；未鎖定修訂號、未獨立核對掃描底本，不標為版本校勘完成",
+      "position": "卷三，〈論陰騭延壽〉之後、〈論七殺重逢〉之前；以庚年生、命卯遷移酉為例之段落",
+      "evidence": "錄文支持古例星位條件辨識；完整條件及合成正反例集中記於紫微斗數.json 的 ruleRef，不複製第二套規則",
+      "permissions": "古籍正文屬歷史原典；本條只保存書目、連結與研究摘要，未批次下載或轉載整頁；網頁編輯版本及相關條款未另核定",
+      "verificationLimit": "未新增正式 sources 或 claims；不得影響既有來源計數、閘門狀態或客戶公信力輸出。紫微技能條目另登記限定產品提醒接線，並非本研究來源升格為 VERIFIED"
+    }
+  ],
   "updatedAt": "2026-09-16",
   "rule": "紫微斗數沿用《易經》來源治理（docs/技能戰鬥檔案/易經/來源治理.md）：交叉比對的來源、權威性的檔案、大數據的來源；狀態由 lib/iching-source-gate.ts 計算，不得手填 VERIFIED。",
   "sources": [

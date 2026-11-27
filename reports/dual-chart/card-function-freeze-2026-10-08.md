@@ -164,3 +164,92 @@ Vercel 部署管理頁要求登入，本輪未登入管理帳號，因此不能�
 本輪產品最小集仍只有 DualChart.tsx 狀態修復；附2份測試、AGENTS／健康維護／既有技能紀錄與本報告。健康重跑的2份產物另列，無神獸內容改動。首頁計數文件保存於專案外，不入本次神煞 commit，首頁程式、統計與資料庫未動。
 
 現有阻礙已具體確定，不能再問籠統「要不要幫其他提交驗收」。安全選擇是先保留全部本機成果、暫不發布；若要修同行提交，需限定為其建置相容性修正，且不啟用新功能、不改神煞規則、不執行遷移。即使建置修好，既有7項健康失敗仍須處理或由業主另作明確、具體的發布例外，不能自行跳過。若要將新增功能移出 main 發布，亦需精確授權，不能擅自刪檔或改寫其他人的提交。
+
+
+## 2026-11-26 血刃未提供披露與八字來源審查
+
+- 本輪只改本卡後端 unavailableRules／card.unavailableNotice、共用四柱表 caption、既有欄序 fixture；不啟用血刃、不替換月空、不改任何四柱或神煞公式。來源研究記於八字/來源登記.json researchNotes.bloodbladeMoonVoidReview，未改來源核定狀態。
+- 修前欄序測試因 fixture 缺 core.pillars.hour 中止；補齊真實欄位契約後，原欄序與缺項/重複/錯柱/折疊反例均通過。新增未提供非 NOT_MATCHED、無血刃命中、共用表只披露一次及紫微縮略表不變斷言。
+- 通過：欄序、9項請求生命週期、來源閘門、輸出可用性、來源登記（11已核/8待核/0故障）、PDF出口守門、7組本機API到元件與4種缺時辰、tsc、git diff --check。另固定五鼠遁表24個時辰交界正反例通過；不是以同函式重算作獨立期望。立春精確秒、各時區/歷史夏令時間未全面獨立驗證，本站限台灣標準時間。
+- 全站 health:check 本次68/68、warning0、flaky1；先前67/68屬舊紀錄，本輪未動太極，不歸因本輪。健康通過不代表所有來源已核。
+- 隔離Edge合成表單：320/390手機模擬與列印預覽說明各一次；實際下載PDF為1頁A4，已轉圖目視，非真機/實體列印。PDF下載完成後瀏覽器關閉出現TargetClosedError，工具流程非全綠。既有底部來源文字在PDF靠近頁腳，移除新增caption的同頁幾何對照不變；不擴改版型。
+- 外部產物：C:/Users/DRAGON/.codex/visualizations/2026/11/24/01a20b9e-8090-7a71-84de-4f8a3969aabf/bloodblade-disclosure-{320,390,print}.png、bloodblade-disclosure.pdf、bloodblade-pdf-page1.png。
+- 本輪未發布；其他工程師並行修改與既有未推提交不混入本輪。
+
+
+## 2026-11-26 特星顯示誠信審查（發布前）
+
+65項判定與coverage各一筆；6項VERIFIED、59項PENDING_POOL參考取法。指定對照案例17筆命中（16規則）：4筆指定版本已核、13筆參考。血刃獨立BLOCKED_SOURCE，不混入命中／NOT_MATCHED。未見神煞判定使用random/hash/LLM或硬編照片生辰命中；此結論限該判定鏈，不替其他話術或文獻全面背書。
+
+| ruleId | 名稱 | 來源狀態 | 採用條件 |
+|---|---|---|---|
+|tiandehe|天德合|PENDING_POOL|月支取天德之合，四柱天干地支皆查。|
+|tiande|天德|PENDING_POOL|月支取天德，四柱天干地支皆查。|
+|yuede|月德|PENDING_POOL|月支三合取月德，四柱天干皆查。|
+|longde|龍德|PENDING_POOL|年支順數七位（歲神龍德），查月日時。|
+|tiangou|天狗|PENDING_POOL|年支順數十位（歲神天狗），查月日時。|
+|jinkui|金匱|PENDING_POOL|年支三合取中神（金匱），查月日時。|
+|wugui|五鬼|PENDING_POOL|年支順數四位，查月日時。|
+|zaisha|災煞|PENDING_POOL|年支三合取災煞（將星之沖），查月日時。|
+|liue|六厄|PENDING_POOL|年支三合取六厄，查月日時。|
+|muyu|沐浴|PENDING_POOL|日干十二運落在沐浴之柱，四柱皆查。|
+|yuepo|月破|PENDING_POOL|與月支相沖者，查年日時。|
+|ripo|日破|PENDING_POOL|與日支相沖者，查年月時。|
+|jiangxing|將星|PENDING_POOL|日支三合取將星，四柱皆查（含日柱）。|
+|yima|驛馬|VERIFIED|原頁兼載日主及年主法，兩種錨點分別查其他柱並記錄依據。|
+|gejiao|隔角|PENDING_POOL|日支順數兩位，查年月時。|
+|yuanchen|元辰|VERIFIED|出生年支起算；陽男或陰女取年支順移7位，陰男或陽女順移5位；只查時柱地支。|
+|yangren|羊刃|VERIFIED|日干取羊刃表：甲卯、乙辰、丙戊午、丁己未、庚酉、辛戌、壬子、癸丑；查年、月、時，不查日柱自身。|
+|taohua|桃花|PENDING_POOL|日支三合取咸池，查年月時；不加納音條件。|
+|waiTaohua|外桃花|PENDING_POOL|桃花落在時柱，另稱外桃花（牆外桃花）。|
+|tianyi|天乙|VERIFIED|日干查四柱支，依本書古歌固定表，不分晝夜。|
+|wenchang|文昌|VERIFIED|日干查四柱支：甲巳乙午、丙戊申、丁己酉、庚亥辛子、壬寅癸卯。|
+|huagai|華蓋|VERIFIED|日支取三合墓位，查年、月、時；不查日柱自身。|
+|kuigang|魁罡|PENDING_POOL|日柱為庚辰、庚戌、壬辰、戊戌者；只看日柱（另有流派加壬戌，本派不採）。|
+|kongwang|空亡|PENDING_POOL|依日柱所在旬取旬空兩支，查年月時。|
+|jinyu|金輿|PENDING_POOL|日干取金輿（甲辰乙巳丙戊未丁己申庚戌辛亥壬丑癸寅），四柱皆查。|
+|xuetang|學堂|PENDING_POOL|日干長生位為學堂，四柱皆查（另有以年納音長生取者，本派不採）。|
+|hongyan|紅艷|PENDING_POOL|日干取紅艷（甲乙午、丙寅、丁未、戊己辰、庚戌、辛酉、壬子、癸申），四柱皆查。|
+|lushen|祿神|PENDING_POOL|日干祿位（甲寅乙卯丙戊巳丁己午庚申辛酉壬亥癸子），四柱皆查。|
+|tianyiDoctor|天醫|PENDING_POOL|月支前一位為天醫，查年日時。|
+|jiesha|劫煞|PENDING_POOL|年支三合取劫煞（申子辰巳、寅午戌亥、巳酉丑寅、亥卯未申），查月日時。|
+|guchen|孤辰|PENDING_POOL|年支所屬方局取孤辰（亥子丑寅、寅卯辰巳、巳午未申、申酉戌亥），查月日時；不分男女。|
+|guasu|寡宿|PENDING_POOL|年支所屬方局取寡宿（亥子丑戌、寅卯辰丑、巳午未辰、申酉戌未），查月日時；不分男女。|
+|guoyin|國印|PENDING_POOL|日干取國印（甲戌乙亥丙戊丑丁己寅庚辰辛巳壬未癸申），四柱皆查。|
+|tianchu|天廚|PENDING_POOL|日干取天廚（甲丙巳乙丁午戊申己酉庚亥辛子壬寅癸卯），四柱皆查。|
+|tianshe|天赦|PENDING_POOL|春戊寅、夏甲午、秋戊申、冬甲子日；季節依月支。只看日柱。|
+|sanqi|三奇|PENDING_POOL|天上甲戊庚、地下乙丙丁、人中壬癸辛，於年月日或月日時三柱天干依序相連。|
+|wangshen|亡神|PENDING_POOL|年支三合取亡神（申子辰亥、寅午戌巳、巳酉丑申、亥卯未寅），查月日時。|
+|yinyangChacuo|陰陽差錯|PENDING_POOL|日柱為丙子、丁丑、戊寅、辛卯、壬辰、癸巳、丙午、丁未、戊申、辛酉、壬戌、癸亥者。只看日柱。|
+|guluan|孤鸞|PENDING_POOL|日柱為乙巳、丁巳、辛亥、戊申、甲寅、壬子、丙午、戊午者。只看日柱；不分男女。|
+|shieDabai|十惡大敗|PENDING_POOL|日柱為甲辰、乙巳、丙申、丁亥、戊戌、己丑、庚辰、辛巳、壬申、癸亥者。只看日柱。|
+|liuxia|流霞|PENDING_POOL|日干取流霞（甲酉乙戌丙未丁申戊巳己午庚辰辛卯壬亥癸寅），四柱皆查。|
+|sifei|四廢|PENDING_POOL|春庚申辛酉、夏壬子癸亥、秋甲寅乙卯、冬丙午丁巳日；季節依月支。只看日柱。|
+|yuedehe|月德合|PENDING_POOL|月支三合取月德，再取其天干之合（寅午戌辛、申子辰丁、亥卯未己、巳酉丑乙），四柱天干皆查。|
+|feiren|飛刃|PENDING_POOL|日干羊刃之沖位為飛刃，查年月時。|
+|jinshen|金神|PENDING_POOL|日柱或時柱為乙丑、己巳、癸酉者。|
+|bazhuan|八專|PENDING_POOL|日柱為甲寅、乙卯、丁未、戊戌、己未、庚申、辛酉、癸丑者。只看日柱。|
+|jiuchou|九醜|PENDING_POOL|日柱為戊子、戊午、壬子、壬午、乙卯、乙酉、己卯、己酉、辛卯、辛酉者。只看日柱。|
+|liuxiu|六秀|PENDING_POOL|日柱為丙午、丁未、戊子、戊午、己丑、己未者。只看日柱。|
+|sangmen|喪門|PENDING_POOL|年支順數兩位（歲神喪門），查月日時；讀法採本派提醒與轉化。|
+|baihu|白虎|PENDING_POOL|年支順數八位（歲神白虎），查月日時；讀法採本派提醒與轉化。|
+|bingfu|病符|PENDING_POOL|年支順數十一位（歲神病符），查月日時；不作健康或醫療斷語。|
+|pima|披麻|PENDING_POOL|年支順數九位（披麻），查月日時；讀法採本派提醒與轉化。|
+|suipo|歲破|PENDING_POOL|與年支相沖者，查月日時。|
+|yuekong|月空|PENDING_POOL|月支三合取月空（寅午戌壬、申子辰丙、亥卯未庚、巳酉丑甲），四柱天干皆查。|
+|jielu|截路空亡|PENDING_POOL|日干取截路空亡（甲己申酉、乙庚午未、丙辛辰巳、丁壬寅卯、戊癸子丑），只查時柱。|
+|tianzhuan|天轉|PENDING_POOL|春乙卯、夏丙午、秋辛酉、冬壬子日；季節依月支。只看日柱。|
+|dizhuan|地轉|PENDING_POOL|春辛卯、夏戊午、秋癸酉、冬丙子日；季節依月支。只看日柱。|
+|shiling|十靈|PENDING_POOL|日柱為甲辰、乙亥、丙辰、丁酉、戊午、庚戌、庚寅、辛亥、壬寅、癸未者。只看日柱。|
+|ride|日德|PENDING_POOL|日柱為甲寅、丙辰、戊辰、庚辰、壬戌者。只看日柱。|
+|rigui|日貴|PENDING_POOL|日柱為丁酉、丁亥、癸巳、癸卯者。只看日柱。|
+|panan|攀鞍|PENDING_POOL|日支三合取攀鞍（申子辰丑、寅午戌未、巳酉丑戌、亥卯未辰），查年月時。|
+|anlu|暗祿|PENDING_POOL|日干祿位之六合為暗祿（甲亥乙戌丙戊申丁己未庚巳辛辰壬寅癸丑），四柱皆查。|
+|jinshenDay|進神|PENDING_POOL|日柱為甲子、甲午、己卯、己酉者。只看日柱（另有兼看時柱者，本派不採）。|
+|tuishen|退神|PENDING_POOL|日柱為丁丑、丁未、壬辰、壬戌者。只看日柱（另有兼看時柱者，本派不採）；讀法採本派提醒與轉化。|
+|gonglu|拱祿|PENDING_POOL|日時同干夾拱祿位：癸亥日癸丑時、癸丑日癸亥時拱子，丁巳日丁未時、己未日己巳時拱午，戊辰日戊午時拱巳；日柱與時柱同標（另有加「四柱不見所拱之祿」條件者，本派不採）。|
+
+新增發布阻點：tests/dual-chart-iching-shensha-extension.test.ts:552 預期地澤臨，實際天火同人；以git show HEAD的兩個神煞後端檔在記憶體載入重跑，完全同樣失敗。未修改易經公式或測試期望；不提交推送。
+
+本次另以指定案例實際本機API回應渲染PillarGrid，17筆名稱、柱位key、reference/source標記逐筆一致，血刃未提供說明保留。發布前E2E：真Edge點擊38檢查通過；asura-live 4支中1通過3失敗（禁詞、nature-api、nature-page頁面等待逾時），不屬本輪授權修復範圍，不歸因血刃修改。首次build與E2E並行遇.next-e2e型別產物缺失，另重驗編譯；不繞過門檻、不提交推送。
+編譯重驗 npm run build 最終 exit 0（有既有警告）；先前 .next-e2e 產物缺失未再出現。神煞擴充回歸及 asura-live 失敗仍阻擋發布。

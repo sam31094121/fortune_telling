@@ -54,6 +54,7 @@ export interface ShenShaCardColumn {
 export interface ShenShaCardView {
   state: 'received' | 'partial' | 'unavailable';
   notice: string | null;
+  unavailableNotice?: string | null;
   /** 卡片底部說明：資料從哪裡衍生、＊代表什麼。 */
   footnote: string | null;
   columns: ShenShaCardColumn[];
@@ -61,7 +62,7 @@ export interface ShenShaCardView {
 
 interface CoverageLike { id: string; name: string; status: string }
 type CardItem = Omit<BaziShenShaItem, 'source'> & { source?: BaziShenShaItem['source'] };
-interface SpecialStarsLike { byPillar?: Partial<Record<ShenShaCardPillar, CardItem[]>>; coverage?: CoverageLike[]; raw?: unknown }
+interface SpecialStarsLike { byPillar?: Partial<Record<ShenShaCardPillar, CardItem[]>>; coverage?: CoverageLike[]; raw?: unknown; unavailableRules?: { id: string; name: string; status: 'BLOCKED_SOURCE'; reason: string }[] }
 
 const DONE = new Set(['MATCHED', 'NOT_MATCHED']);
 
@@ -97,5 +98,8 @@ export function buildShenShaCardView(stars: SpecialStarsLike | undefined, coreRe
     : null;
   const hasReference = columns.some(col => col.hits.some(hit => hit.reference));
   const footnote = coreReady ? `神煞由已核對一致的八字、紫微四柱衍生。${hasReference ? '標＊者依本站太極紫微易經派取法，原典頁碼待補。' : ''}` : null;
-  return { state: !coreReady || pending.length ? 'partial' : 'received', notice, footnote, columns };
+  const unavailableNotice = stars?.unavailableRules?.length
+    ? stars.unavailableRules.map(item => `${item.name}尚未提供：${item.reason}`).join('；') : null;
+  // state 描述既有判定集的送達；未啟用項獨立披露，不改下游既有放行語義。
+  return { state: !coreReady || pending.length ? 'partial' : 'received', notice, unavailableNotice, footnote, columns };
 }

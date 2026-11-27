@@ -127,3 +127,7 @@
 4. 揭牌預設自動連揭（可切手動）。
 5. 換卡可發現性：sideSwap 金標＋底欄既有換卡。
 本機 BattlePace 慵懶連擊（chooseAI）一併保留。
+
+
+### 血刃未提供披露（2026-11-26）
+修改本卡後跑 node tests/dual-chart-shensha-column-order.test.cjs：保留欄序與負例，核對 unavailableRules 是 BLOCKED_SOURCE、無血刃命中、不得作 NOT_MATCHED、共用螢幕/列印表只披露一次且紫微縮略表不變。實測與限制見 reports/dual-chart/card-function-freeze-2026-10-08.md 同日節。
